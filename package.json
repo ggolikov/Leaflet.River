@@ -1,0 +1,26 @@
+{
+  "name": "leaflet-drawing-test",
+  "version": "1.0.0",
+  "description": "leaflet-drawing-test",
+  "repository": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "browserify src/js/main.js -o dist/bundle.js",
+    "watch": "watchify src/js/main.js -o dist/bundle.js",
+    "serve": "serve -p 3002"
+  },
+  "author": "ggolikov",
+  "license": "ISC",
+  "dependencies": {
+    "leaflet": "^1.0.1",
+    "leaflet-draw": "^0.4.3",
+    "leaflet-editable": "^1.0.0",
+    "leaflet-geometryutil": "^0.8.0",
+    "leaflet-snap": "0.0.4"
+  },
+  "devDependencies": {
+    "browserify": "^13.1.1",
+    "serve": "^1.4.0",
+    "watchify": "^3.7.0"
+  }
+}
