@@ -1,33 +1,23 @@
-require('leaflet-draw');
-require('leaflet-snap');
-require('leaflet-editable');
-require('leaflet-geometryutil');
-
-/*
-** adding initHook to existing class
- */
-
-L.Marker.addInitHook(initFunc2);
-
-function initFunc2() {
-    // console.log(this.options);
-}
-
-/*
-** extending existing class
-*/
-console.log(L);
-console.log(L);
 L.MyMarker = L.Marker.extend({
     initialize: function (LatLng, options) {
         L.Marker.prototype.initialize.apply(this, arguments);
         console.log('My marker is created');
+        console.log('My marker aaa');
     },
     options: {
         draggable: true
     }
 });
 
+// document.body.style.backgroundColor === 'green';
+// setInterval(function(){
+//     var color = document.body.style.backgroundColor;
+//     if (color === 'white') {
+//         color === 'green'
+//     } else {
+//         color === 'white'
+//     }
+// }, 1000);
 L.myMarker = function (latLng, options) {
     return new L.MyMarker(latLng, options);
 };

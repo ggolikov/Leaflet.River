@@ -4,11 +4,6 @@
   "description": "leaflet-drawing-test",
   "repository": "",
   "main": "index.js",
-  "scripts": {
-    "build": "browserify src/js/main.js -o dist/bundle.js",
-    "watch": "watchify src/js/main.js -o dist/bundle.js",
-    "serve": "serve -p 3002"
-  },
   "author": "ggolikov",
   "license": "ISC",
   "dependencies": {
@@ -20,7 +15,13 @@
   },
   "devDependencies": {
     "browserify": "^13.1.1",
+    "css-loader": "^0.25.0",
+    "file-loader": "^0.9.0",
     "serve": "^1.4.0",
-    "watchify": "^3.7.0"
+    "style-loader": "^0.13.1",
+    "url-loader": "^0.5.7",
+    "watchify": "^3.7.0",
+    "webpack": "^1.13.3",
+    "webpack-dev-server": "^1.16.2"
   }
 }
