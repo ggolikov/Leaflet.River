@@ -8,7 +8,15 @@ module.exports = {
     },
     target: "web",
     cache: true,
-    entry: path.join(srcPath, 'entry.js'),
+    entry: {
+        entry: [
+            // instead of inline: true
+            // 'webpack-dev-server/client',
+            // instead of hot: true
+            // 'webpack/hot/dev-server',
+            path.join(srcPath, 'entry.js')
+        ]
+    },
     output: {
         path: './dist',
         filename: 'bundle.js',
@@ -24,7 +32,7 @@ module.exports = {
     devServer: {
         contentBase: '',
         info: true,
-        hot: true,
+        // hot: true,
         inline: true
     }
 };
