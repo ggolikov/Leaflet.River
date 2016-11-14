@@ -1,11 +1,11 @@
 L.MyMarker = L.Marker.extend({
     initialize: function (LatLng, options) {
         L.Marker.prototype.initialize.apply(this, arguments);
-        console.log('My marker is created');
-        console.log('My marker aaa');
+        // console.log('My marker is created');
+        // console.log('My marker aaa');
     },
     options: {
-        draggable: true
+        // draggable: true
     }
 });
 

@@ -20,10 +20,9 @@
             center = map.getCenter(),
             moscow = L.latLng([55, 37]);
 
-        console.log(L.myMarker(center));
         var marker = L.myMarker(center).addTo(map);
-
         var polyline = L.polyline([center, moscow]).addTo(map);
+        
     </script>
 
 </body>
