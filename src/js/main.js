@@ -147,25 +147,77 @@ function interpolateRange (latLngs, range) {
 // draw end circles
 function drawEndCircles(latLngs) {
     for (var i = 1; i < latLngs.length; i++) {
-        console.log(latLngs[i].offset);
         var circle = L.circle(latLngs[i], latLngs[i].offset).addTo(map);
     }
     return latLngs;
 }
 
+// project
+function projectAll(latLngs) {
+    return latLngs.map(function(ll) {
+        var offset = ll.offset;
+        ll = map.project(ll);
+        ll.offset = offset;
+        return ll;
+    });
+}
+
 // line equation
-function getLineEquations(latLngs) {
-    
+function getLineAndEndCircleIntersections(points) {
+    var x, y,
+        d,
+        x1, y1,
+        x2, y2,
+        r,
+        A,
+        B,
+        C,
+        xres1, xres2,
+        yres1, yres2;
+
+    for (var i = 0; i < points.length - 1; i++) {
+        x1 = points[i].x,
+        y1 = points[i].y,
+        x2 = points[i+1].x,
+        y2 = points[i+1].y,
+        a = y1 - y2,
+        b = x2 - x1,
+        c = x1 * y2 - x2 * y1,
+        r = points[i+1].offset,
+        A = b * b + a * a,
+        B = -2 * (b * b * x2 - a * c - a * b * y2),
+        C = b * (b * x2 * x2 + 2 * y2 * c + b * y2 * y2 - b * r * r) + c * c;
+        // 1    a * x + b * y + c = 0;
+        // y = - (c - a * x) / b
+        // 2    (x - x2) * (x - x2) + (y - y2) * (y - y2) = r * r;
+        // console.log(a + 'x + ' + b + 'y + ' + c + ' = 0');
+        // console.log('line eq');
+        // console.log(a * x1 + b * y1 + c);
+        // console.log(a * x2 + b * y2 + c);
+        // // console.log('circle eq');
+        // console.log(r);
+        //
+        // // console.log(A, B, C);
+        // d = B * B - 4 * A * C;
+        // // console.log(d);
+        // // console.log(d > 0);
+        // xres1 = (-B + Math.sqrt(d)) / 2 * A;
+        // xres2 = (-B - Math.sqrt(d)) / 2 * A;
+        //
+        // yres1 = (-c - a * xres1) / b;
+        // yres2 = (-c - a * xres2) / b;
+        //
+        // console.log(x1, y1, x2, y2);
+        // console.log(xres1, yres1);
+        // console.log(xres2, yres2);
+    }
+    return points;
 }
 
 
 var mileStoned = countMileStones(testRiver),
     percentaged = countPercentage(mileStoned),
     interpolated = interpolateRange(percentaged, widthRange),
-    circled = drawEndCircles(interpolated);
-
-
-//
-//
-// console.log(mileStones);
-// console.log(testRiver);
+    circled = drawEndCircles(interpolated),
+    projected = projectAll(circled),
+    lineEqCalculated = getLineAndEndCircleIntersections(projected);
