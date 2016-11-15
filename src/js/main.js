@@ -2,8 +2,10 @@ var osm = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
     maxZoom: 18,
     attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
     }),
-    map = new L.Map('map', {layers: [osm], center: new L.LatLng(55.86531828981331, 37.630534172058105), zoom: 16});
+    map = new L.Map('map', {layers: [osm], center: new L.LatLng(55.86531828981331, 37.630534172058105), zoom: 16}),
+    moscow = L.latLng(37, 55);
 
+// test polyline data
 var coordinates = [
           [
             37.62821674346924,
@@ -90,16 +92,80 @@ var coordinates = [
             55.86124829944651
           ]
       ];
-
 coordinates.forEach(function(ll){
     return ll.reverse();
 });
 
-var testRiver = L.polyline(coordinates, {color: 'blue'}).addTo(map);
+// test polyline
+var testRiver = L.polyline(coordinates, {color: 'blue', weight: 1}).addTo(map);
 
-console.log(testRiver);
-map.addLayer(testRiver);
+var widthRange = {
+    startWidth: 0,
+    endWidth: 10
+};
 
-testRiver.addTo(map);
+/**
+ * API
+ */
 
-console.log(testRiver.getLatLngs());
+// counting milestones in meters on every vertex on polyline
+function countMileStones(polyline) {
+    var latLngs = polyline.getLatLngs(),
+        totalLength = latLngs[0].mileStone = 0;
+
+    for (var i = 0; i < latLngs.length - 1; i++) {
+        var length = map.distance(latLngs[i], latLngs[i+1]);
+
+        totalLength += length;
+        latLngs[i+1].mileStone = totalLength;
+    }
+    return latLngs;
+}
+
+// count percentage
+function countPercentage(latLngs) {
+    var totalLength = latLngs[latLngs.length-1].mileStone;
+
+    latLngs.forEach(function(latLng){
+        latLng.percent = latLng.mileStone / totalLength;
+    });
+
+    return latLngs;
+}
+
+// interpolate range
+function interpolateRange (latLngs, range) {
+    var range = range.endWidth - range.startWidth;
+
+    latLngs.forEach(function(latLng){
+        latLng.offset = latLng.percent * range;
+    });
+
+    return latLngs;
+}
+
+// draw end circles
+function drawEndCircles(latLngs) {
+    for (var i = 1; i < latLngs.length; i++) {
+        console.log(latLngs[i].offset);
+        var circle = L.circle(latLngs[i], latLngs[i].offset).addTo(map);
+    }
+    return latLngs;
+}
+
+// line equation
+function getLineEquations(latLngs) {
+    
+}
+
+
+var mileStoned = countMileStones(testRiver),
+    percentaged = countPercentage(mileStoned),
+    interpolated = interpolateRange(percentaged, widthRange),
+    circled = drawEndCircles(interpolated);
+
+
+//
+//
+// console.log(mileStones);
+// console.log(testRiver);

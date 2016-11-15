@@ -20,7 +20,7 @@ module.exports = {
     output: {
         path: './dist',
         filename: 'bundle.js',
-        library: ['leaflet', './js/main.js']
+        library: ['leaflet', 'leaflet-geometryutil']
     },
     module: {
         loaders: [
