@@ -7,7 +7,7 @@
  * @param linearParams
  * @param center circle center point
  * @param radius circle radius
- * @return Array [A, B, C] quadratic equation coefficients
+ * @return Object {a, b, c} quadratic equation coefficients
  *
  */
 

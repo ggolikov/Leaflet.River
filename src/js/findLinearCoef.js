@@ -2,7 +2,7 @@
  * @module linear coeff
  * @param point1
  * @param point2
- * @return Array [a, b, c] linear coefficients
+ * @return Object {a, b, c} linear coefficients
  */
 
 function findLinearCoef(point1, point2) {
