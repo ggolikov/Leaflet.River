@@ -17,14 +17,16 @@ function triangleSystem(vertex, center, radius) {
         x2 = center.x,
         y2 = center.y,
         r = radius,
+        h = Math.sqrt(Math.pow(r, 2) - Math.pow(r / 2, 2)),
 
-        a = x2 - x1 > 0 ? x2 - x1 : x1 - x2,
-        b = y2 - y1 > 0 ? y2 - y1 : y1 - y2,
+        a = x2 - x1,
+        b = y2 - y1,
+        mn = Math.pow(a, 2) + Math.pow(b, 2),
         A, B, C;
 
-    A = 1;
-    B = -2 * x1;
-    C = (Math.pow(x1, 2) - (Math.pow(r, 2) / (b + Math.pow(a, 2))));
+    A = mn;
+    B = -2 * x1 * mn;
+    C = (Math.pow(x1, 2) * mn - Math.pow(b, 2) * Math.pow(h, 2));
 
     return {
         a: A,
