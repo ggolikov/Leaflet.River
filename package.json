@@ -6,7 +6,11 @@
   "main": "index.js",
   "author": "ggolikov",
   "license": "ISC",
+  "scripts": {
+      "watch": "watchify src/js/main.js -o dist/bundle2.js"
+  },
   "dependencies": {
+    "concaveman": "^1.1.1",
     "leaflet": "^1.0.1",
     "leaflet-draw": "^0.4.3",
     "leaflet-editable": "^1.0.0",

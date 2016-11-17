@@ -19,7 +19,7 @@ function squareCircleSystem(linearParams, center, radius) {
         cy = center.y,
         r = radius,
         A, B, C;
-    // console.log(r, radius, center.offset);
+
     A = Math.pow(a, 2) + Math.pow(b, 2);
     B = -2 * (Math.pow(b, 2) * cx - a * c - a * b * cy);
     C = b * (b * Math.pow(cx, 2) + 2 * cy * c + b * Math.pow(cy, 2) - b * Math.pow(r, 2)) + Math.pow(c, 2);
@@ -30,3 +30,5 @@ function squareCircleSystem(linearParams, center, radius) {
         c: C
     };
 }
+
+// module.exports = squareCircleSystem;

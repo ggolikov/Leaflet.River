@@ -20,3 +20,5 @@ function findLinearCoef(point1, point2) {
         c: c
     };
 }
+
+// module.exports = findLinearCoef;

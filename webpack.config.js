@@ -20,7 +20,7 @@ module.exports = {
     output: {
         path: './dist',
         filename: 'bundle.js',
-        library: ['leaflet', 'leaflet-geometryutil']
+        library: 'leaflet'
     },
     module: {
         loaders: [
@@ -28,6 +28,11 @@ module.exports = {
             { test: /\.png$/, loader: 'url-loader', query: { mimetype: 'image/png' }}
         ]
     },
+    plugins: [
+            new webpack.ProvidePlugin({
+                concaveman: 'concaveman'
+            })
+    ],
     watch: true,
     devServer: {
         contentBase: '',

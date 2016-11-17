@@ -133,7 +133,7 @@ function interpolateRange(latLngs, range) {
 // draw end circles
 function drawEndCircles(latLngs) {
     for (var i = 0; i < latLngs.length; i++) {
-        var circle = L.circle(latLngs[i], latLngs[i].offset).addTo(map);
+        // var circle = L.circle(latLngs[i], latLngs[i].offset).addTo(map);
     }
     return latLngs;
 }
@@ -151,17 +151,12 @@ function projectAll(latLngs) {
 // line equation
 function getLineAndEndCircleIntersections(points) {
     var first, second,
-        next,
-        nextLinearParams,
         linearParams,
-        an, bn, cn,
         a, b, c,
         x2, y2,
         r,
         squareParams,
-        nextSquareParams,
         roots,
-        nextRoots,
         res1 = {
             x: null,
             y: null
@@ -169,38 +164,23 @@ function getLineAndEndCircleIntersections(points) {
         res2 = {
             x: null,
             y: null
-        },
-        nres1 = {
-            x: null,
-            y: null
-        },
-        nres2 = {
-            x: null,
-            y: null
         }
 
     for (var i = 0; i < points.length - 1; i++) {
         first = points[i];
         second = points[i+1];
-        next = points[i+2];
         linearParams = findLinearCoef(first, second);
-        // last point has 180 degrees angle
-        nextLinearParams = i === points.length - 2 ? linearParams : findLinearCoef(second, next);
         // console.log(linearParams);
-        an = nextLinearParams.a;
-        bn = nextLinearParams.b;
-        cn = nextLinearParams.c;
         a = linearParams.a;
         b = linearParams.b;
         c = linearParams.c;
         x2 = second.x;
         y2 = second.y;
         r = second.offset;
+
         squareParams = squareCircleSystem(linearParams, second, r);
-        nextSquareParams = squareCircleSystem(nextLinearParams, second, r);
         roots = findSquareRoots(squareParams);
-        nextRoots = findSquareRoots(nextSquareParams);
-        // console.log();
+
         // каждая следующая точка не может повторять себя
         // a и b не могут быть равны 0 одновременно
         if (!a) {
@@ -220,23 +200,6 @@ function getLineAndEndCircleIntersections(points) {
             res2.y = (-c - a * roots[1]) / b;
         }
 
-        if (!an) {
-            nres1.x = x2 - r;
-            nres1.y = y2;
-            nres2.x = x2 + r;
-            nres2.y = y2;
-        } else if (!bn) {
-            nres1.x = x2;
-            nres1.y = y2 - r;
-            nres2.x = x2;
-            nres2.y = y2 + r;
-        } else {
-            nres1.x = nextRoots[0];
-            nres1.y = (-cn - an * nextRoots[0]) / bn;
-            nres2.x = nextRoots[1];
-            nres2.y = (-cn - an * nextRoots[1]) / bn;
-        }
-
         points[i+1].ll1 = map.unproject([res1.x, res1.y]);
         points[i+1].ll2 = map.unproject([res2.x, res2.y]);
         points[i+1].circleCenter1 = {
@@ -247,12 +210,8 @@ function getLineAndEndCircleIntersections(points) {
             x: res2.x,
             y: res2.y
         };
-
-
-        L.circleMarker(map.unproject([res1.x, res1.y]), upperPointsOptions).addTo(map);
+        // L.circleMarker(map.unproject([res1.x, res1.y]), circlesCentersOptions).addTo(map);
         // L.circleMarker(map.unproject([res2.x, res2.y]), circlesCentersOptions).addTo(map);
-        // L.circleMarker(map.unproject([nres1.x, nres1.y]), circlesCentersOptions).addTo(map);
-        L.circleMarker(map.unproject([nres2.x, nres2.y]), circlesCentersOptions).addTo(map);
     }
     return points;
 }
@@ -395,10 +354,10 @@ function getRightPoints(points) {
         var one = map.unproject([res1.x, res1.y]),
             two = map.unproject([res2.x, res2.y]);
 
-        // L.polyline([one, two], {color: 'red', weight: 0.8}).addTo(map);
+        L.polyline([one, two], {color: 'red', weight: 0.8}).addTo(map);
 
-        // L.circleMarker(one, rightPointsOptions).bindPopup('id: ' + i + ' lr: ' + lr).addTo(map);
-        // L.circleMarker(two, rightPointsOptions).bindPopup('id: ' + j).addTo(map);
+        L.circleMarker(one, rightPointsOptions).bindPopup('id: ' + i + ' lr: ' + lr).addTo(map);
+        L.circleMarker(two, rightPointsOptions).bindPopup('id: ' + j).addTo(map);
 
         var offset = points[i].offset,
             centersDistance = map.distance(points[i].ll1, points[i].ll2),

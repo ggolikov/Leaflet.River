@@ -1,4 +1,4 @@
-var leaflet = leaflet || {}; leaflet["leaflet-geometryutil"] =
+var leaflet =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -53,17 +53,33 @@ var leaflet = leaflet || {}; leaflet["leaflet-geometryutil"] =
 /***/ function(module, exports, __webpack_require__) {
 
 	__webpack_require__(2);
+	// require('leaflet-draw');
+	// require('leaflet-snap');
+	// require('leaflet-editable');
+	// require('leaflet-geometryutil');
 	__webpack_require__(3);
-	__webpack_require__(4);
-	__webpack_require__(5);
-	__webpack_require__(6);
-	__webpack_require__(7);
-	__webpack_require__(8);
-	__webpack_require__(9);
-	__webpack_require__(10);
+	// require('./js/L.CircleEditor');
+	// require('./js/L.MeasuringTool');
+	// require('./js/L.PolySideLabel');
+	// require('./js/L.MyModule01');
+	// require('./js/leaflet.curve');
+
+	// require('./js/data/data_los.js');
+	// require('./js/data/data_medvedkovo.js');
+	// require('./js/data/data_mongolia.js');
+
+	__webpack_require__(15);
+	__webpack_require__(16);
+	__webpack_require__(17);
+	__webpack_require__(18);
+	__webpack_require__(19);
+
 	// require('./js/main.js');
 
-	__webpack_require__(11);
+
+	// require('./js/main.js');
+
+	__webpack_require__(21);
 
 
 /***/ },
@@ -13117,3785 +13133,2000 @@ var leaflet = leaflet || {}; leaflet["leaflet-geometryutil"] =
 
 /***/ },
 /* 3 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
-	/*
-	 Leaflet.draw 0.4.3, a plugin that adds drawing and editing tools to Leaflet powered maps.
-	 (c) 2012-2017, Jacob Toye, Jon West, Smartrak, Leaflet
+	/* WEBPACK VAR INJECTION */(function(concaveman) {'use strict';
 
-	 https://github.com/Leaflet/Leaflet.draw
-	 http://leafletjs.com
-	 */
-	!function(t,e,i){L.drawVersion="0.4.3",L.Draw={},L.drawLocal={draw:{toolbar:{actions:{title:"Cancel drawing",text:"Cancel"},finish:{title:"Finish drawing",text:"Finish"},undo:{title:"Delete last point drawn",text:"Delete last point"},buttons:{polyline:"Draw a polyline",polygon:"Draw a polygon",rectangle:"Draw a rectangle",circle:"Draw a circle",marker:"Draw a marker"}},handlers:{circle:{tooltip:{start:"Click and drag to draw circle."},radius:"Radius"},marker:{tooltip:{start:"Click map to place marker."}},polygon:{tooltip:{start:"Click to start drawing shape.",cont:"Click to continue drawing shape.",end:"Click first point to close this shape."}},polyline:{error:"<strong>Error:</strong> shape edges cannot cross!",tooltip:{start:"Click to start drawing line.",cont:"Click to continue drawing line.",end:"Click last point to finish line."}},rectangle:{tooltip:{start:"Click and drag to draw rectangle."}},simpleshape:{tooltip:{end:"Release mouse to finish drawing."}}}},edit:{toolbar:{actions:{save:{title:"Save changes.",text:"Save"},cancel:{title:"Cancel editing, discards all changes.",text:"Cancel"}},buttons:{edit:"Edit layers.",editDisabled:"No layers to edit.",remove:"Delete layers.",removeDisabled:"No layers to delete."}},handlers:{edit:{tooltip:{text:"Drag handles, or marker to edit feature.",subtext:"Click cancel to undo changes."}},remove:{tooltip:{text:"Click on a feature to remove"}}}}},L.Draw.Event={},L.Draw.Event.CREATED="draw:created",L.Draw.Event.EDITED="draw:edited",L.Draw.Event.DELETED="draw:deleted",L.Draw.Event.DRAWSTART="draw:drawstart",L.Draw.Event.DRAWSTOP="draw:drawstop",L.Draw.Event.DRAWVERTEX="draw:drawvertex",L.Draw.Event.EDITSTART="draw:editstart",L.Draw.Event.EDITMOVE="draw:editmove",L.Draw.Event.EDITRESIZE="draw:editresize",L.Draw.Event.EDITVERTEX="draw:editvertex",L.Draw.Event.EDITSTOP="draw:editstop",L.Draw.Event.DELETESTART="draw:deletestart",L.Draw.Event.DELETESTOP="draw:deletestop",L.Draw=L.Draw||{},L.Draw.Feature=L.Handler.extend({includes:L.Mixin.Events,initialize:function(t,e){this._map=t,this._container=t._container,this._overlayPane=t._panes.overlayPane,this._popupPane=t._panes.popupPane,e&&e.shapeOptions&&(e.shapeOptions=L.Util.extend({},this.options.shapeOptions,e.shapeOptions)),L.setOptions(this,e)},enable:function(){this._enabled||(L.Handler.prototype.enable.call(this),this.fire("enabled",{handler:this.type}),this._map.fire(L.Draw.Event.DRAWSTART,{layerType:this.type}))},disable:function(){this._enabled&&(L.Handler.prototype.disable.call(this),this._map.fire(L.Draw.Event.DRAWSTOP,{layerType:this.type}),this.fire("disabled",{handler:this.type}))},addHooks:function(){var t=this._map;t&&(L.DomUtil.disableTextSelection(),t.getContainer().focus(),this._tooltip=new L.Draw.Tooltip(this._map),L.DomEvent.on(this._container,"keyup",this._cancelDrawing,this))},removeHooks:function(){this._map&&(L.DomUtil.enableTextSelection(),this._tooltip.dispose(),this._tooltip=null,L.DomEvent.off(this._container,"keyup",this._cancelDrawing,this))},setOptions:function(t){L.setOptions(this,t)},_fireCreatedEvent:function(t){this._map.fire(L.Draw.Event.CREATED,{layer:t,layerType:this.type})},_cancelDrawing:function(t){this._map.fire("draw:canceled",{layerType:this.type}),27===t.keyCode&&this.disable()}}),L.Draw.Polyline=L.Draw.Feature.extend({statics:{TYPE:"polyline"},Poly:L.Polyline,options:{allowIntersection:!0,repeatMode:!1,drawError:{color:"#b00b00",timeout:2500},icon:new L.DivIcon({iconSize:new L.Point(8,8),className:"leaflet-div-icon leaflet-editing-icon"}),touchIcon:new L.DivIcon({iconSize:new L.Point(20,20),className:"leaflet-div-icon leaflet-editing-icon leaflet-touch-icon"}),guidelineDistance:20,maxGuideLineLength:4e3,shapeOptions:{stroke:!0,color:"#f06eaa",weight:4,opacity:.5,fill:!1,clickable:!0},metric:!0,feet:!0,showLength:!0,zIndexOffset:2e3},initialize:function(t,e){L.Browser.touch&&(this.options.icon=this.options.touchIcon),this.options.drawError.message=L.drawLocal.draw.handlers.polyline.error,e&&e.drawError&&(e.drawError=L.Util.extend({},this.options.drawError,e.drawError)),this.type=L.Draw.Polyline.TYPE,L.Draw.Feature.prototype.initialize.call(this,t,e)},addHooks:function(){L.Draw.Feature.prototype.addHooks.call(this),this._map&&(this._markers=[],this._markerGroup=new L.LayerGroup,this._map.addLayer(this._markerGroup),this._poly=new L.Polyline([],this.options.shapeOptions),this._tooltip.updateContent(this._getTooltipText()),this._mouseMarker||(this._mouseMarker=L.marker(this._map.getCenter(),{icon:L.divIcon({className:"leaflet-mouse-marker",iconAnchor:[20,20],iconSize:[40,40]}),opacity:0,zIndexOffset:this.options.zIndexOffset})),L.Browser.touch||this._map.on("mouseup",this._onMouseUp,this),this._mouseMarker.on("mousedown",this._onMouseDown,this).on("mouseout",this._onMouseOut,this).on("mouseup",this._onMouseUp,this).on("mousemove",this._onMouseMove,this).addTo(this._map),this._map.on("mouseup",this._onMouseUp,this).on("mousemove",this._onMouseMove,this).on("zoomlevelschange",this._onZoomEnd,this).on("click",this._onTouch,this).on("zoomend",this._onZoomEnd,this))},removeHooks:function(){L.Draw.Feature.prototype.removeHooks.call(this),this._clearHideErrorTimeout(),this._cleanUpShape(),this._map.removeLayer(this._markerGroup),delete this._markerGroup,delete this._markers,this._map.removeLayer(this._poly),delete this._poly,this._mouseMarker.off("mousedown",this._onMouseDown,this).off("mouseout",this._onMouseOut,this).off("mouseup",this._onMouseUp,this).off("mousemove",this._onMouseMove,this),this._map.removeLayer(this._mouseMarker),delete this._mouseMarker,this._clearGuides(),this._map.off("mouseup",this._onMouseUp,this).off("mousemove",this._onMouseMove,this).off("zoomlevelschange",this._onZoomEnd,this).off("zoomend",this._onZoomEnd,this).off("click",this._onTouch,this)},deleteLastVertex:function(){if(!(this._markers.length<=1)){var t=this._markers.pop(),e=this._poly,i=e.getLatLngs(),o=i.splice(-1,1)[0];this._poly.setLatLngs(i),this._markerGroup.removeLayer(t),e.getLatLngs().length<2&&this._map.removeLayer(e),this._vertexChanged(o,!1)}},addVertex:function(t){var e=this._markers.length;return e>0&&!this.options.allowIntersection&&this._poly.newLatLngIntersects(t)?void this._showErrorTooltip():(this._errorShown&&this._hideErrorTooltip(),this._markers.push(this._createMarker(t)),this._poly.addLatLng(t),2===this._poly.getLatLngs().length&&this._map.addLayer(this._poly),void this._vertexChanged(t,!0))},completeShape:function(){this._markers.length<=1||(this._fireCreatedEvent(),this.disable(),this.options.repeatMode&&this.enable())},_finishShape:function(){var t=this._poly._defaultShape?this._poly._defaultShape():this._poly.getLatLngs(),e=this._poly.newLatLngIntersects(t[t.length-1]);return!this.options.allowIntersection&&e||!this._shapeIsValid()?void this._showErrorTooltip():(this._fireCreatedEvent(),this.disable(),void(this.options.repeatMode&&this.enable()))},_shapeIsValid:function(){return!0},_onZoomEnd:function(){null!==this._markers&&this._updateGuide()},_onMouseMove:function(t){var e=this._map.mouseEventToLayerPoint(t.originalEvent),i=this._map.layerPointToLatLng(e);this._currentLatLng=i,this._updateTooltip(i),this._updateGuide(e),this._mouseMarker.setLatLng(i),L.DomEvent.preventDefault(t.originalEvent)},_vertexChanged:function(t,e){this._map.fire(L.Draw.Event.DRAWVERTEX,{layers:this._markerGroup}),this._updateFinishHandler(),this._updateRunningMeasure(t,e),this._clearGuides(),this._updateTooltip()},_onMouseDown:function(t){var e=t.originalEvent;this._mouseDownOrigin=L.point(e.clientX,e.clientY)},_onMouseUp:function(e){if(this._mouseDownOrigin){var i=L.point(e.originalEvent.clientX,e.originalEvent.clientY).distanceTo(this._mouseDownOrigin);Math.abs(i)<9*(t.devicePixelRatio||1)&&this.addVertex(e.latlng)}this._mouseDownOrigin=null},_onTouch:function(t){L.Browser.touch&&(this._onMouseDown(t),this._onMouseUp(t))},_onMouseOut:function(){this._tooltip&&this._tooltip._onMouseOut.call(this._tooltip)},_updateFinishHandler:function(){var t=this._markers.length;t>1&&this._markers[t-1].on("click",this._finishShape,this),t>2&&this._markers[t-2].off("click",this._finishShape,this)},_createMarker:function(t){var e=new L.Marker(t,{icon:this.options.icon,zIndexOffset:2*this.options.zIndexOffset});return this._markerGroup.addLayer(e),e},_updateGuide:function(t){var e=this._markers?this._markers.length:0;e>0&&(t=t||this._map.latLngToLayerPoint(this._currentLatLng),this._clearGuides(),this._drawGuide(this._map.latLngToLayerPoint(this._markers[e-1].getLatLng()),t))},_updateTooltip:function(t){var e=this._getTooltipText();t&&this._tooltip.updatePosition(t),this._errorShown||this._tooltip.updateContent(e)},_drawGuide:function(t,e){var i,o,n,s=Math.floor(Math.sqrt(Math.pow(e.x-t.x,2)+Math.pow(e.y-t.y,2))),a=this.options.guidelineDistance,r=this.options.maxGuideLineLength,h=s>r?s-r:a;for(this._guidesContainer||(this._guidesContainer=L.DomUtil.create("div","leaflet-draw-guides",this._overlayPane));h<s;h+=this.options.guidelineDistance)i=h/s,o={x:Math.floor(t.x*(1-i)+i*e.x),y:Math.floor(t.y*(1-i)+i*e.y)},n=L.DomUtil.create("div","leaflet-draw-guide-dash",this._guidesContainer),n.style.backgroundColor=this._errorShown?this.options.drawError.color:this.options.shapeOptions.color,L.DomUtil.setPosition(n,o)},_updateGuideColor:function(t){if(this._guidesContainer)for(var e=0,i=this._guidesContainer.childNodes.length;e<i;e++)this._guidesContainer.childNodes[e].style.backgroundColor=t},_clearGuides:function(){if(this._guidesContainer)for(;this._guidesContainer.firstChild;)this._guidesContainer.removeChild(this._guidesContainer.firstChild)},_getTooltipText:function(){var t,e,i=this.options.showLength;return 0===this._markers.length?t={text:L.drawLocal.draw.handlers.polyline.tooltip.start}:(e=i?this._getMeasurementString():"",t=1===this._markers.length?{text:L.drawLocal.draw.handlers.polyline.tooltip.cont,subtext:e}:{text:L.drawLocal.draw.handlers.polyline.tooltip.end,subtext:e}),t},_updateRunningMeasure:function(t,e){var i,o,n=this._markers.length;1===this._markers.length?this._measurementRunningTotal=0:(i=n-(e?2:1),o=t.distanceTo(this._markers[i].getLatLng()),this._measurementRunningTotal+=o*(e?1:-1))},_getMeasurementString:function(){var t,e=this._currentLatLng,i=this._markers[this._markers.length-1].getLatLng();return t=this._measurementRunningTotal+e.distanceTo(i),L.GeometryUtil.readableDistance(t,this.options.metric,this.options.feet)},_showErrorTooltip:function(){this._errorShown=!0,this._tooltip.showAsError().updateContent({text:this.options.drawError.message}),this._updateGuideColor(this.options.drawError.color),this._poly.setStyle({color:this.options.drawError.color}),this._clearHideErrorTimeout(),this._hideErrorTimeout=setTimeout(L.Util.bind(this._hideErrorTooltip,this),this.options.drawError.timeout)},_hideErrorTooltip:function(){this._errorShown=!1,this._clearHideErrorTimeout(),this._tooltip.removeError().updateContent(this._getTooltipText()),this._updateGuideColor(this.options.shapeOptions.color),this._poly.setStyle({color:this.options.shapeOptions.color})},_clearHideErrorTimeout:function(){this._hideErrorTimeout&&(clearTimeout(this._hideErrorTimeout),this._hideErrorTimeout=null)},_cleanUpShape:function(){this._markers.length>1&&this._markers[this._markers.length-1].off("click",this._finishShape,this)},_fireCreatedEvent:function(){var t=new this.Poly(this._poly.getLatLngs(),this.options.shapeOptions);L.Draw.Feature.prototype._fireCreatedEvent.call(this,t)}}),L.Draw.Polygon=L.Draw.Polyline.extend({statics:{TYPE:"polygon"},Poly:L.Polygon,options:{showArea:!1,shapeOptions:{stroke:!0,color:"#f06eaa",weight:4,opacity:.5,fill:!0,fillColor:null,fillOpacity:.2,clickable:!0},metric:!0},initialize:function(t,e){L.Draw.Polyline.prototype.initialize.call(this,t,e),this.type=L.Draw.Polygon.TYPE},_updateFinishHandler:function(){var t=this._markers.length;1===t&&this._markers[0].on("click",this._finishShape,this),t>2&&(this._markers[t-1].on("dblclick",this._finishShape,this),t>3&&this._markers[t-2].off("dblclick",this._finishShape,this))},_getTooltipText:function(){var t,e;return 0===this._markers.length?t=L.drawLocal.draw.handlers.polygon.tooltip.start:this._markers.length<3?t=L.drawLocal.draw.handlers.polygon.tooltip.cont:(t=L.drawLocal.draw.handlers.polygon.tooltip.end,e=this._getMeasurementString()),{text:t,subtext:e}},_getMeasurementString:function(){var t=this._area;return t?L.GeometryUtil.readableArea(t,this.options.metric):null},_shapeIsValid:function(){return this._markers.length>=3},_vertexChanged:function(t,e){var i;!this.options.allowIntersection&&this.options.showArea&&(i=this._poly.getLatLngs(),this._area=L.GeometryUtil.geodesicArea(i)),L.Draw.Polyline.prototype._vertexChanged.call(this,t,e)},_cleanUpShape:function(){var t=this._markers.length;t>0&&(this._markers[0].off("click",this._finishShape,this),t>2&&this._markers[t-1].off("dblclick",this._finishShape,this))}}),L.SimpleShape={},L.Draw.SimpleShape=L.Draw.Feature.extend({options:{repeatMode:!1},initialize:function(t,e){this._endLabelText=L.drawLocal.draw.handlers.simpleshape.tooltip.end,L.Draw.Feature.prototype.initialize.call(this,t,e)},addHooks:function(){L.Draw.Feature.prototype.addHooks.call(this),this._map&&(this._mapDraggable=this._map.dragging.enabled(),this._mapDraggable&&this._map.dragging.disable(),this._container.style.cursor="crosshair",this._tooltip.updateContent({text:this._initialLabelText}),this._map.on("mousedown",this._onMouseDown,this).on("mousemove",this._onMouseMove,this).on("touchstart",this._onMouseDown,this).on("touchmove",this._onMouseMove,this))},removeHooks:function(){L.Draw.Feature.prototype.removeHooks.call(this),this._map&&(this._mapDraggable&&this._map.dragging.enable(),this._container.style.cursor="",this._map.off("mousedown",this._onMouseDown,this).off("mousemove",this._onMouseMove,this).off("touchstart",this._onMouseDown,this).off("touchmove",this._onMouseMove,this),L.DomEvent.off(e,"mouseup",this._onMouseUp,this),L.DomEvent.off(e,"touchend",this._onMouseUp,this),this._shape&&(this._map.removeLayer(this._shape),delete this._shape)),this._isDrawing=!1},_getTooltipText:function(){return{text:this._endLabelText}},_onMouseDown:function(t){this._isDrawing=!0,this._startLatLng=t.latlng,L.DomEvent.on(e,"mouseup",this._onMouseUp,this).on(e,"touchend",this._onMouseUp,this).preventDefault(t.originalEvent)},_onMouseMove:function(t){var e=t.latlng;this._tooltip.updatePosition(e),this._isDrawing&&(this._tooltip.updateContent(this._getTooltipText()),this._drawShape(e))},_onMouseUp:function(){this._shape&&this._fireCreatedEvent(),this.disable(),this.options.repeatMode&&this.enable()}}),L.Draw.Rectangle=L.Draw.SimpleShape.extend({statics:{TYPE:"rectangle"},options:{shapeOptions:{stroke:!0,color:"#f06eaa",weight:4,opacity:.5,fill:!0,fillColor:null,fillOpacity:.2,showArea:!0,clickable:!0},metric:!0},initialize:function(t,e){this.type=L.Draw.Rectangle.TYPE,this._initialLabelText=L.drawLocal.draw.handlers.rectangle.tooltip.start,L.Draw.SimpleShape.prototype.initialize.call(this,t,e)},_drawShape:function(t){this._shape?this._shape.setBounds(new L.LatLngBounds(this._startLatLng,t)):(this._shape=new L.Rectangle(new L.LatLngBounds(this._startLatLng,t),this.options.shapeOptions),this._map.addLayer(this._shape))},_fireCreatedEvent:function(){var t=new L.Rectangle(this._shape.getBounds(),this.options.shapeOptions);L.Draw.SimpleShape.prototype._fireCreatedEvent.call(this,t)},_getTooltipText:function(){var t,e,i,o=L.Draw.SimpleShape.prototype._getTooltipText.call(this),n=this._shape,s=this.options.showArea;return n&&(t=this._shape._defaultShape?this._shape._defaultShape():this._shape.getLatLngs(),e=L.GeometryUtil.geodesicArea(t),i=s?L.GeometryUtil.readableArea(e,this.options.metric):""),{text:o.text,subtext:i}}}),L.Draw.Circle=L.Draw.SimpleShape.extend({statics:{TYPE:"circle"},options:{shapeOptions:{stroke:!0,color:"#f06eaa",weight:4,opacity:.5,fill:!0,fillColor:null,fillOpacity:.2,clickable:!0},showRadius:!0,metric:!0,feet:!0},initialize:function(t,e){this.type=L.Draw.Circle.TYPE,this._initialLabelText=L.drawLocal.draw.handlers.circle.tooltip.start,L.Draw.SimpleShape.prototype.initialize.call(this,t,e)},_drawShape:function(t){this._shape?this._shape.setRadius(this._startLatLng.distanceTo(t)):(this._shape=new L.Circle(this._startLatLng,this._startLatLng.distanceTo(t),this.options.shapeOptions),this._map.addLayer(this._shape))},_fireCreatedEvent:function(){var t=new L.Circle(this._startLatLng,this._shape.getRadius(),this.options.shapeOptions);L.Draw.SimpleShape.prototype._fireCreatedEvent.call(this,t)},_onMouseMove:function(t){var e,i=t.latlng,o=this.options.showRadius,n=this.options.metric;this._tooltip.updatePosition(i),this._isDrawing&&(this._drawShape(i),e=this._shape.getRadius().toFixed(1),this._tooltip.updateContent({text:this._endLabelText,subtext:o?L.drawLocal.draw.handlers.circle.radius+": "+L.GeometryUtil.readableDistance(e,n,this.options.feet):""}))}}),L.Draw.Marker=L.Draw.Feature.extend({statics:{TYPE:"marker"},options:{icon:new L.Icon.Default,repeatMode:!1,zIndexOffset:2e3},initialize:function(t,e){this.type=L.Draw.Marker.TYPE,L.Draw.Feature.prototype.initialize.call(this,t,e)},addHooks:function(){L.Draw.Feature.prototype.addHooks.call(this),this._map&&(this._tooltip.updateContent({text:L.drawLocal.draw.handlers.marker.tooltip.start}),this._mouseMarker||(this._mouseMarker=L.marker(this._map.getCenter(),{icon:L.divIcon({className:"leaflet-mouse-marker",iconAnchor:[20,20],iconSize:[40,40]}),opacity:0,zIndexOffset:this.options.zIndexOffset})),this._mouseMarker.on("click",this._onClick,this).addTo(this._map),this._map.on("mousemove",this._onMouseMove,this),this._map.on("click",this._onTouch,this))},removeHooks:function(){L.Draw.Feature.prototype.removeHooks.call(this),this._map&&(this._marker&&(this._marker.off("click",this._onClick,this),this._map.off("click",this._onClick,this).off("click",this._onTouch,this).removeLayer(this._marker),delete this._marker),this._mouseMarker.off("click",this._onClick,this),this._map.removeLayer(this._mouseMarker),delete this._mouseMarker,this._map.off("mousemove",this._onMouseMove,this))},_onMouseMove:function(t){var e=t.latlng;this._tooltip.updatePosition(e),this._mouseMarker.setLatLng(e),this._marker?(e=this._mouseMarker.getLatLng(),this._marker.setLatLng(e)):(this._marker=new L.Marker(e,{icon:this.options.icon,zIndexOffset:this.options.zIndexOffset}),this._marker.on("click",this._onClick,this),this._map.on("click",this._onClick,this).addLayer(this._marker))},_onClick:function(){this._fireCreatedEvent(),this.disable(),this.options.repeatMode&&this.enable()},_onTouch:function(t){this._onMouseMove(t),this._onClick()},_fireCreatedEvent:function(){var t=new L.Marker.Touch(this._marker.getLatLng(),{icon:this.options.icon});L.Draw.Feature.prototype._fireCreatedEvent.call(this,t)}}),L.Edit=L.Edit||{},L.Edit.Marker=L.Handler.extend({initialize:function(t,e){this._marker=t,L.setOptions(this,e)},addHooks:function(){var t=this._marker;t.dragging.enable(),t.on("dragend",this._onDragEnd,t),this._toggleMarkerHighlight()},removeHooks:function(){var t=this._marker;t.dragging.disable(),t.off("dragend",this._onDragEnd,t),this._toggleMarkerHighlight()},_onDragEnd:function(t){var e=t.target;e.edited=!0,this._map.fire(L.Draw.Event.EDITMOVE,{layer:e})},_toggleMarkerHighlight:function(){var t=this._marker._icon;t&&(t.style.display="none",L.DomUtil.hasClass(t,"leaflet-edit-marker-selected")?(L.DomUtil.removeClass(t,"leaflet-edit-marker-selected"),this._offsetMarker(t,-4)):(L.DomUtil.addClass(t,"leaflet-edit-marker-selected"),this._offsetMarker(t,4)),t.style.display="")},_offsetMarker:function(t,e){var i=parseInt(t.style.marginTop,10)-e,o=parseInt(t.style.marginLeft,10)-e;t.style.marginTop=i+"px",t.style.marginLeft=o+"px"}}),L.Marker.addInitHook(function(){L.Edit.Marker&&(this.editing=new L.Edit.Marker(this),this.options.editable&&this.editing.enable())}),L.Edit=L.Edit||{},L.Edit.Poly=L.Handler.extend({options:{},initialize:function(t,e){this.latlngs=[t._latlngs],t._holes&&(this.latlngs=this.latlngs.concat(t._holes)),this._poly=t,L.setOptions(this,e),this._poly.on("revert-edited",this._updateLatLngs,this)},_defaultShape:function(){return L.Polyline._flat?L.Polyline._flat(this._poly._latlngs)?this._poly._latlngs:this._poly._latlngs[0]:this._poly._latlngs},_eachVertexHandler:function(t){for(var e=0;e<this._verticesHandlers.length;e++)t(this._verticesHandlers[e])},addHooks:function(){this._initHandlers(),this._eachVertexHandler(function(t){t.addHooks()})},removeHooks:function(){this._eachVertexHandler(function(t){t.removeHooks()})},updateMarkers:function(){this._eachVertexHandler(function(t){t.updateMarkers()})},_initHandlers:function(){this._verticesHandlers=[];for(var t=0;t<this.latlngs.length;t++)this._verticesHandlers.push(new L.Edit.PolyVerticesEdit(this._poly,this.latlngs[t],this.options))},_updateLatLngs:function(t){this.latlngs=[t.layer._latlngs],t.layer._holes&&(this.latlngs=this.latlngs.concat(t.layer._holes))}}),L.Edit.PolyVerticesEdit=L.Handler.extend({options:{icon:new L.DivIcon({iconSize:new L.Point(8,8),className:"leaflet-div-icon leaflet-editing-icon"}),touchIcon:new L.DivIcon({iconSize:new L.Point(20,20),className:"leaflet-div-icon leaflet-editing-icon leaflet-touch-icon"}),drawError:{color:"#b00b00",timeout:1e3}},initialize:function(t,e,i){L.Browser.touch&&(this.options.icon=this.options.touchIcon),this._poly=t,i&&i.drawError&&(i.drawError=L.Util.extend({},this.options.drawError,i.drawError)),this._latlngs=e,L.setOptions(this,i)},_defaultShape:function(){return L.Polyline._flat?L.Polyline._flat(this._latlngs)?this._latlngs:this._latlngs[0]:this._latlngs},addHooks:function(){var t=this._poly;t instanceof L.Polygon||(t.options.fill=!1,t.options.editing&&(t.options.editing.fill=!1)),t.setStyle(t.options.editing),this._poly._map&&(this._map=this._poly._map,this._markerGroup||this._initMarkers(),this._poly._map.addLayer(this._markerGroup))},removeHooks:function(){var t=this._poly;t.setStyle(t.options.original),t._map&&(t._map.removeLayer(this._markerGroup),delete this._markerGroup,delete this._markers)},updateMarkers:function(){this._markerGroup.clearLayers(),this._initMarkers()},_initMarkers:function(){this._markerGroup||(this._markerGroup=new L.LayerGroup),this._markers=[];var t,e,i,o,n=this._defaultShape();for(t=0,i=n.length;t<i;t++)o=this._createMarker(n[t],t),o.on("click",this._onMarkerClick,this),this._markers.push(o);var s,a;for(t=0,e=i-1;t<i;e=t++)(0!==t||L.Polygon&&this._poly instanceof L.Polygon)&&(s=this._markers[e],a=this._markers[t],this._createMiddleMarker(s,a),this._updatePrevNext(s,a))},_createMarker:function(t,e){var i=new L.Marker.Touch(t,{draggable:!0,icon:this.options.icon});return i._origLatLng=t,i._index=e,i.on("dragstart",this._onMarkerDragStart,this).on("drag",this._onMarkerDrag,this).on("dragend",this._fireEdit,this).on("touchmove",this._onTouchMove,this).on("touchend",this._fireEdit,this).on("MSPointerMove",this._onTouchMove,this).on("MSPointerUp",this._fireEdit,this),this._markerGroup.addLayer(i),i},_onMarkerDragStart:function(){this._poly.fire("editstart")},_spliceLatLngs:function(){var t=this._defaultShape(),e=[].splice.apply(t,arguments);return this._poly._convertLatLngs(t,!0),this._poly.redraw(),e},_removeMarker:function(t){var e=t._index;this._markerGroup.removeLayer(t),this._markers.splice(e,1),this._spliceLatLngs(e,1),this._updateIndexes(e,-1),t.off("dragstart",this._onMarkerDragStart,this).off("drag",this._onMarkerDrag,this).off("dragend",this._fireEdit,this).off("touchmove",this._onMarkerDrag,this).off("touchend",this._fireEdit,this).off("click",this._onMarkerClick,this).off("MSPointerMove",this._onTouchMove,this).off("MSPointerUp",this._fireEdit,this)},_fireEdit:function(){this._poly.edited=!0,this._poly.fire("edit"),this._poly._map.fire(L.Draw.Event.EDITVERTEX,{layers:this._markerGroup})},_onMarkerDrag:function(t){var e=t.target,i=this._poly;if(L.extend(e._origLatLng,e._latlng),e._middleLeft&&e._middleLeft.setLatLng(this._getMiddleLatLng(e._prev,e)),e._middleRight&&e._middleRight.setLatLng(this._getMiddleLatLng(e,e._next)),i.options.poly){var o=i._map._editTooltip;if(!i.options.poly.allowIntersection&&i.intersects()){var n=i.options.color;i.setStyle({color:this.options.drawError.color}),0!==L.version.indexOf("0.7")&&e.dragging._draggable._onUp(t),this._onMarkerClick(t),o&&o.updateContent({text:L.drawLocal.draw.handlers.polyline.error}),setTimeout(function(){i.setStyle({color:n}),o&&o.updateContent({text:L.drawLocal.edit.handlers.edit.tooltip.text,subtext:L.drawLocal.edit.handlers.edit.tooltip.subtext})},1e3)}}this._poly.redraw(),this._poly.fire("editdrag")},_onMarkerClick:function(t){var e=L.Polygon&&this._poly instanceof L.Polygon?4:3,i=t.target;this._defaultShape().length<e||(this._removeMarker(i),this._updatePrevNext(i._prev,i._next),i._middleLeft&&this._markerGroup.removeLayer(i._middleLeft),i._middleRight&&this._markerGroup.removeLayer(i._middleRight),i._prev&&i._next?this._createMiddleMarker(i._prev,i._next):i._prev?i._next||(i._prev._middleRight=null):i._next._middleLeft=null,this._fireEdit())},_onTouchMove:function(t){var e=this._map.mouseEventToLayerPoint(t.originalEvent.touches[0]),i=this._map.layerPointToLatLng(e),o=t.target;L.extend(o._origLatLng,i),o._middleLeft&&o._middleLeft.setLatLng(this._getMiddleLatLng(o._prev,o)),o._middleRight&&o._middleRight.setLatLng(this._getMiddleLatLng(o,o._next)),this._poly.redraw(),this.updateMarkers()},_updateIndexes:function(t,e){this._markerGroup.eachLayer(function(i){i._index>t&&(i._index+=e)})},_createMiddleMarker:function(t,e){var i,o,n,s=this._getMiddleLatLng(t,e),a=this._createMarker(s);a.setOpacity(.6),t._middleRight=e._middleLeft=a,o=function(){a.off("touchmove",o,this);var n=e._index;a._index=n,a.off("click",i,this).on("click",this._onMarkerClick,this),s.lat=a.getLatLng().lat,s.lng=a.getLatLng().lng,this._spliceLatLngs(n,0,s),this._markers.splice(n,0,a),a.setOpacity(1),this._updateIndexes(n,1),e._index++,this._updatePrevNext(t,a),this._updatePrevNext(a,e),this._poly.fire("editstart")},n=function(){a.off("dragstart",o,this),a.off("dragend",n,this),a.off("touchmove",o,this),this._createMiddleMarker(t,a),this._createMiddleMarker(a,e)},i=function(){o.call(this),n.call(this),this._fireEdit()},a.on("click",i,this).on("dragstart",o,this).on("dragend",n,this).on("touchmove",o,this),this._markerGroup.addLayer(a)},_updatePrevNext:function(t,e){t&&(t._next=e),e&&(e._prev=t)},_getMiddleLatLng:function(t,e){var i=this._poly._map,o=i.project(t.getLatLng()),n=i.project(e.getLatLng());return i.unproject(o._add(n)._divideBy(2))}}),L.Polyline.addInitHook(function(){this.editing||(L.Edit.Poly&&(this.editing=new L.Edit.Poly(this,this.options.poly),this.options.editable&&this.editing.enable()),this.on("add",function(){this.editing&&this.editing.enabled()&&this.editing.addHooks()}),this.on("remove",function(){this.editing&&this.editing.enabled()&&this.editing.removeHooks()}))}),L.Edit=L.Edit||{},L.Edit.SimpleShape=L.Handler.extend({options:{moveIcon:new L.DivIcon({iconSize:new L.Point(8,8),className:"leaflet-div-icon leaflet-editing-icon leaflet-edit-move"}),resizeIcon:new L.DivIcon({iconSize:new L.Point(8,8),className:"leaflet-div-icon leaflet-editing-icon leaflet-edit-resize"}),touchMoveIcon:new L.DivIcon({iconSize:new L.Point(20,20),className:"leaflet-div-icon leaflet-editing-icon leaflet-edit-move leaflet-touch-icon"}),touchResizeIcon:new L.DivIcon({iconSize:new L.Point(20,20),className:"leaflet-div-icon leaflet-editing-icon leaflet-edit-resize leaflet-touch-icon"})},initialize:function(t,e){L.Browser.touch&&(this.options.moveIcon=this.options.touchMoveIcon,this.options.resizeIcon=this.options.touchResizeIcon),this._shape=t,L.Util.setOptions(this,e)},addHooks:function(){var t=this._shape;this._shape._map&&(this._map=this._shape._map,t.setStyle(t.options.editing),t._map&&(this._map=t._map,this._markerGroup||this._initMarkers(),this._map.addLayer(this._markerGroup)))},removeHooks:function(){var t=this._shape;if(t.setStyle(t.options.original),t._map){this._unbindMarker(this._moveMarker);for(var e=0,i=this._resizeMarkers.length;e<i;e++)this._unbindMarker(this._resizeMarkers[e]);this._resizeMarkers=null,this._map.removeLayer(this._markerGroup),delete this._markerGroup}this._map=null},updateMarkers:function(){this._markerGroup.clearLayers(),this._initMarkers()},_initMarkers:function(){this._markerGroup||(this._markerGroup=new L.LayerGroup),this._createMoveMarker(),this._createResizeMarker()},_createMoveMarker:function(){},_createResizeMarker:function(){},_createMarker:function(t,e){var i=new L.Marker.Touch(t,{draggable:!0,icon:e,zIndexOffset:10});return this._bindMarker(i),this._markerGroup.addLayer(i),i},_bindMarker:function(t){t.on("dragstart",this._onMarkerDragStart,this).on("drag",this._onMarkerDrag,this).on("dragend",this._onMarkerDragEnd,this).on("touchstart",this._onTouchStart,this).on("touchmove",this._onTouchMove,this).on("MSPointerMove",this._onTouchMove,this).on("touchend",this._onTouchEnd,this).on("MSPointerUp",this._onTouchEnd,this)},_unbindMarker:function(t){t.off("dragstart",this._onMarkerDragStart,this).off("drag",this._onMarkerDrag,this).off("dragend",this._onMarkerDragEnd,this).off("touchstart",this._onTouchStart,this).off("touchmove",this._onTouchMove,this).off("MSPointerMove",this._onTouchMove,this).off("touchend",this._onTouchEnd,this).off("MSPointerUp",this._onTouchEnd,this)},_onMarkerDragStart:function(t){var e=t.target;e.setOpacity(0),this._shape.fire("editstart")},_fireEdit:function(){this._shape.edited=!0,this._shape.fire("edit")},_onMarkerDrag:function(t){var e=t.target,i=e.getLatLng();e===this._moveMarker?this._move(i):this._resize(i),this._shape.redraw(),this._shape.fire("editdrag")},_onMarkerDragEnd:function(t){var e=t.target;e.setOpacity(1),this._fireEdit()},_onTouchStart:function(t){if(L.Edit.SimpleShape.prototype._onMarkerDragStart.call(this,t),"function"==typeof this._getCorners){var e=this._getCorners(),i=t.target,o=i._cornerIndex;i.setOpacity(0),this._oppositeCorner=e[(o+2)%4],this._toggleCornerMarkers(0,o)}this._shape.fire("editstart")},_onTouchMove:function(t){var e=this._map.mouseEventToLayerPoint(t.originalEvent.touches[0]),i=this._map.layerPointToLatLng(e),o=t.target;return o===this._moveMarker?this._move(i):this._resize(i),this._shape.redraw(),!1},_onTouchEnd:function(t){var e=t.target;e.setOpacity(1),this.updateMarkers(),this._fireEdit()},_move:function(){},_resize:function(){}}),L.Edit=L.Edit||{},L.Edit.Rectangle=L.Edit.SimpleShape.extend({_createMoveMarker:function(){var t=this._shape.getBounds(),e=t.getCenter();this._moveMarker=this._createMarker(e,this.options.moveIcon)},_createResizeMarker:function(){var t=this._getCorners();this._resizeMarkers=[];for(var e=0,i=t.length;e<i;e++)this._resizeMarkers.push(this._createMarker(t[e],this.options.resizeIcon)),this._resizeMarkers[e]._cornerIndex=e},_onMarkerDragStart:function(t){L.Edit.SimpleShape.prototype._onMarkerDragStart.call(this,t);var e=this._getCorners(),i=t.target,o=i._cornerIndex;this._oppositeCorner=e[(o+2)%4],this._toggleCornerMarkers(0,o)},_onMarkerDragEnd:function(t){var e,i,o=t.target;o===this._moveMarker&&(e=this._shape.getBounds(),i=e.getCenter(),o.setLatLng(i)),this._toggleCornerMarkers(1),this._repositionCornerMarkers(),L.Edit.SimpleShape.prototype._onMarkerDragEnd.call(this,t)},_move:function(t){for(var e,i=this._shape._defaultShape?this._shape._defaultShape():this._shape.getLatLngs(),o=this._shape.getBounds(),n=o.getCenter(),s=[],a=0,r=i.length;a<r;a++)e=[i[a].lat-n.lat,i[a].lng-n.lng],s.push([t.lat+e[0],t.lng+e[1]]);this._shape.setLatLngs(s),this._repositionCornerMarkers(),this._map.fire(L.Draw.Event.EDITMOVE,{layer:this._shape})},_resize:function(t){var e;this._shape.setBounds(L.latLngBounds(t,this._oppositeCorner)),e=this._shape.getBounds(),this._moveMarker.setLatLng(e.getCenter()),this._map.fire(L.Draw.Event.EDITRESIZE,{layer:this._shape})},_getCorners:function(){var t=this._shape.getBounds(),e=t.getNorthWest(),i=t.getNorthEast(),o=t.getSouthEast(),n=t.getSouthWest();
-	return[e,i,o,n]},_toggleCornerMarkers:function(t){for(var e=0,i=this._resizeMarkers.length;e<i;e++)this._resizeMarkers[e].setOpacity(t)},_repositionCornerMarkers:function(){for(var t=this._getCorners(),e=0,i=this._resizeMarkers.length;e<i;e++)this._resizeMarkers[e].setLatLng(t[e])}}),L.Rectangle.addInitHook(function(){L.Edit.Rectangle&&(this.editing=new L.Edit.Rectangle(this),this.options.editable&&this.editing.enable())}),L.Edit=L.Edit||{},L.Edit.Circle=L.Edit.SimpleShape.extend({_createMoveMarker:function(){var t=this._shape.getLatLng();this._moveMarker=this._createMarker(t,this.options.moveIcon)},_createResizeMarker:function(){var t=this._shape.getLatLng(),e=this._getResizeMarkerPoint(t);this._resizeMarkers=[],this._resizeMarkers.push(this._createMarker(e,this.options.resizeIcon))},_getResizeMarkerPoint:function(t){var e=this._shape._radius*Math.cos(Math.PI/4),i=this._map.project(t);return this._map.unproject([i.x+e,i.y-e])},_move:function(t){var e=this._getResizeMarkerPoint(t);this._resizeMarkers[0].setLatLng(e),this._shape.setLatLng(t),this._map.fire(L.Draw.Event.EDITMOVE,{layer:this._shape})},_resize:function(t){var e=this._moveMarker.getLatLng(),i=e.distanceTo(t);this._shape.setRadius(i),this._map.fire(L.Draw.Event.EDITRESIZE,{layer:this._shape})}}),L.Circle.addInitHook(function(){L.Edit.Circle&&(this.editing=new L.Edit.Circle(this),this.options.editable&&this.editing.enable()),this.on("add",function(){this.editing&&this.editing.enabled()&&this.editing.addHooks()}),this.on("remove",function(){this.editing&&this.editing.enabled()&&this.editing.removeHooks()})}),L.Map.mergeOptions({touchExtend:!0}),L.Map.TouchExtend=L.Handler.extend({initialize:function(t){this._map=t,this._container=t._container,this._pane=t._panes.overlayPane},addHooks:function(){L.DomEvent.on(this._container,"touchstart",this._onTouchStart,this),L.DomEvent.on(this._container,"touchend",this._onTouchEnd,this),L.DomEvent.on(this._container,"touchmove",this._onTouchMove,this),this._detectIE()?(L.DomEvent.on(this._container,"MSPointerDown",this._onTouchStart,this),L.DomEvent.on(this._container,"MSPointerUp",this._onTouchEnd,this),L.DomEvent.on(this._container,"MSPointerMove",this._onTouchMove,this),L.DomEvent.on(this._container,"MSPointerCancel",this._onTouchCancel,this)):(L.DomEvent.on(this._container,"touchcancel",this._onTouchCancel,this),L.DomEvent.on(this._container,"touchleave",this._onTouchLeave,this))},removeHooks:function(){L.DomEvent.off(this._container,"touchstart",this._onTouchStart),L.DomEvent.off(this._container,"touchend",this._onTouchEnd),L.DomEvent.off(this._container,"touchmove",this._onTouchMove),this._detectIE()?(L.DomEvent.off(this._container,"MSPointerDowm",this._onTouchStart),L.DomEvent.off(this._container,"MSPointerUp",this._onTouchEnd),L.DomEvent.off(this._container,"MSPointerMove",this._onTouchMove),L.DomEvent.off(this._container,"MSPointerCancel",this._onTouchCancel)):(L.DomEvent.off(this._container,"touchcancel",this._onTouchCancel),L.DomEvent.off(this._container,"touchleave",this._onTouchLeave))},_touchEvent:function(t,e){var i={};if("undefined"!=typeof t.touches){if(!t.touches.length)return;i=t.touches[0]}else{if("touch"!==t.pointerType)return;if(i=t,!this._filterClick(t))return}var o=this._map.mouseEventToContainerPoint(i),n=this._map.mouseEventToLayerPoint(i),s=this._map.layerPointToLatLng(n);this._map.fire(e,{latlng:s,layerPoint:n,containerPoint:o,pageX:i.pageX,pageY:i.pageY,originalEvent:t})},_filterClick:function(t){var e=t.timeStamp||t.originalEvent.timeStamp,i=L.DomEvent._lastClick&&e-L.DomEvent._lastClick;return i&&i>100&&i<500||t.target._simulatedClick&&!t._simulated?(L.DomEvent.stop(t),!1):(L.DomEvent._lastClick=e,!0)},_onTouchStart:function(t){if(this._map._loaded){var e="touchstart";this._touchEvent(t,e)}},_onTouchEnd:function(t){if(this._map._loaded){var e="touchend";this._touchEvent(t,e)}},_onTouchCancel:function(t){if(this._map._loaded){var e="touchcancel";this._detectIE()&&(e="pointercancel"),this._touchEvent(t,e)}},_onTouchLeave:function(t){if(this._map._loaded){var e="touchleave";this._touchEvent(t,e)}},_onTouchMove:function(t){if(this._map._loaded){var e="touchmove";this._touchEvent(t,e)}},_detectIE:function(){var e=t.navigator.userAgent,i=e.indexOf("MSIE ");if(i>0)return parseInt(e.substring(i+5,e.indexOf(".",i)),10);var o=e.indexOf("Trident/");if(o>0){var n=e.indexOf("rv:");return parseInt(e.substring(n+3,e.indexOf(".",n)),10)}var s=e.indexOf("Edge/");return s>0&&parseInt(e.substring(s+5,e.indexOf(".",s)),10)}}),L.Map.addInitHook("addHandler","touchExtend",L.Map.TouchExtend),L.Marker.Touch=L.Marker.extend({_initInteraction:function(){return this.addInteractiveTarget?L.Marker.prototype._initInteraction.apply(this):this._initInteractionLegacy()},_initInteractionLegacy:function(){if(this.options.clickable){var t=this._icon,e=["dblclick","mousedown","mouseover","mouseout","contextmenu","touchstart","touchend","touchmove"];this._detectIE?e.concat(["MSPointerDown","MSPointerUp","MSPointerMove","MSPointerCancel"]):e.concat(["touchcancel"]),L.DomUtil.addClass(t,"leaflet-clickable"),L.DomEvent.on(t,"click",this._onMouseClick,this),L.DomEvent.on(t,"keypress",this._onKeyPress,this);for(var i=0;i<e.length;i++)L.DomEvent.on(t,e[i],this._fireMouseEvent,this);L.Handler.MarkerDrag&&(this.dragging=new L.Handler.MarkerDrag(this),this.options.draggable&&this.dragging.enable())}},_detectIE:function(){var e=t.navigator.userAgent,i=e.indexOf("MSIE ");if(i>0)return parseInt(e.substring(i+5,e.indexOf(".",i)),10);var o=e.indexOf("Trident/");if(o>0){var n=e.indexOf("rv:");return parseInt(e.substring(n+3,e.indexOf(".",n)),10)}var s=e.indexOf("Edge/");return s>0&&parseInt(e.substring(s+5,e.indexOf(".",s)),10)}}),L.LatLngUtil={cloneLatLngs:function(t){for(var e=[],i=0,o=t.length;i<o;i++)Array.isArray(t[i])?e.push(L.LatLngUtil.cloneLatLngs(t[i])):e.push(this.cloneLatLng(t[i]));return e},cloneLatLng:function(t){return L.latLng(t.lat,t.lng)}},L.GeometryUtil=L.extend(L.GeometryUtil||{},{geodesicArea:function(t){var e,i,o=t.length,n=0,s=Math.PI/180;if(o>2){for(var a=0;a<o;a++)e=t[a],i=t[(a+1)%o],n+=(i.lng-e.lng)*s*(2+Math.sin(e.lat*s)+Math.sin(i.lat*s));n=6378137*n*6378137/2}return Math.abs(n)},readableArea:function(t,e){var i;return e?i=t>=1e4?(1e-4*t).toFixed(2)+" ha":t.toFixed(2)+" m&sup2;":(t/=.836127,i=t>=3097600?(t/3097600).toFixed(2)+" mi&sup2;":t>=4840?(t/4840).toFixed(2)+" acres":Math.ceil(t)+" yd&sup2;"),i},readableDistance:function(t,e,i){var o;if(e)o=t>1e3?(t/1e3).toFixed(2)+" km":Math.ceil(t)+" m";else if(t*=1.09361,t>1760)o=(t/1760).toFixed(2)+" miles";else{var n=" yd";i&&(t*=3,n=" ft"),o=Math.ceil(t)+n}return o}}),L.Util.extend(L.LineUtil,{segmentsIntersect:function(t,e,i,o){return this._checkCounterclockwise(t,i,o)!==this._checkCounterclockwise(e,i,o)&&this._checkCounterclockwise(t,e,i)!==this._checkCounterclockwise(t,e,o)},_checkCounterclockwise:function(t,e,i){return(i.y-t.y)*(e.x-t.x)>(e.y-t.y)*(i.x-t.x)}}),L.Polyline.include({intersects:function(){var t,e,i,o=this._getProjectedPoints(),n=o?o.length:0;if(this._tooFewPointsForIntersection())return!1;for(t=n-1;t>=3;t--)if(e=o[t-1],i=o[t],this._lineSegmentsIntersectsRange(e,i,t-2))return!0;return!1},newLatLngIntersects:function(t,e){return!!this._map&&this.newPointIntersects(this._map.latLngToLayerPoint(t),e)},newPointIntersects:function(t,e){var i=this._getProjectedPoints(),o=i?i.length:0,n=i?i[o-1]:null,s=o-2;return!this._tooFewPointsForIntersection(1)&&this._lineSegmentsIntersectsRange(n,t,s,e?1:0)},_tooFewPointsForIntersection:function(t){var e=this._getProjectedPoints(),i=e?e.length:0;return i+=t||0,!e||i<=3},_lineSegmentsIntersectsRange:function(t,e,i,o){var n,s,a=this._getProjectedPoints();o=o||0;for(var r=i;r>o;r--)if(n=a[r-1],s=a[r],L.LineUtil.segmentsIntersect(t,e,n,s))return!0;return!1},_getProjectedPoints:function(){if(!this._defaultShape)return this._originalPoints;for(var t=[],e=this._defaultShape(),i=0;i<e.length;i++)t.push(this._map.latLngToLayerPoint(e[i]));return t}}),L.Polygon.include({intersects:function(){var t,e,i,o,n,s=this._getProjectedPoints();return!this._tooFewPointsForIntersection()&&(!!(t=L.Polyline.prototype.intersects.call(this))||(e=s.length,i=s[0],o=s[e-1],n=e-2,this._lineSegmentsIntersectsRange(o,i,n,1)))}}),L.Control.Draw=L.Control.extend({options:{position:"topleft",draw:{},edit:!1},initialize:function(t){if(L.version<"0.7")throw new Error("Leaflet.draw 0.2.3+ requires Leaflet 0.7.0+. Download latest from https://github.com/Leaflet/Leaflet/");L.Control.prototype.initialize.call(this,t);var e;this._toolbars={},L.DrawToolbar&&this.options.draw&&(e=new L.DrawToolbar(this.options.draw),this._toolbars[L.DrawToolbar.TYPE]=e,this._toolbars[L.DrawToolbar.TYPE].on("enable",this._toolbarEnabled,this)),L.EditToolbar&&this.options.edit&&(e=new L.EditToolbar(this.options.edit),this._toolbars[L.EditToolbar.TYPE]=e,this._toolbars[L.EditToolbar.TYPE].on("enable",this._toolbarEnabled,this)),L.toolbar=this},onAdd:function(t){var e,i=L.DomUtil.create("div","leaflet-draw"),o=!1,n="leaflet-draw-toolbar-top";for(var s in this._toolbars)this._toolbars.hasOwnProperty(s)&&(e=this._toolbars[s].addToolbar(t),e&&(o||(L.DomUtil.hasClass(e,n)||L.DomUtil.addClass(e.childNodes[0],n),o=!0),i.appendChild(e)));return i},onRemove:function(){for(var t in this._toolbars)this._toolbars.hasOwnProperty(t)&&this._toolbars[t].removeToolbar()},setDrawingOptions:function(t){for(var e in this._toolbars)this._toolbars[e]instanceof L.DrawToolbar&&this._toolbars[e].setOptions(t)},_toolbarEnabled:function(t){var e=t.target;for(var i in this._toolbars)this._toolbars[i]!==e&&this._toolbars[i].disable()}}),L.Map.mergeOptions({drawControlTooltips:!0,drawControl:!1}),L.Map.addInitHook(function(){this.options.drawControl&&(this.drawControl=new L.Control.Draw,this.addControl(this.drawControl))}),L.Toolbar=L.Class.extend({includes:[L.Mixin.Events],initialize:function(t){L.setOptions(this,t),this._modes={},this._actionButtons=[],this._activeMode=null},enabled:function(){return null!==this._activeMode},disable:function(){this.enabled()&&this._activeMode.handler.disable()},addToolbar:function(t){var e,i=L.DomUtil.create("div","leaflet-draw-section"),o=0,n=this._toolbarClass||"",s=this.getModeHandlers(t);for(this._toolbarContainer=L.DomUtil.create("div","leaflet-draw-toolbar leaflet-bar"),this._map=t,e=0;e<s.length;e++)s[e].enabled&&this._initModeHandler(s[e].handler,this._toolbarContainer,o++,n,s[e].title);if(o)return this._lastButtonIndex=--o,this._actionsContainer=L.DomUtil.create("ul","leaflet-draw-actions"),i.appendChild(this._toolbarContainer),i.appendChild(this._actionsContainer),i},removeToolbar:function(){for(var t in this._modes)this._modes.hasOwnProperty(t)&&(this._disposeButton(this._modes[t].button,this._modes[t].handler.enable,this._modes[t].handler),this._modes[t].handler.disable(),this._modes[t].handler.off("enabled",this._handlerActivated,this).off("disabled",this._handlerDeactivated,this));this._modes={};for(var e=0,i=this._actionButtons.length;e<i;e++)this._disposeButton(this._actionButtons[e].button,this._actionButtons[e].callback,this);this._actionButtons=[],this._actionsContainer=null},_initModeHandler:function(t,e,i,o,n){var s=t.type;this._modes[s]={},this._modes[s].handler=t,this._modes[s].button=this._createButton({type:s,title:n,className:o+"-"+s,container:e,callback:this._modes[s].handler.enable,context:this._modes[s].handler}),this._modes[s].buttonIndex=i,this._modes[s].handler.on("enabled",this._handlerActivated,this).on("disabled",this._handlerDeactivated,this)},_createButton:function(t){var e=L.DomUtil.create("a",t.className||"",t.container);return e.href="#",t.text&&(e.innerHTML=t.text),t.title&&(e.title=t.title),L.DomEvent.on(e,"click",L.DomEvent.stopPropagation).on(e,"mousedown",L.DomEvent.stopPropagation).on(e,"dblclick",L.DomEvent.stopPropagation).on(e,"click",L.DomEvent.preventDefault).on(e,"click",t.callback,t.context),e},_disposeButton:function(t,e){L.DomEvent.off(t,"click",L.DomEvent.stopPropagation).off(t,"mousedown",L.DomEvent.stopPropagation).off(t,"dblclick",L.DomEvent.stopPropagation).off(t,"click",L.DomEvent.preventDefault).off(t,"click",e)},_handlerActivated:function(t){this.disable(),this._activeMode=this._modes[t.handler],L.DomUtil.addClass(this._activeMode.button,"leaflet-draw-toolbar-button-enabled"),this._showActionsToolbar(),this.fire("enable")},_handlerDeactivated:function(){this._hideActionsToolbar(),L.DomUtil.removeClass(this._activeMode.button,"leaflet-draw-toolbar-button-enabled"),this._activeMode=null,this.fire("disable")},_createActions:function(t){var e,i,o,n,s=this._actionsContainer,a=this.getActions(t),r=a.length;for(i=0,o=this._actionButtons.length;i<o;i++)this._disposeButton(this._actionButtons[i].button,this._actionButtons[i].callback);for(this._actionButtons=[];s.firstChild;)s.removeChild(s.firstChild);for(var h=0;h<r;h++)"enabled"in a[h]&&!a[h].enabled||(e=L.DomUtil.create("li","",s),n=this._createButton({title:a[h].title,text:a[h].text,container:e,callback:a[h].callback,context:a[h].context}),this._actionButtons.push({button:n,callback:a[h].callback}))},_showActionsToolbar:function(){var t=this._activeMode.buttonIndex,e=this._lastButtonIndex,i=this._activeMode.button.offsetTop-1;this._createActions(this._activeMode.handler),this._actionsContainer.style.top=i+"px",0===t&&(L.DomUtil.addClass(this._toolbarContainer,"leaflet-draw-toolbar-notop"),L.DomUtil.addClass(this._actionsContainer,"leaflet-draw-actions-top")),t===e&&(L.DomUtil.addClass(this._toolbarContainer,"leaflet-draw-toolbar-nobottom"),L.DomUtil.addClass(this._actionsContainer,"leaflet-draw-actions-bottom")),this._actionsContainer.style.display="block"},_hideActionsToolbar:function(){this._actionsContainer.style.display="none",L.DomUtil.removeClass(this._toolbarContainer,"leaflet-draw-toolbar-notop"),L.DomUtil.removeClass(this._toolbarContainer,"leaflet-draw-toolbar-nobottom"),L.DomUtil.removeClass(this._actionsContainer,"leaflet-draw-actions-top"),L.DomUtil.removeClass(this._actionsContainer,"leaflet-draw-actions-bottom")}}),L.Draw=L.Draw||{},L.Draw.Tooltip=L.Class.extend({initialize:function(t){this._map=t,this._popupPane=t._panes.popupPane,this._container=t.options.drawControlTooltips?L.DomUtil.create("div","leaflet-draw-tooltip",this._popupPane):null,this._singleLineLabel=!1,this._map.on("mouseout",this._onMouseOut,this)},dispose:function(){this._map.off("mouseout",this._onMouseOut,this),this._container&&(this._popupPane.removeChild(this._container),this._container=null)},updateContent:function(t){return this._container?(t.subtext=t.subtext||"",0!==t.subtext.length||this._singleLineLabel?t.subtext.length>0&&this._singleLineLabel&&(L.DomUtil.removeClass(this._container,"leaflet-draw-tooltip-single"),this._singleLineLabel=!1):(L.DomUtil.addClass(this._container,"leaflet-draw-tooltip-single"),this._singleLineLabel=!0),this._container.innerHTML=(t.subtext.length>0?'<span class="leaflet-draw-tooltip-subtext">'+t.subtext+"</span><br />":"")+"<span>"+t.text+"</span>",this):this},updatePosition:function(t){var e=this._map.latLngToLayerPoint(t),i=this._container;return this._container&&(i.style.visibility="inherit",L.DomUtil.setPosition(i,e)),this},showAsError:function(){return this._container&&L.DomUtil.addClass(this._container,"leaflet-error-draw-tooltip"),this},removeError:function(){return this._container&&L.DomUtil.removeClass(this._container,"leaflet-error-draw-tooltip"),this},_onMouseOut:function(){this._container&&(this._container.style.visibility="hidden")}}),L.DrawToolbar=L.Toolbar.extend({statics:{TYPE:"draw"},options:{polyline:{},polygon:{},rectangle:{},circle:{},marker:{}},initialize:function(t){for(var e in this.options)this.options.hasOwnProperty(e)&&t[e]&&(t[e]=L.extend({},this.options[e],t[e]));this._toolbarClass="leaflet-draw-draw",L.Toolbar.prototype.initialize.call(this,t)},getModeHandlers:function(t){return[{enabled:this.options.polyline,handler:new L.Draw.Polyline(t,this.options.polyline),title:L.drawLocal.draw.toolbar.buttons.polyline},{enabled:this.options.polygon,handler:new L.Draw.Polygon(t,this.options.polygon),title:L.drawLocal.draw.toolbar.buttons.polygon},{enabled:this.options.rectangle,handler:new L.Draw.Rectangle(t,this.options.rectangle),title:L.drawLocal.draw.toolbar.buttons.rectangle},{enabled:this.options.circle,handler:new L.Draw.Circle(t,this.options.circle),title:L.drawLocal.draw.toolbar.buttons.circle},{enabled:this.options.marker,handler:new L.Draw.Marker(t,this.options.marker),title:L.drawLocal.draw.toolbar.buttons.marker}]},getActions:function(t){return[{enabled:t.completeShape,title:L.drawLocal.draw.toolbar.finish.title,text:L.drawLocal.draw.toolbar.finish.text,callback:t.completeShape,context:t},{enabled:t.deleteLastVertex,title:L.drawLocal.draw.toolbar.undo.title,text:L.drawLocal.draw.toolbar.undo.text,callback:t.deleteLastVertex,context:t},{title:L.drawLocal.draw.toolbar.actions.title,text:L.drawLocal.draw.toolbar.actions.text,callback:this.disable,context:this}]},setOptions:function(t){L.setOptions(this,t);for(var e in this._modes)this._modes.hasOwnProperty(e)&&t.hasOwnProperty(e)&&this._modes[e].handler.setOptions(t[e])}}),L.EditToolbar=L.Toolbar.extend({statics:{TYPE:"edit"},options:{edit:{selectedPathOptions:{dashArray:"10, 10",fill:!0,fillColor:"#fe57a1",fillOpacity:.1,maintainColor:!1}},remove:{},poly:null,featureGroup:null},initialize:function(t){t.edit&&("undefined"==typeof t.edit.selectedPathOptions&&(t.edit.selectedPathOptions=this.options.edit.selectedPathOptions),t.edit.selectedPathOptions=L.extend({},this.options.edit.selectedPathOptions,t.edit.selectedPathOptions)),t.remove&&(t.remove=L.extend({},this.options.remove,t.remove)),t.poly&&(t.poly=L.extend({},this.options.poly,t.poly)),this._toolbarClass="leaflet-draw-edit",L.Toolbar.prototype.initialize.call(this,t),this._selectedFeatureCount=0},getModeHandlers:function(t){var e=this.options.featureGroup;return[{enabled:this.options.edit,handler:new L.EditToolbar.Edit(t,{featureGroup:e,selectedPathOptions:this.options.edit.selectedPathOptions,poly:this.options.poly}),title:L.drawLocal.edit.toolbar.buttons.edit},{enabled:this.options.remove,handler:new L.EditToolbar.Delete(t,{featureGroup:e}),title:L.drawLocal.edit.toolbar.buttons.remove}]},getActions:function(){return[{title:L.drawLocal.edit.toolbar.actions.save.title,text:L.drawLocal.edit.toolbar.actions.save.text,callback:this._save,context:this},{title:L.drawLocal.edit.toolbar.actions.cancel.title,text:L.drawLocal.edit.toolbar.actions.cancel.text,callback:this.disable,context:this}]},addToolbar:function(t){var e=L.Toolbar.prototype.addToolbar.call(this,t);return this._checkDisabled(),this.options.featureGroup.on("layeradd layerremove",this._checkDisabled,this),e},removeToolbar:function(){this.options.featureGroup.off("layeradd layerremove",this._checkDisabled,this),L.Toolbar.prototype.removeToolbar.call(this)},disable:function(){this.enabled()&&(this._activeMode.handler.revertLayers(),L.Toolbar.prototype.disable.call(this))},_save:function(){this._activeMode.handler.save(),this._activeMode&&this._activeMode.handler.disable()},_checkDisabled:function(){var t,e=this.options.featureGroup,i=0!==e.getLayers().length;this.options.edit&&(t=this._modes[L.EditToolbar.Edit.TYPE].button,i?L.DomUtil.removeClass(t,"leaflet-disabled"):L.DomUtil.addClass(t,"leaflet-disabled"),t.setAttribute("title",i?L.drawLocal.edit.toolbar.buttons.edit:L.drawLocal.edit.toolbar.buttons.editDisabled)),this.options.remove&&(t=this._modes[L.EditToolbar.Delete.TYPE].button,i?L.DomUtil.removeClass(t,"leaflet-disabled"):L.DomUtil.addClass(t,"leaflet-disabled"),t.setAttribute("title",i?L.drawLocal.edit.toolbar.buttons.remove:L.drawLocal.edit.toolbar.buttons.removeDisabled))}}),L.EditToolbar.Edit=L.Handler.extend({statics:{TYPE:"edit"},includes:L.Mixin.Events,initialize:function(t,e){if(L.Handler.prototype.initialize.call(this,t),L.setOptions(this,e),this._featureGroup=e.featureGroup,!(this._featureGroup instanceof L.FeatureGroup))throw new Error("options.featureGroup must be a L.FeatureGroup");this._uneditedLayerProps={},this.type=L.EditToolbar.Edit.TYPE},enable:function(){!this._enabled&&this._hasAvailableLayers()&&(this.fire("enabled",{handler:this.type}),this._map.fire(L.Draw.Event.EDITSTART,{handler:this.type}),L.Handler.prototype.enable.call(this),this._featureGroup.on("layeradd",this._enableLayerEdit,this).on("layerremove",this._disableLayerEdit,this))},disable:function(){this._enabled&&(this._featureGroup.off("layeradd",this._enableLayerEdit,this).off("layerremove",this._disableLayerEdit,this),L.Handler.prototype.disable.call(this),this._map.fire(L.Draw.Event.EDITSTOP,{handler:this.type}),this.fire("disabled",{handler:this.type}))},addHooks:function(){var t=this._map;t&&(t.getContainer().focus(),this._featureGroup.eachLayer(this._enableLayerEdit,this),this._tooltip=new L.Draw.Tooltip(this._map),this._tooltip.updateContent({text:L.drawLocal.edit.handlers.edit.tooltip.text,subtext:L.drawLocal.edit.handlers.edit.tooltip.subtext}),t._editTooltip=this._tooltip,this._updateTooltip(),this._map.on("mousemove",this._onMouseMove,this).on("touchmove",this._onMouseMove,this).on("MSPointerMove",this._onMouseMove,this).on(L.Draw.Event.EDITVERTEX,this._updateTooltip,this))},removeHooks:function(){this._map&&(this._featureGroup.eachLayer(this._disableLayerEdit,this),this._uneditedLayerProps={},this._tooltip.dispose(),this._tooltip=null,this._map.off("mousemove",this._onMouseMove,this).off("touchmove",this._onMouseMove,this).off("MSPointerMove",this._onMouseMove,this).off(L.Draw.Event.EDITVERTEX,this._updateTooltip,this))},revertLayers:function(){this._featureGroup.eachLayer(function(t){this._revertLayer(t)},this)},save:function(){var t=new L.LayerGroup;this._featureGroup.eachLayer(function(e){e.edited&&(t.addLayer(e),e.edited=!1)}),this._map.fire(L.Draw.Event.EDITED,{layers:t})},_backupLayer:function(t){var e=L.Util.stamp(t);this._uneditedLayerProps[e]||(t instanceof L.Polyline||t instanceof L.Polygon||t instanceof L.Rectangle?this._uneditedLayerProps[e]={latlngs:L.LatLngUtil.cloneLatLngs(t.getLatLngs())}:t instanceof L.Circle?this._uneditedLayerProps[e]={latlng:L.LatLngUtil.cloneLatLng(t.getLatLng()),radius:t.getRadius()}:t instanceof L.Marker&&(this._uneditedLayerProps[e]={latlng:L.LatLngUtil.cloneLatLng(t.getLatLng())}))},_getTooltipText:function(){return{text:L.drawLocal.edit.handlers.edit.tooltip.text,subtext:L.drawLocal.edit.handlers.edit.tooltip.subtext}},_updateTooltip:function(){this._tooltip.updateContent(this._getTooltipText())},_revertLayer:function(t){var e=L.Util.stamp(t);t.edited=!1,this._uneditedLayerProps.hasOwnProperty(e)&&(t instanceof L.Polyline||t instanceof L.Polygon||t instanceof L.Rectangle?t.setLatLngs(this._uneditedLayerProps[e].latlngs):t instanceof L.Circle?(t.setLatLng(this._uneditedLayerProps[e].latlng),t.setRadius(this._uneditedLayerProps[e].radius)):t instanceof L.Marker&&t.setLatLng(this._uneditedLayerProps[e].latlng),t.fire("revert-edited",{layer:t}))},_enableLayerEdit:function(t){var e,i,o=t.layer||t.target||t;this._backupLayer(o),this.options.poly&&(i=L.Util.extend({},this.options.poly),o.options.poly=i),this.options.selectedPathOptions&&(e=L.Util.extend({},this.options.selectedPathOptions),e.maintainColor&&(e.color=o.options.color,e.fillColor=o.options.fillColor),o.options.original=L.extend({},o.options),o.options.editing=e),o instanceof L.Marker?(o.editing&&o.editing.enable(),o.dragging.enable(),o.on("dragend",this._onMarkerDragEnd).on("touchmove",this._onTouchMove,this).on("MSPointerMove",this._onTouchMove,this).on("touchend",this._onMarkerDragEnd,this).on("MSPointerUp",this._onMarkerDragEnd,this)):o.editing.enable()},_disableLayerEdit:function(t){var e=t.layer||t.target||t;e.edited=!1,e.editing&&e.editing.disable(),delete e.options.editing,delete e.options.original,this._selectedPathOptions&&(e instanceof L.Marker?this._toggleMarkerHighlight(e):(e.setStyle(e.options.previousOptions),delete e.options.previousOptions)),e instanceof L.Marker?(e.dragging.disable(),e.off("dragend",this._onMarkerDragEnd,this).off("touchmove",this._onTouchMove,this).off("MSPointerMove",this._onTouchMove,this).off("touchend",this._onMarkerDragEnd,this).off("MSPointerUp",this._onMarkerDragEnd,this)):e.editing.disable()},_onMouseMove:function(t){this._tooltip.updatePosition(t.latlng)},_onMarkerDragEnd:function(t){var e=t.target;e.edited=!0,this._map.fire(L.Draw.Event.EDITMOVE,{layer:e})},_onTouchMove:function(t){var e=t.originalEvent.changedTouches[0],i=this._map.mouseEventToLayerPoint(e),o=this._map.layerPointToLatLng(i);t.target.setLatLng(o)},_hasAvailableLayers:function(){return 0!==this._featureGroup.getLayers().length}}),L.EditToolbar.Delete=L.Handler.extend({statics:{TYPE:"remove"},includes:L.Mixin.Events,initialize:function(t,e){if(L.Handler.prototype.initialize.call(this,t),L.Util.setOptions(this,e),this._deletableLayers=this.options.featureGroup,!(this._deletableLayers instanceof L.FeatureGroup))throw new Error("options.featureGroup must be a L.FeatureGroup");this.type=L.EditToolbar.Delete.TYPE},enable:function(){!this._enabled&&this._hasAvailableLayers()&&(this.fire("enabled",{handler:this.type}),this._map.fire(L.Draw.Event.DELETESTART,{handler:this.type}),L.Handler.prototype.enable.call(this),this._deletableLayers.on("layeradd",this._enableLayerDelete,this).on("layerremove",this._disableLayerDelete,this))},disable:function(){this._enabled&&(this._deletableLayers.off("layeradd",this._enableLayerDelete,this).off("layerremove",this._disableLayerDelete,this),L.Handler.prototype.disable.call(this),this._map.fire(L.Draw.Event.DELETESTOP,{handler:this.type}),this.fire("disabled",{handler:this.type}))},addHooks:function(){var t=this._map;t&&(t.getContainer().focus(),this._deletableLayers.eachLayer(this._enableLayerDelete,this),this._deletedLayers=new L.LayerGroup,this._tooltip=new L.Draw.Tooltip(this._map),this._tooltip.updateContent({text:L.drawLocal.edit.handlers.remove.tooltip.text}),this._map.on("mousemove",this._onMouseMove,this))},removeHooks:function(){this._map&&(this._deletableLayers.eachLayer(this._disableLayerDelete,this),this._deletedLayers=null,this._tooltip.dispose(),this._tooltip=null,this._map.off("mousemove",this._onMouseMove,this))},revertLayers:function(){this._deletedLayers.eachLayer(function(t){this._deletableLayers.addLayer(t),t.fire("revert-deleted",{layer:t})},this)},save:function(){this._map.fire(L.Draw.Event.DELETED,{layers:this._deletedLayers})},_enableLayerDelete:function(t){var e=t.layer||t.target||t;e.on("click",this._removeLayer,this)},_disableLayerDelete:function(t){var e=t.layer||t.target||t;e.off("click",this._removeLayer,this),this._deletedLayers.removeLayer(e)},_removeLayer:function(t){var e=t.layer||t.target||t;this._deletableLayers.removeLayer(e),this._deletedLayers.addLayer(e),e.fire("deleted")},_onMouseMove:function(t){this._tooltip.updatePosition(t.latlng)},_hasAvailableLayers:function(){return 0!==this._deletableLayers.getLayers().length}})}(window,document);
+	var rbush = __webpack_require__(4);
+	var convexHull = __webpack_require__(6);
+	var Queue = __webpack_require__(13);
+	var pointInPolygon = __webpack_require__(14);
+	var orient = __webpack_require__(7)[3];
+
+	module.exports = concaveman;
+	module.exports.default = concaveman;
+
+	function concaveman(points, concavity, lengthThreshold) {
+	    // a relative measure of concavity; higher value means simpler hull
+	    concavity = Math.max(0, concavity === undefined ? 2 : concavity);
+
+	    // when a segment goes below this length threshold, it won't be drilled down further
+	    lengthThreshold = lengthThreshold || 0;
+
+	    // start with a convex hull of the points
+	    var hull = fastConvexHull(points);
+
+	    // index the points with an R-tree
+	    var tree = rbush(16, ['[0]', '[1]', '[0]', '[1]']).load(points);
+
+	    // turn the convex hull into a linked list and populate the initial edge queue with the nodes
+	    var queue = [];
+	    for (var i = 0, last; i < hull.length; i++) {
+	        var p = hull[i];
+	        tree.remove(p);
+	        last = insertNode(p, last);
+	        queue.push(last);
+	    }
+
+	    // index the segments with an R-tree (for intersection checks)
+	    var segTree = rbush(16);
+	    for (i = 0; i < queue.length; i++) segTree.insert(updateBBox(queue[i]));
+
+	    var sqConcavity = concavity * concavity;
+	    var sqLenThreshold = lengthThreshold * lengthThreshold;
+
+	    // process edges one by one
+	    while (queue.length) {
+	        var node = queue.shift();
+	        var a = node.p;
+	        var b = node.next.p;
+
+	        // skip the edge if it's already short enough
+	        var sqLen = getSqDist(a, b);
+	        if (sqLen < sqLenThreshold) continue;
+
+	        var maxSqLen = sqLen / sqConcavity;
+
+	        // find the best connection point for the current edge to flex inward to
+	        p = findCandidate(tree, node.prev.p, a, b, node.next.next.p, maxSqLen, segTree);
+
+	        // if we found a connection and it satisfies our concavity measure
+	        if (p && Math.min(getSqDist(p, a), getSqDist(p, b)) <= maxSqLen) {
+	            // connect the edge endpoints through this point and add 2 new edges to the queue
+	            queue.push(node);
+	            queue.push(insertNode(p, node));
+
+	            // update point and segment indexes
+	            tree.remove(p);
+	            segTree.remove(node);
+	            segTree.insert(updateBBox(node));
+	            segTree.insert(updateBBox(node.next));
+	        }
+	    }
+
+	    // convert the resulting hull linked list to an array of points
+	    node = last;
+	    var concave = [];
+	    do {
+	        concave.push(node.p);
+	        node = node.next;
+	    } while (node !== last);
+
+	    concave.push(node.p);
+
+	    return concave;
+	}
+
+	function findCandidate(tree, a, b, c, d, maxDist, segTree) {
+	    var queue = new Queue(null, compareDist);
+	    var node = tree.data;
+
+	    // search through the point R-tree with a depth-first search using a priority queue
+	    // in the order of distance to the edge (b, c)
+	    while (node) {
+	        for (var i = 0; i < node.children.length; i++) {
+	            var child = node.children[i];
+
+	            var dist = node.leaf ? sqSegDist(child, b, c) : sqSegBoxDist(b, c, child);
+	            if (dist > maxDist) continue; // skip the node if it's farther than we ever need
+
+	            queue.push({
+	                node: child,
+	                dist: dist
+	            });
+	        }
+
+	        while (queue.length && !queue.peek().node.children) {
+	            var item = queue.pop();
+	            var p = item.node;
+
+	            // skip all points that are as close to adjacent edges (a,b) and (c,d),
+	            // and points that would introduce self-intersections when connected
+	            var d0 = sqSegDist(p, a, b);
+	            var d1 = sqSegDist(p, c, d);
+	            if (item.dist < d0 && item.dist < d1 &&
+	                noIntersections(b, p, segTree) &&
+	                noIntersections(c, p, segTree)) return p;
+	        }
+
+	        node = queue.pop();
+	        if (node) node = node.node;
+	    }
+
+	    return null;
+	}
+
+	function compareDist(a, b) {
+	    return a.dist - b.dist;
+	}
+
+	// square distance from a segment bounding box to the given one
+	function sqSegBoxDist(a, b, bbox) {
+	    if (inside(a, bbox) || inside(b, bbox)) return 0;
+	    var d1 = sqSegSegDist(a[0], a[1], b[0], b[1], bbox.minX, bbox.minY, bbox.maxX, bbox.minY);
+	    if (d1 === 0) return 0;
+	    var d2 = sqSegSegDist(a[0], a[1], b[0], b[1], bbox.minX, bbox.minY, bbox.minX, bbox.maxY);
+	    if (d2 === 0) return 0;
+	    var d3 = sqSegSegDist(a[0], a[1], b[0], b[1], bbox.maxX, bbox.minY, bbox.maxX, bbox.maxY);
+	    if (d3 === 0) return 0;
+	    var d4 = sqSegSegDist(a[0], a[1], b[0], b[1], bbox.minX, bbox.maxY, bbox.maxX, bbox.maxY);
+	    if (d4 === 0) return 0;
+	    return Math.min(d1, d2, d3, d4);
+	}
+
+	function inside(a, bbox) {
+	    return a[0] >= bbox.minX &&
+	           a[0] <= bbox.maxX &&
+	           a[1] >= bbox.minY &&
+	           a[1] <= bbox.maxY;
+	}
+
+	// check if the edge (a,b) doesn't intersect any other edges
+	function noIntersections(a, b, segTree) {
+	    var minX = Math.min(a[0], b[0]);
+	    var minY = Math.min(a[1], b[1]);
+	    var maxX = Math.max(a[0], b[0]);
+	    var maxY = Math.max(a[1], b[1]);
+
+	    var edges = segTree.search({minX: minX, minY: minY, maxX: maxX, maxY: maxY});
+	    for (var i = 0; i < edges.length; i++) {
+	        if (intersects(edges[i].p, edges[i].next.p, a, b)) return false;
+	    }
+	    return true;
+	}
+
+	// check if the edges (p1,q1) and (p2,q2) intersect
+	function intersects(p1, q1, p2, q2) {
+	    return p1 !== q2 && q1 !== p2 &&
+	        orient(p1, q1, p2) > 0 !== orient(p1, q1, q2) > 0 &&
+	        orient(p2, q2, p1) > 0 !== orient(p2, q2, q1) > 0;
+	}
+
+	// update the bounding box of a node's edge
+	function updateBBox(node) {
+	    var p1 = node.p;
+	    var p2 = node.next.p;
+	    node.minX = Math.min(p1[0], p2[0]);
+	    node.minY = Math.min(p1[1], p2[1]);
+	    node.maxX = Math.max(p1[0], p2[0]);
+	    node.maxY = Math.max(p1[1], p2[1]);
+	    return node;
+	}
+
+	// speed up convex hull by filtering out points inside quadrilateral formed by 4 extreme points
+	function fastConvexHull(points) {
+	    var left = points[0];
+	    var top = points[0];
+	    var right = points[0];
+	    var bottom = points[0];
+
+	    // find the leftmost, rightmost, topmost and bottommost points
+	    for (var i = 0; i < points.length; i++) {
+	        var p = points[i];
+	        if (p[0] < left[0]) left = p;
+	        if (p[0] > right[0]) right = p;
+	        if (p[1] < top[1]) top = p;
+	        if (p[1] > bottom[1]) bottom = p;
+	    }
+
+	    // filter out points that are inside the resulting quadrilateral
+	    var cull = [left, top, right, bottom];
+	    var filtered = cull.slice();
+	    for (i = 0; i < points.length; i++) {
+	        if (!pointInPolygon(points[i], cull)) filtered.push(points[i]);
+	    }
+
+	    // get convex hull around the filtered points
+	    var indices = convexHull(filtered);
+
+	    // return the hull as array of points (rather than indices)
+	    var hull = [];
+	    for (i = 0; i < indices.length; i++) hull.push(filtered[indices[i]]);
+	    return hull;
+	}
+
+	// create a new node in a doubly linked list
+	function insertNode(p, prev) {
+	    var node = {
+	        p: p,
+	        prev: null,
+	        next: null,
+	        minX: 0,
+	        minY: 0,
+	        maxX: 0,
+	        maxY: 0
+	    };
+
+	    if (!prev) {
+	        node.prev = node;
+	        node.next = node;
+
+	    } else {
+	        node.next = prev.next;
+	        node.prev = prev;
+	        prev.next.prev = node;
+	        prev.next = node;
+	    }
+	    return node;
+	}
+
+	// square distance between 2 points
+	function getSqDist(p1, p2) {
+
+	    var dx = p1[0] - p2[0],
+	        dy = p1[1] - p2[1];
+
+	    return dx * dx + dy * dy;
+	}
+
+	// square distance from a point to a segment
+	function sqSegDist(p, p1, p2) {
+
+	    var x = p1[0],
+	        y = p1[1],
+	        dx = p2[0] - x,
+	        dy = p2[1] - y;
+
+	    if (dx !== 0 || dy !== 0) {
+
+	        var t = ((p[0] - x) * dx + (p[1] - y) * dy) / (dx * dx + dy * dy);
+
+	        if (t > 1) {
+	            x = p2[0];
+	            y = p2[1];
+
+	        } else if (t > 0) {
+	            x += dx * t;
+	            y += dy * t;
+	        }
+	    }
+
+	    dx = p[0] - x;
+	    dy = p[1] - y;
+
+	    return dx * dx + dy * dy;
+	}
+
+	// segment to segment distance, ported from http://geomalgorithms.com/a07-_distance.html by Dan Sunday
+	function sqSegSegDist(x0, y0, x1, y1, x2, y2, x3, y3) {
+	    var ux = x1 - x0;
+	    var uy = y1 - y0;
+	    var vx = x3 - x2;
+	    var vy = y3 - y2;
+	    var wx = x0 - x2;
+	    var wy = y0 - y2;
+	    var a = ux * ux + uy * uy;
+	    var b = ux * vx + uy * vy;
+	    var c = vx * vx + vy * vy;
+	    var d = ux * wx + uy * wy;
+	    var e = vx * wx + vy * wy;
+	    var D = a * c - b * b;
+
+	    var sc, sN, tc, tN;
+	    var sD = D;
+	    var tD = D;
+
+	    if (D === 0) {
+	        sN = 0;
+	        sD = 1;
+	        tN = e;
+	        tD = c;
+	    } else {
+	        sN = b * e - c * d;
+	        tN = a * e - b * d;
+	        if (sN < 0) {
+	            sN = 0;
+	            tN = e;
+	            tD = c;
+	        } else if (sN > sD) {
+	            sN = sD;
+	            tN = e + b;
+	            tD = c;
+	        }
+	    }
+
+	    if (tN < 0.0) {
+	        tN = 0.0;
+	        if (-d < 0.0) sN = 0.0;
+	        else if (-d > a) sN = sD;
+	        else {
+	            sN = -d;
+	            sD = a;
+	        }
+	    } else if (tN > tD) {
+	        tN = tD;
+	        if ((-d + b) < 0.0) sN = 0;
+	        else if (-d + b > a) sN = sD;
+	        else {
+	            sN = -d + b;
+	            sD = a;
+	        }
+	    }
+
+	    sc = sN === 0 ? 0 : sN / sD;
+	    tc = tN === 0 ? 0 : tN / tD;
+
+	    var cx = (1 - sc) * x0 + sc * x1;
+	    var cy = (1 - sc) * y0 + sc * y1;
+	    var cx2 = (1 - tc) * x2 + tc * x3;
+	    var cy2 = (1 - tc) * y2 + tc * y3;
+	    var dx = cx2 - cx;
+	    var dy = cy2 - cy;
+
+	    return dx * dx + dy * dy;
+	}
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
 /* 4 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
-	(function () {
+	'use strict';
 
-	L.Handler.MarkerSnap = L.Handler.extend({
-	    options: {
-	        snapDistance: 15, // in pixels
-	        snapVertices: true
+	module.exports = rbush;
+
+	var quickselect = __webpack_require__(5);
+
+	function rbush(maxEntries, format) {
+	    if (!(this instanceof rbush)) return new rbush(maxEntries, format);
+
+	    // max entries in a node is 9 by default; min node fill is 40% for best performance
+	    this._maxEntries = Math.max(4, maxEntries || 9);
+	    this._minEntries = Math.max(2, Math.ceil(this._maxEntries * 0.4));
+
+	    if (format) {
+	        this._initFormat(format);
+	    }
+
+	    this.clear();
+	}
+
+	rbush.prototype = {
+
+	    all: function () {
+	        return this._all(this.data, []);
 	    },
 
-	    initialize: function (map, marker, options) {
-	        L.Handler.prototype.initialize.call(this, map);
-	        this._markers = [];
-	        this._guides = [];
+	    search: function (bbox) {
 
-	        if (arguments.length == 2) {
-	            if (!(marker instanceof L.Class)) {
-	                options = marker;
-	                marker = null;
+	        var node = this.data,
+	            result = [],
+	            toBBox = this.toBBox;
+
+	        if (!intersects(bbox, node)) return result;
+
+	        var nodesToSearch = [],
+	            i, len, child, childBBox;
+
+	        while (node) {
+	            for (i = 0, len = node.children.length; i < len; i++) {
+
+	                child = node.children[i];
+	                childBBox = node.leaf ? toBBox(child) : child;
+
+	                if (intersects(bbox, childBBox)) {
+	                    if (node.leaf) result.push(child);
+	                    else if (contains(bbox, childBBox)) this._all(child, result);
+	                    else nodesToSearch.push(child);
+	                }
+	            }
+	            node = nodesToSearch.pop();
+	        }
+
+	        return result;
+	    },
+
+	    collides: function (bbox) {
+
+	        var node = this.data,
+	            toBBox = this.toBBox;
+
+	        if (!intersects(bbox, node)) return false;
+
+	        var nodesToSearch = [],
+	            i, len, child, childBBox;
+
+	        while (node) {
+	            for (i = 0, len = node.children.length; i < len; i++) {
+
+	                child = node.children[i];
+	                childBBox = node.leaf ? toBBox(child) : child;
+
+	                if (intersects(bbox, childBBox)) {
+	                    if (node.leaf || contains(bbox, childBBox)) return true;
+	                    nodesToSearch.push(child);
+	                }
+	            }
+	            node = nodesToSearch.pop();
+	        }
+
+	        return false;
+	    },
+
+	    load: function (data) {
+	        if (!(data && data.length)) return this;
+
+	        if (data.length < this._minEntries) {
+	            for (var i = 0, len = data.length; i < len; i++) {
+	                this.insert(data[i]);
+	            }
+	            return this;
+	        }
+
+	        // recursively build the tree with the given data from stratch using OMT algorithm
+	        var node = this._build(data.slice(), 0, data.length - 1, 0);
+
+	        if (!this.data.children.length) {
+	            // save as is if tree is empty
+	            this.data = node;
+
+	        } else if (this.data.height === node.height) {
+	            // split root if trees have the same height
+	            this._splitRoot(this.data, node);
+
+	        } else {
+	            if (this.data.height < node.height) {
+	                // swap trees if inserted one is bigger
+	                var tmpNode = this.data;
+	                this.data = node;
+	                node = tmpNode;
+	            }
+
+	            // insert the small tree into the large tree at appropriate level
+	            this._insert(node, this.data.height - node.height - 1, true);
+	        }
+
+	        return this;
+	    },
+
+	    insert: function (item) {
+	        if (item) this._insert(item, this.data.height - 1);
+	        return this;
+	    },
+
+	    clear: function () {
+	        this.data = createNode([]);
+	        return this;
+	    },
+
+	    remove: function (item, equalsFn) {
+	        if (!item) return this;
+
+	        var node = this.data,
+	            bbox = this.toBBox(item),
+	            path = [],
+	            indexes = [],
+	            i, parent, index, goingUp;
+
+	        // depth-first iterative tree traversal
+	        while (node || path.length) {
+
+	            if (!node) { // go up
+	                node = path.pop();
+	                parent = path[path.length - 1];
+	                i = indexes.pop();
+	                goingUp = true;
+	            }
+
+	            if (node.leaf) { // check current node
+	                index = findItem(item, node.children, equalsFn);
+
+	                if (index !== -1) {
+	                    // item found, remove the item and condense tree upwards
+	                    node.children.splice(index, 1);
+	                    path.push(node);
+	                    this._condense(path);
+	                    return this;
+	                }
+	            }
+
+	            if (!goingUp && !node.leaf && contains(node, bbox)) { // go down
+	                path.push(node);
+	                indexes.push(i);
+	                i = 0;
+	                parent = node;
+	                node = node.children[0];
+
+	            } else if (parent) { // go right
+	                i++;
+	                node = parent.children[i];
+	                goingUp = false;
+
+	            } else node = null; // nothing found
+	        }
+
+	        return this;
+	    },
+
+	    toBBox: function (item) { return item; },
+
+	    compareMinX: compareNodeMinX,
+	    compareMinY: compareNodeMinY,
+
+	    toJSON: function () { return this.data; },
+
+	    fromJSON: function (data) {
+	        this.data = data;
+	        return this;
+	    },
+
+	    _all: function (node, result) {
+	        var nodesToSearch = [];
+	        while (node) {
+	            if (node.leaf) result.push.apply(result, node.children);
+	            else nodesToSearch.push.apply(nodesToSearch, node.children);
+
+	            node = nodesToSearch.pop();
+	        }
+	        return result;
+	    },
+
+	    _build: function (items, left, right, height) {
+
+	        var N = right - left + 1,
+	            M = this._maxEntries,
+	            node;
+
+	        if (N <= M) {
+	            // reached leaf level; return leaf
+	            node = createNode(items.slice(left, right + 1));
+	            calcBBox(node, this.toBBox);
+	            return node;
+	        }
+
+	        if (!height) {
+	            // target height of the bulk-loaded tree
+	            height = Math.ceil(Math.log(N) / Math.log(M));
+
+	            // target number of root entries to maximize storage utilization
+	            M = Math.ceil(N / Math.pow(M, height - 1));
+	        }
+
+	        node = createNode([]);
+	        node.leaf = false;
+	        node.height = height;
+
+	        // split the items into M mostly square tiles
+
+	        var N2 = Math.ceil(N / M),
+	            N1 = N2 * Math.ceil(Math.sqrt(M)),
+	            i, j, right2, right3;
+
+	        multiSelect(items, left, right, N1, this.compareMinX);
+
+	        for (i = left; i <= right; i += N1) {
+
+	            right2 = Math.min(i + N1 - 1, right);
+
+	            multiSelect(items, i, right2, N2, this.compareMinY);
+
+	            for (j = i; j <= right2; j += N2) {
+
+	                right3 = Math.min(j + N2 - 1, right2);
+
+	                // pack each entry recursively
+	                node.children.push(this._build(items, j, right3, height - 1));
 	            }
 	        }
 
-	        L.Util.setOptions(this, options || {});
+	        calcBBox(node, this.toBBox);
 
-	        if (marker) {
-	            // new markers should be draggable !
-	            if (!marker.dragging) marker.dragging = new L.Handler.MarkerDrag(marker);
-	            marker.dragging.enable();
-	            this.watchMarker(marker);
-	        }
-
-	        // Convert snap distance in pixels into buffer in degres, for searching around mouse
-	        // It changes at each zoom change.
-	        function computeBuffer() {
-	            this._buffer = map.layerPointToLatLng(new L.Point(0,0)).lat -
-	                           map.layerPointToLatLng(new L.Point(this.options.snapDistance, 0)).lat;
-	        }
-	        map.on('zoomend', computeBuffer, this);
-	        map.whenReady(computeBuffer, this);
-	        computeBuffer.call(this);
+	        return node;
 	    },
 
-	    enable: function () {
-	        this.disable();
-	        for (var i=0; i<this._markers.length; i++) {
-	            this.watchMarker(this._markers[i]);
-	        }
-	    },
+	    _chooseSubtree: function (bbox, node, level, path) {
 
-	    disable: function () {
-	        for (var i=0; i<this._markers.length; i++) {
-	            this.unwatchMarker(this._markers[i]);
-	        }
-	    },
+	        var i, len, child, targetNode, area, enlargement, minArea, minEnlargement;
 
-	    watchMarker: function (marker) {
-	        if (this._markers.indexOf(marker) == -1)
-	            this._markers.push(marker);
-	        marker.on('move', this._snapMarker, this);
-	    },
+	        while (true) {
+	            path.push(node);
 
-	    unwatchMarker: function (marker) {
-	        marker.off('move', this._snapMarker, this);
-	        delete marker['snap'];
-	    },
+	            if (node.leaf || path.length - 1 === level) break;
 
-	    addGuideLayer: function (layer) {
-	        for (var i=0, n=this._guides.length; i<n; i++)
-	            if (L.stamp(layer) === L.stamp(this._guides[i]))
-	                return;
-	        this._guides.push(layer);
-	    },
+	            minArea = minEnlargement = Infinity;
 
-	    _snapMarker: function(e) {
-	        var marker = e.target,
-	            latlng = marker.getLatLng(),
-	            snaplist = [];
+	            for (i = 0, len = node.children.length; i < len; i++) {
+	                child = node.children[i];
+	                area = bboxArea(child);
+	                enlargement = enlargedArea(bbox, child) - area;
 
-	        function isDifferentLayer(layer) {
-	            if (layer.getLatLng) {
-	                return L.stamp(marker) !== L.stamp(layer);
-	            } else {
-	                if (layer.editing && layer.editing._enabled) {
-	                    var points = layer.editing._verticesHandlers[0]._markerGroup.getLayers();
-	                    for(var i = 0, n = points.length; i < n; i++) {
-	                        if (L.stamp(points[i]) === L.stamp(marker)) { return false; }
+	                // choose entry with the least area enlargement
+	                if (enlargement < minEnlargement) {
+	                    minEnlargement = enlargement;
+	                    minArea = area < minArea ? area : minArea;
+	                    targetNode = child;
+
+	                } else if (enlargement === minEnlargement) {
+	                    // otherwise choose one with the smallest area
+	                    if (area < minArea) {
+	                        minArea = area;
+	                        targetNode = child;
 	                    }
 	                }
 	            }
 
-	            return true;
+	            node = targetNode || node.children[0];
 	        }
 
-	        function processGuide(guide) {
-	            if ((guide._layers !== undefined) &&
-	                (typeof guide.searchBuffer !== 'function')) {
-	                // Guide is a layer group and has no L.LayerIndexMixin (from Leaflet.LayerIndex)
-	                for (var id in guide._layers) {
-	                    processGuide(guide._layers[id]);
+	        return node;
+	    },
+
+	    _insert: function (item, level, isNode) {
+
+	        var toBBox = this.toBBox,
+	            bbox = isNode ? item : toBBox(item),
+	            insertPath = [];
+
+	        // find the best node for accommodating the item, saving all nodes along the path too
+	        var node = this._chooseSubtree(bbox, this.data, level, insertPath);
+
+	        // put the item into the node
+	        node.children.push(item);
+	        extend(node, bbox);
+
+	        // split on node overflow; propagate upwards if necessary
+	        while (level >= 0) {
+	            if (insertPath[level].children.length > this._maxEntries) {
+	                this._split(insertPath, level);
+	                level--;
+	            } else break;
+	        }
+
+	        // adjust bboxes along the insertion path
+	        this._adjustParentBBoxes(bbox, insertPath, level);
+	    },
+
+	    // split overflowed node into two
+	    _split: function (insertPath, level) {
+
+	        var node = insertPath[level],
+	            M = node.children.length,
+	            m = this._minEntries;
+
+	        this._chooseSplitAxis(node, m, M);
+
+	        var splitIndex = this._chooseSplitIndex(node, m, M);
+
+	        var newNode = createNode(node.children.splice(splitIndex, node.children.length - splitIndex));
+	        newNode.height = node.height;
+	        newNode.leaf = node.leaf;
+
+	        calcBBox(node, this.toBBox);
+	        calcBBox(newNode, this.toBBox);
+
+	        if (level) insertPath[level - 1].children.push(newNode);
+	        else this._splitRoot(node, newNode);
+	    },
+
+	    _splitRoot: function (node, newNode) {
+	        // split root node
+	        this.data = createNode([node, newNode]);
+	        this.data.height = node.height + 1;
+	        this.data.leaf = false;
+	        calcBBox(this.data, this.toBBox);
+	    },
+
+	    _chooseSplitIndex: function (node, m, M) {
+
+	        var i, bbox1, bbox2, overlap, area, minOverlap, minArea, index;
+
+	        minOverlap = minArea = Infinity;
+
+	        for (i = m; i <= M - m; i++) {
+	            bbox1 = distBBox(node, 0, i, this.toBBox);
+	            bbox2 = distBBox(node, i, M, this.toBBox);
+
+	            overlap = intersectionArea(bbox1, bbox2);
+	            area = bboxArea(bbox1) + bboxArea(bbox2);
+
+	            // choose distribution with minimum overlap
+	            if (overlap < minOverlap) {
+	                minOverlap = overlap;
+	                index = i;
+
+	                minArea = area < minArea ? area : minArea;
+
+	            } else if (overlap === minOverlap) {
+	                // otherwise choose distribution with minimum area
+	                if (area < minArea) {
+	                    minArea = area;
+	                    index = i;
 	                }
 	            }
-	            else if (typeof guide.searchBuffer === 'function') {
-	                // Search snaplist around mouse
-	                var nearlayers = guide.searchBuffer(latlng, this._buffer);
-	                snaplist = snaplist.concat(nearlayers.filter(function(layer) {
-	                    return isDifferentLayer(layer);
-	                }));
-	            }
-	            // Make sure the marker doesn't snap to itself or the associated polyline layer
-	            else if (isDifferentLayer(guide)) {
-	                snaplist.push(guide);
-	            }
 	        }
 
-	        for (var i=0, n = this._guides.length; i < n; i++) {
-	            var guide = this._guides[i];
-	            processGuide.call(this, guide);
-	        }
-
-	        var closest = this._findClosestLayerSnap(this._map,
-	                                                 snaplist,
-	                                                 latlng,
-	                                                 this.options.snapDistance,
-	                                                 this.options.snapVertices);
-
-	        closest = closest || {layer: null, latlng: null};
-	        this._updateSnap(marker, closest.layer, closest.latlng);
+	        return index;
 	    },
 
-	    _findClosestLayerSnap: function (map, layers, latlng, tolerance, withVertices) {
-	        return L.GeometryUtil.closestLayerSnap(map, layers, latlng, tolerance, withVertices);
+	    // sorts node children by the best axis for split
+	    _chooseSplitAxis: function (node, m, M) {
+
+	        var compareMinX = node.leaf ? this.compareMinX : compareNodeMinX,
+	            compareMinY = node.leaf ? this.compareMinY : compareNodeMinY,
+	            xMargin = this._allDistMargin(node, m, M, compareMinX),
+	            yMargin = this._allDistMargin(node, m, M, compareMinY);
+
+	        // if total distributions margin value is minimal for x, sort by minX,
+	        // otherwise it's already sorted by minY
+	        if (xMargin < yMargin) node.children.sort(compareMinX);
 	    },
 
-	    _updateSnap: function (marker, layer, latlng) {
-	        if (layer && latlng) {
-	            marker._latlng = L.latLng(latlng);
-	            marker.update();
-	            if (marker.snap != layer) {
-	                marker.snap = layer;
-	                if (marker._icon) L.DomUtil.addClass(marker._icon, 'marker-snapped');
-	                marker.fire('snap', {layer:layer, latlng: latlng});
-	            }
+	    // total margin of all possible split distributions where each node is at least m full
+	    _allDistMargin: function (node, m, M, compare) {
+
+	        node.children.sort(compare);
+
+	        var toBBox = this.toBBox,
+	            leftBBox = distBBox(node, 0, m, toBBox),
+	            rightBBox = distBBox(node, M - m, M, toBBox),
+	            margin = bboxMargin(leftBBox) + bboxMargin(rightBBox),
+	            i, child;
+
+	        for (i = m; i < M - m; i++) {
+	            child = node.children[i];
+	            extend(leftBBox, node.leaf ? toBBox(child) : child);
+	            margin += bboxMargin(leftBBox);
 	        }
-	        else {
-	            if (marker.snap) {
-	                if (marker._icon) L.DomUtil.removeClass(marker._icon, 'marker-snapped');
-	                marker.fire('unsnap', {layer:marker.snap});
-	            }
-	            delete marker['snap'];
+
+	        for (i = M - m - 1; i >= m; i--) {
+	            child = node.children[i];
+	            extend(rightBBox, node.leaf ? toBBox(child) : child);
+	            margin += bboxMargin(rightBBox);
 	        }
+
+	        return margin;
+	    },
+
+	    _adjustParentBBoxes: function (bbox, path, level) {
+	        // adjust bboxes along the given tree path
+	        for (var i = level; i >= 0; i--) {
+	            extend(path[i], bbox);
+	        }
+	    },
+
+	    _condense: function (path) {
+	        // go through the path, removing empty nodes and updating bboxes
+	        for (var i = path.length - 1, siblings; i >= 0; i--) {
+	            if (path[i].children.length === 0) {
+	                if (i > 0) {
+	                    siblings = path[i - 1].children;
+	                    siblings.splice(siblings.indexOf(path[i]), 1);
+
+	                } else this.clear();
+
+	            } else calcBBox(path[i], this.toBBox);
+	        }
+	    },
+
+	    _initFormat: function (format) {
+	        // data format (minX, minY, maxX, maxY accessors)
+
+	        // uses eval-type function compilation instead of just accepting a toBBox function
+	        // because the algorithms are very sensitive to sorting functions performance,
+	        // so they should be dead simple and without inner calls
+
+	        var compareArr = ['return a', ' - b', ';'];
+
+	        this.compareMinX = new Function('a', 'b', compareArr.join(format[0]));
+	        this.compareMinY = new Function('a', 'b', compareArr.join(format[1]));
+
+	        this.toBBox = new Function('a',
+	            'return {minX: a' + format[0] +
+	            ', minY: a' + format[1] +
+	            ', maxX: a' + format[2] +
+	            ', maxY: a' + format[3] + '};');
 	    }
-	});
-
-
-	if (!L.Edit) {
-	    // Leaflet.Draw not available.
-	    return;
-	}
-
-
-	L.Handler.PolylineSnap = L.Edit.Poly.extend({
-
-	    initialize: function (map, poly, options) {
-	        var that = this;
-
-	        L.Edit.Poly.prototype.initialize.call(this, poly, options);
-	        this._snapper = new L.Handler.MarkerSnap(map, options);
-	        poly.on('remove', function() {
-	            that.disable();
-	        });
-	    },
-
-	    addGuideLayer: function (layer) {
-	        this._snapper.addGuideLayer(layer);
-	    },
-	    
-	    _initHandlers: function () {
-	        this._verticesHandlers = [];
-	        for (var i = 0; i < this.latlngs.length; i++) {
-	            this._verticesHandlers.push(new L.Edit.PolyVerticesEditSnap(this._poly, this.latlngs[i], this.options));
-	        }
-	    }
-	});
-
-	L.Edit.PolyVerticesEditSnap = L.Edit.PolyVerticesEdit.extend({
-	    _createMarker: function (latlng, index) {
-	               var marker = L.Edit.PolyVerticesEdit.prototype._createMarker.call(this, latlng, index);
-
-	        // Treat middle markers differently
-	        var isMiddle = index === undefined;
-	        if (isMiddle) {
-	            // Snap middle markers, only once they were touched
-	            marker.on('dragstart', function () {
-	                this._poly.snapediting._snapper.watchMarker(marker);
-	            }, this);
-	        }
-	        else {
-	            this._poly.snapediting._snapper.watchMarker(marker);
-	        }
-	        return marker;
-	    }
-	});
-
-	L.EditToolbar.SnapEdit = L.EditToolbar.Edit.extend({
-	    snapOptions: {
-	        snapDistance: 15, // in pixels
-	        snapVertices: true
-	    },
-
-	    initialize: function(map, options) {
-	        L.EditToolbar.Edit.prototype.initialize.call(this, map, options);
-
-	        if (options.snapOptions) {
-	            L.Util.extend(this.snapOptions, options.snapOptions);
-	        }
-
-	        if (Array.isArray(this.snapOptions.guideLayers)) {
-	            this._guideLayers = this.snapOptions.guideLayers;
-	        } else if (options.guideLayers instanceof L.LayerGroup) {
-	            this._guideLayers = this.snapOptions.guideLayers.getLayers();
-	        } else {
-	            this._guideLayers = [];
-	        }
-	    },
-
-	    addGuideLayer: function(layer) {
-	        var index = this._guideLayers.findIndex(function(guideLayer) {
-	            return L.stamp(layer) === L.stamp(guideLayer);
-	        });
-
-	        if (index === -1) {
-	            this._guideLayers.push(layer);
-	            this._featureGroup.eachLayer(function(layer) {
-	                if (layer.snapediting) { layer.snapediting._guides.push(layer); }
-	            });
-	        }
-	    },
-
-	    removeGuideLayer: function(layer) {
-	      var index = this._guideLayers.findIndex(function(guideLayer) {
-	          return L.stamp(layer) === L.stamp(guideLayer);
-	      });
-
-	      if (index !== -1) {
-	          this._guideLayers.splice(index, 1);
-	          this._featureGroup.eachLayer(function(layer) {
-	              if (layer.snapediting) { layer.snapediting._guides.splice(index, 1); }
-	          });
-	      }
-	    },
-
-	    clearGuideLayers: function() {
-	        this._guideLayers = [];
-	        this._featureGroup.eachLayer(function(layer) {
-	            if (layer.snapediting) { layer.snapediting._guides = []; }
-	        });
-	    },
-
-	    _enableLayerEdit: function(e) {
-	        L.EditToolbar.Edit.prototype._enableLayerEdit.call(this, e);
-
-	        var layer = e.layer || e.target || e;
-
-	        if (!layer.snapediting) {
-	            if (layer.getLatLng) {
-	                layer.snapediting = new L.Handler.MarkerSnap(layer._map, layer, this.snapOptions);
-	            } else {
-	                if (layer.editing) {
-	                  layer.editing._verticesHandlers[0]._markerGroup.clearLayers();
-	                  delete layer.editing;
-	                }
-
-	                layer.editing = layer.snapediting = new L.Handler.PolylineSnap(layer._map, layer, this.snapOptions);
-	            }
-
-	            for (var i = 0, n = this._guideLayers.length; i < n; i++) {
-	                layer.snapediting.addGuideLayer(this._guideLayers[i]);
-	            }
-	        }
-
-	        layer.snapediting.enable();
-	    }
-	});
-
-	L.Draw.Feature.SnapMixin = {
-	    _snap_initialize: function () {
-	        this.on('enabled', this._snap_on_enabled, this);
-	        this.on('disabled', this._snap_on_disabled, this);
-	    },
-
-	    _snap_on_enabled: function () {
-	        if (!this.options.guideLayers) {
-	            return;
-	        }
-
-	        if (!this._mouseMarker) {
-	            this._map.on('layeradd', this._snap_on_enabled, this);
-	            return;
-	        }else{
-	            this._map.off('layeradd', this._snap_on_enabled, this);
-	        }
-
-	        if (!this._snapper) {
-	            this._snapper = new L.Handler.MarkerSnap(this._map);
-	            if (this.options.snapDistance) {
-	                this._snapper.options.snapDistance = this.options.snapDistance;
-	            }
-	            if (this.options.snapVertices) {
-	                this._snapper.options.snapVertices = this.options.snapVertices;
-	            }
-	        }
-
-	        for (var i=0, n=this.options.guideLayers.length; i<n; i++)
-	            this._snapper.addGuideLayer(this.options.guideLayers[i]);
-
-	        var marker = this._mouseMarker;
-
-	        this._snapper.watchMarker(marker);
-
-	        // Show marker when (snap for user feedback)
-	        var icon = marker.options.icon;
-	        marker.on('snap', function (e) {
-	                  marker.setIcon(this.options.icon);
-	                  marker.setOpacity(1);
-	              }, this)
-	              .on('unsnap', function (e) {
-	                  marker.setIcon(icon);
-	                  marker.setOpacity(0);
-	              }, this);
-
-	        marker.on('click', this._snap_on_click, this);
-	    },
-
-	    _snap_on_click: function (e) {
-	        if (this._markers) {
-	            var markerCount = this._markers.length,
-	                marker = this._markers[markerCount - 1];
-	            if (this._mouseMarker.snap) {
-	                if(e){
-	                  // update the feature being drawn to reflect the snapped location:
-	                  marker.setLatLng(e.target._latlng);
-	                  if(this._poly){
-	                    var polyPointsCount = this._poly._latlngs.length;
-	                    this._poly._latlngs[polyPointsCount - 1] = e.target._latlng;
-	                    this._poly.redraw();
-	                  }
-	                }
-
-	                L.DomUtil.addClass(marker._icon, 'marker-snapped');
-	            }
-	        }
-	    },
-
-	    _snap_on_disabled: function () {
-	        delete this._snapper;
-	    },
 	};
 
-	L.Draw.Feature.include(L.Draw.Feature.SnapMixin);
-	L.Draw.Feature.addInitHook('_snap_initialize');
+	function findItem(item, items, equalsFn) {
+	    if (!equalsFn) return items.indexOf(item);
 
-	})();
+	    for (var i = 0; i < items.length; i++) {
+	        if (equalsFn(item, items[i])) return i;
+	    }
+	    return -1;
+	}
+
+	// calculate node's bbox from bboxes of its children
+	function calcBBox(node, toBBox) {
+	    distBBox(node, 0, node.children.length, toBBox, node);
+	}
+
+	// min bounding rectangle of node children from k to p-1
+	function distBBox(node, k, p, toBBox, destNode) {
+	    if (!destNode) destNode = createNode(null);
+	    destNode.minX = Infinity;
+	    destNode.minY = Infinity;
+	    destNode.maxX = -Infinity;
+	    destNode.maxY = -Infinity;
+
+	    for (var i = k, child; i < p; i++) {
+	        child = node.children[i];
+	        extend(destNode, node.leaf ? toBBox(child) : child);
+	    }
+
+	    return destNode;
+	}
+
+	function extend(a, b) {
+	    a.minX = Math.min(a.minX, b.minX);
+	    a.minY = Math.min(a.minY, b.minY);
+	    a.maxX = Math.max(a.maxX, b.maxX);
+	    a.maxY = Math.max(a.maxY, b.maxY);
+	    return a;
+	}
+
+	function compareNodeMinX(a, b) { return a.minX - b.minX; }
+	function compareNodeMinY(a, b) { return a.minY - b.minY; }
+
+	function bboxArea(a)   { return (a.maxX - a.minX) * (a.maxY - a.minY); }
+	function bboxMargin(a) { return (a.maxX - a.minX) + (a.maxY - a.minY); }
+
+	function enlargedArea(a, b) {
+	    return (Math.max(b.maxX, a.maxX) - Math.min(b.minX, a.minX)) *
+	           (Math.max(b.maxY, a.maxY) - Math.min(b.minY, a.minY));
+	}
+
+	function intersectionArea(a, b) {
+	    var minX = Math.max(a.minX, b.minX),
+	        minY = Math.max(a.minY, b.minY),
+	        maxX = Math.min(a.maxX, b.maxX),
+	        maxY = Math.min(a.maxY, b.maxY);
+
+	    return Math.max(0, maxX - minX) *
+	           Math.max(0, maxY - minY);
+	}
+
+	function contains(a, b) {
+	    return a.minX <= b.minX &&
+	           a.minY <= b.minY &&
+	           b.maxX <= a.maxX &&
+	           b.maxY <= a.maxY;
+	}
+
+	function intersects(a, b) {
+	    return b.minX <= a.maxX &&
+	           b.minY <= a.maxY &&
+	           b.maxX >= a.minX &&
+	           b.maxY >= a.minY;
+	}
+
+	function createNode(children) {
+	    return {
+	        children: children,
+	        height: 1,
+	        leaf: true,
+	        minX: Infinity,
+	        minY: Infinity,
+	        maxX: -Infinity,
+	        maxY: -Infinity
+	    };
+	}
+
+	// sort an array so that items come in groups of n unsorted items, with groups sorted between each other;
+	// combines selection algorithm with binary divide & conquer approach
+
+	function multiSelect(arr, left, right, n, compare) {
+	    var stack = [left, right],
+	        mid;
+
+	    while (stack.length) {
+	        right = stack.pop();
+	        left = stack.pop();
+
+	        if (right - left <= n) continue;
+
+	        mid = left + Math.ceil((right - left) / n / 2) * n;
+	        quickselect(arr, mid, left, right, compare);
+
+	        stack.push(left, mid, mid, right);
+	    }
+	}
 
 
 /***/ },
 /* 5 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
-	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
-	(function (factory, window) {
-	    /*globals define, module, require*/
+	'use strict';
 
-	    // define an AMD module that relies on 'leaflet'
-	    if (true) {
-	        !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(2)], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	module.exports = partialSort;
 
+	// Floyd-Rivest selection algorithm:
+	// Rearrange items so that all items in the [left, k] range are smaller than all items in (k, right];
+	// The k-th element will have the (k - left + 1)th smallest value in [left, right]
 
-	    // define a Common JS module that relies on 'leaflet'
-	    } else if (typeof exports === 'object') {
-	        module.exports = factory(require('leaflet'));
+	function partialSort(arr, k, left, right, compare) {
+	    left = left || 0;
+	    right = right || (arr.length - 1);
+	    compare = compare || defaultCompare;
+
+	    while (right > left) {
+	        if (right - left > 600) {
+	            var n = right - left + 1;
+	            var m = k - left + 1;
+	            var z = Math.log(n);
+	            var s = 0.5 * Math.exp(2 * z / 3);
+	            var sd = 0.5 * Math.sqrt(z * s * (n - s) / n) * (m - n / 2 < 0 ? -1 : 1);
+	            var newLeft = Math.max(left, Math.floor(k - m * s / n + sd));
+	            var newRight = Math.min(right, Math.floor(k + (n - m) * s / n + sd));
+	            partialSort(arr, k, newLeft, newRight, compare);
+	        }
+
+	        var t = arr[k];
+	        var i = left;
+	        var j = right;
+
+	        swap(arr, left, k);
+	        if (compare(arr[right], t) > 0) swap(arr, left, right);
+
+	        while (i < j) {
+	            swap(arr, i, j);
+	            i++;
+	            j--;
+	            while (compare(arr[i], t) < 0) i++;
+	            while (compare(arr[j], t) > 0) j--;
+	        }
+
+	        if (compare(arr[left], t) === 0) swap(arr, left, j);
+	        else {
+	            j++;
+	            swap(arr, j, right);
+	        }
+
+	        if (j <= k) left = j + 1;
+	        if (k <= j) right = j - 1;
 	    }
-
-	    // attach your plugin to the global 'L' variable
-	    if(typeof window !== 'undefined' && window.L){
-	        factory(window.L);
-	    }
-
-	}(function (L) {
-	    // 🍂miniclass CancelableEvent (Event objects)
-	    // 🍂method cancel()
-	    // Cancel any subsequent action.
-
-	    // 🍂miniclass VertexEvent (Event objects)
-	    // 🍂property vertex: VertexMarker
-	    // The vertex that fires the event.
-
-	    // 🍂miniclass ShapeEvent (Event objects)
-	    // 🍂property shape: Array
-	    // The shape (LatLngs array) subject of the action.
-
-	    // 🍂miniclass CancelableVertexEvent (Event objects)
-	    // 🍂inherits VertexEvent
-	    // 🍂inherits CancelableEvent
-
-	    // 🍂miniclass CancelableShapeEvent (Event objects)
-	    // 🍂inherits ShapeEvent
-	    // 🍂inherits CancelableEvent
-
-	    // 🍂miniclass LayerEvent (Event objects)
-	    // 🍂property layer: object
-	    // The Layer (Marker, Polyline…) subject of the action.
-
-	    // 🍂namespace Editable; 🍂class Editable; 🍂aka L.Editable
-	    // Main edition handler. By default, it is attached to the map
-	    // as `map.editTools` property.
-	    // Leaflet.Editable is made to be fully extendable. You have three ways to customize
-	    // the behaviour: using options, listening to events, or extending.
-	    L.Editable = L.Evented.extend({
-
-	        statics: {
-	            FORWARD: 1,
-	            BACKWARD: -1
-	        },
-
-	        options: {
-
-	            // You can pass them when creating a map using the `editOptions` key.
-	            // 🍂option zIndex: int = 1000
-	            // The default zIndex of the editing tools.
-	            zIndex: 1000,
-
-	            // 🍂option polygonClass: class = L.Polygon
-	            // Class to be used when creating a new Polygon.
-	            polygonClass: L.Polygon,
-
-	            // 🍂option polylineClass: class = L.Polyline
-	            // Class to be used when creating a new Polyline.
-	            polylineClass: L.Polyline,
-
-	            // 🍂option markerClass: class = L.Marker
-	            // Class to be used when creating a new Marker.
-	            markerClass: L.Marker,
-
-	            // 🍂option rectangleClass: class = L.Rectangle
-	            // Class to be used when creating a new Rectangle.
-	            rectangleClass: L.Rectangle,
-
-	            // 🍂option circleClass: class = L.Circle
-	            // Class to be used when creating a new Circle.
-	            circleClass: L.Circle,
-
-	            // 🍂option drawingCSSClass: string = 'leaflet-editable-drawing'
-	            // CSS class to be added to the map container while drawing.
-	            drawingCSSClass: 'leaflet-editable-drawing',
-
-	            // 🍂option drawingCursor: const = 'crosshair'
-	            // Cursor mode set to the map while drawing.
-	            drawingCursor: 'crosshair',
-
-	            // 🍂option editLayer: Layer = new L.LayerGroup()
-	            // Layer used to store edit tools (vertex, line guide…).
-	            editLayer: undefined,
-
-	            // 🍂option featuresLayer: Layer = new L.LayerGroup()
-	            // Default layer used to store drawn features (Marker, Polyline…).
-	            featuresLayer: undefined,
-
-	            // 🍂option polylineEditorClass: class = PolylineEditor
-	            // Class to be used as Polyline editor.
-	            polylineEditorClass: undefined,
-
-	            // 🍂option polygonEditorClass: class = PolygonEditor
-	            // Class to be used as Polygon editor.
-	            polygonEditorClass: undefined,
-
-	            // 🍂option markerEditorClass: class = MarkerEditor
-	            // Class to be used as Marker editor.
-	            markerEditorClass: undefined,
-
-	            // 🍂option rectangleEditorClass: class = RectangleEditor
-	            // Class to be used as Rectangle editor.
-	            rectangleEditorClass: undefined,
-
-	            // 🍂option circleEditorClass: class = CircleEditor
-	            // Class to be used as Circle editor.
-	            circleEditorClass: undefined,
-
-	            // 🍂option lineGuideOptions: hash = {}
-	            // Options to be passed to the line guides.
-	            lineGuideOptions: {},
-
-	            // 🍂option skipMiddleMarkers: boolean = false
-	            // Set this to true if you don't want middle markers.
-	            skipMiddleMarkers: false
-
-	        },
-
-	        initialize: function (map, options) {
-	            L.setOptions(this, options);
-	            this._lastZIndex = this.options.zIndex;
-	            this.map = map;
-	            this.editLayer = this.createEditLayer();
-	            this.featuresLayer = this.createFeaturesLayer();
-	            this.forwardLineGuide = this.createLineGuide();
-	            this.backwardLineGuide = this.createLineGuide();
-	        },
-
-	        fireAndForward: function (type, e) {
-	            e = e || {};
-	            e.editTools = this;
-	            this.fire(type, e);
-	            this.map.fire(type, e);
-	        },
-
-	        createLineGuide: function () {
-	            var options = L.extend({dashArray: '5,10', weight: 1, interactive: false}, this.options.lineGuideOptions);
-	            return L.polyline([], options);
-	        },
-
-	        createVertexIcon: function (options) {
-	            return L.Browser.touch ? new L.Editable.TouchVertexIcon(options) : new L.Editable.VertexIcon(options);
-	        },
-
-	        createEditLayer: function () {
-	            return this.options.editLayer || new L.LayerGroup().addTo(this.map);
-	        },
-
-	        createFeaturesLayer: function () {
-	            return this.options.featuresLayer || new L.LayerGroup().addTo(this.map);
-	        },
-
-	        moveForwardLineGuide: function (latlng) {
-	            if (this.forwardLineGuide._latlngs.length) {
-	                this.forwardLineGuide._latlngs[1] = latlng;
-	                this.forwardLineGuide._bounds.extend(latlng);
-	                this.forwardLineGuide.redraw();
-	            }
-	        },
-
-	        moveBackwardLineGuide: function (latlng) {
-	            if (this.backwardLineGuide._latlngs.length) {
-	                this.backwardLineGuide._latlngs[1] = latlng;
-	                this.backwardLineGuide._bounds.extend(latlng);
-	                this.backwardLineGuide.redraw();
-	            }
-	        },
-
-	        anchorForwardLineGuide: function (latlng) {
-	            this.forwardLineGuide._latlngs[0] = latlng;
-	            this.forwardLineGuide._bounds.extend(latlng);
-	            this.forwardLineGuide.redraw();
-	        },
-
-	        anchorBackwardLineGuide: function (latlng) {
-	            this.backwardLineGuide._latlngs[0] = latlng;
-	            this.backwardLineGuide._bounds.extend(latlng);
-	            this.backwardLineGuide.redraw();
-	        },
-
-	        attachForwardLineGuide: function () {
-	            this.editLayer.addLayer(this.forwardLineGuide);
-	        },
-
-	        attachBackwardLineGuide: function () {
-	            this.editLayer.addLayer(this.backwardLineGuide);
-	        },
-
-	        detachForwardLineGuide: function () {
-	            this.forwardLineGuide.setLatLngs([]);
-	            this.editLayer.removeLayer(this.forwardLineGuide);
-	        },
-
-	        detachBackwardLineGuide: function () {
-	            this.backwardLineGuide.setLatLngs([]);
-	            this.editLayer.removeLayer(this.backwardLineGuide);
-	        },
-
-	        blockEvents: function () {
-	            // Hack: force map not to listen to other layers events while drawing.
-	            if (!this._oldTargets) {
-	                this._oldTargets = this.map._targets;
-	                this.map._targets = {};
-	            }
-	        },
-
-	        unblockEvents: function () {
-	            if (this._oldTargets) {
-	                // Reset, but keep targets created while drawing.
-	                this.map._targets = L.extend(this.map._targets, this._oldTargets);
-	                delete this._oldTargets;
-	            }
-	        },
-
-	        registerForDrawing: function (editor) {
-	            if (this._drawingEditor) this.unregisterForDrawing(this._drawingEditor);
-	            this.blockEvents();
-	            editor.reset();  // Make sure editor tools still receive events.
-	            this._drawingEditor = editor;
-	            this.map.on('mousemove touchmove', editor.onDrawingMouseMove, editor);
-	            this.map.on('mousedown', this.onMousedown, this);
-	            this.map.on('mouseup', this.onMouseup, this);
-	            L.DomUtil.addClass(this.map._container, this.options.drawingCSSClass);
-	            this.defaultMapCursor = this.map._container.style.cursor;
-	            this.map._container.style.cursor = this.options.drawingCursor;
-	        },
-
-	        unregisterForDrawing: function (editor) {
-	            this.unblockEvents();
-	            L.DomUtil.removeClass(this.map._container, this.options.drawingCSSClass);
-	            this.map._container.style.cursor = this.defaultMapCursor;
-	            editor = editor || this._drawingEditor;
-	            if (!editor) return;
-	            this.map.off('mousemove touchmove', editor.onDrawingMouseMove, editor);
-	            this.map.off('mousedown', this.onMousedown, this);
-	            this.map.off('mouseup', this.onMouseup, this);
-	            if (editor !== this._drawingEditor) return;
-	            delete this._drawingEditor;
-	            if (editor._drawing) editor.cancelDrawing();
-	        },
-
-	        onMousedown: function (e) {
-	            this._mouseDown = e;
-	            this._drawingEditor.onDrawingMouseDown(e);
-	        },
-
-	        onMouseup: function (e) {
-	            if (this._mouseDown) {
-	                var editor = this._drawingEditor,
-	                    mouseDown = this._mouseDown;
-	                this._mouseDown = null;
-	                editor.onDrawingMouseUp(e);
-	                if (this._drawingEditor !== editor) return;  // onDrawingMouseUp may call unregisterFromDrawing.
-	                var origin = L.point(mouseDown.originalEvent.clientX, mouseDown.originalEvent.clientY);
-	                var distance = L.point(e.originalEvent.clientX, e.originalEvent.clientY).distanceTo(origin);
-	                if (Math.abs(distance) < 9 * (window.devicePixelRatio || 1)) this._drawingEditor.onDrawingClick(e);
-	            }
-	        },
-
-	        // 🍂section Public methods
-	        // You will generally access them by the `map.editTools`
-	        // instance:
-	        //
-	        // `map.editTools.startPolyline();`
-
-	        // 🍂method drawing(): boolean
-	        // Return true if any drawing action is ongoing.
-	        drawing: function () {
-	            return this._drawingEditor && this._drawingEditor.drawing();
-	        },
-
-	        // 🍂method stopDrawing()
-	        // When you need to stop any ongoing drawing, without needing to know which editor is active.
-	        stopDrawing: function () {
-	            this.unregisterForDrawing();
-	        },
-
-	        // 🍂method commitDrawing()
-	        // When you need to commit any ongoing drawing, without needing to know which editor is active.
-	        commitDrawing: function (e) {
-	            if (!this._drawingEditor) return;
-	            this._drawingEditor.commitDrawing(e);
-	        },
-
-	        connectCreatedToMap: function (layer) {
-	            return this.featuresLayer.addLayer(layer);
-	        },
-
-	        // 🍂method startPolyline(latlng: L.LatLng, options: hash): L.Polyline
-	        // Start drawing a Polyline. If `latlng` is given, a first point will be added. In any case, continuing on user click.
-	        // If `options` is given, it will be passed to the Polyline class constructor.
-	        startPolyline: function (latlng, options) {
-	            var line = this.createPolyline([], options);
-	            line.enableEdit(this.map).newShape(latlng);
-	            return line;
-	        },
-
-	        // 🍂method startPolygon(latlng: L.LatLng, options: hash): L.Polygon
-	        // Start drawing a Polygon. If `latlng` is given, a first point will be added. In any case, continuing on user click.
-	        // If `options` is given, it will be passed to the Polygon class constructor.
-	        startPolygon: function (latlng, options) {
-	            var polygon = this.createPolygon([], options);
-	            polygon.enableEdit(this.map).newShape(latlng);
-	            return polygon;
-	        },
-
-	        // 🍂method startMarker(latlng: L.LatLng, options: hash): L.Marker
-	        // Start adding a Marker. If `latlng` is given, the Marker will be shown first at this point.
-	        // In any case, it will follow the user mouse, and will have a final `latlng` on next click (or touch).
-	        // If `options` is given, it will be passed to the Marker class constructor.
-	        startMarker: function (latlng, options) {
-	            latlng = latlng || this.map.getCenter().clone();
-	            var marker = this.createMarker(latlng, options);
-	            marker.enableEdit(this.map).startDrawing();
-	            return marker;
-	        },
-
-	        // 🍂method startRectangle(latlng: L.LatLng, options: hash): L.Rectangle
-	        // Start drawing a Rectangle. If `latlng` is given, the Rectangle anchor will be added. In any case, continuing on user drag.
-	        // If `options` is given, it will be passed to the Rectangle class constructor.
-	        startRectangle: function(latlng, options) {
-	            var corner = latlng || L.latLng([0, 0]);
-	            var bounds = new L.LatLngBounds(corner, corner);
-	            var rectangle = this.createRectangle(bounds, options);
-	            rectangle.enableEdit(this.map).startDrawing();
-	            return rectangle;
-	        },
-
-	        // 🍂method startCircle(latlng: L.LatLng, options: hash): L.Circle
-	        // Start drawing a Circle. If `latlng` is given, the Circle anchor will be added. In any case, continuing on user drag.
-	        // If `options` is given, it will be passed to the Circle class constructor.
-	        startCircle: function (latlng, options) {
-	            latlng = latlng || this.map.getCenter().clone();
-	            var circle = this.createCircle(latlng, options);
-	            circle.enableEdit(this.map).startDrawing();
-	            return circle;
-	        },
-
-	        startHole: function (editor, latlng) {
-	            editor.newHole(latlng);
-	        },
-
-	        createLayer: function (klass, latlngs, options) {
-	            options = L.Util.extend({editOptions: {editTools: this}}, options);
-	            var layer = new klass(latlngs, options);
-	            // 🍂namespace Editable
-	            // 🍂event editable:created: LayerEvent
-	            // Fired when a new feature (Marker, Polyline…) is created.
-	            this.fireAndForward('editable:created', {layer: layer});
-	            return layer;
-	        },
-
-	        createPolyline: function (latlngs, options) {
-	            return this.createLayer(options && options.polylineClass || this.options.polylineClass, latlngs, options);
-	        },
-
-	        createPolygon: function (latlngs, options) {
-	            return this.createLayer(options && options.polygonClass || this.options.polygonClass, latlngs, options);
-	        },
-
-	        createMarker: function (latlng, options) {
-	            return this.createLayer(options && options.markerClass || this.options.markerClass, latlng, options);
-	        },
-
-	        createRectangle: function (bounds, options) {
-	            return this.createLayer(options && options.rectangleClass || this.options.rectangleClass, bounds, options);
-	        },
-
-	        createCircle: function (latlng, options) {
-	            return this.createLayer(options && options.circleClass || this.options.circleClass, latlng, options);
-	        }
-
-	    });
-
-	    L.extend(L.Editable, {
-
-	        makeCancellable: function (e) {
-	            e.cancel = function () {
-	                e._cancelled = true;
-	            };
-	        }
-
-	    });
-
-	    // 🍂namespace Map; 🍂class Map
-	    // Leaflet.Editable add options and events to the `L.Map` object.
-	    // See `Editable` events for the list of events fired on the Map.
-	    // 🍂example
-	    //
-	    // ```js
-	    // var map = L.map('map', {
-	    //  editable: true,
-	    //  editOptions: {
-	    //    …
-	    // }
-	    // });
-	    // ```
-	    // 🍂section Editable Map Options
-	    L.Map.mergeOptions({
-
-	        // 🍂namespace Map
-	        // 🍂section Map Options
-	        // 🍂option editToolsClass: class = L.Editable
-	        // Class to be used as vertex, for path editing.
-	        editToolsClass: L.Editable,
-
-	        // 🍂option editable: boolean = false
-	        // Whether to create a L.Editable instance at map init.
-	        editable: false,
-
-	        // 🍂option editOptions: hash = {}
-	        // Options to pass to L.Editable when instanciating.
-	        editOptions: {}
-
-	    });
-
-	    L.Map.addInitHook(function () {
-
-	        this.whenReady(function () {
-	            if (this.options.editable) {
-	                this.editTools = new this.options.editToolsClass(this, this.options.editOptions);
-	            }
-	        });
-
-	    });
-
-	    L.Editable.VertexIcon = L.DivIcon.extend({
-
-	        options: {
-	            iconSize: new L.Point(8, 8)
-	        }
-
-	    });
-
-	    L.Editable.TouchVertexIcon = L.Editable.VertexIcon.extend({
-
-	        options: {
-	            iconSize: new L.Point(20, 20)
-	        }
-
-	    });
-
-
-	    // 🍂namespace Editable; 🍂class VertexMarker; Handler for dragging path vertices.
-	    L.Editable.VertexMarker = L.Marker.extend({
-
-	        options: {
-	            draggable: true,
-	            className: 'leaflet-div-icon leaflet-vertex-icon'
-	        },
-
-
-	        // 🍂section Public methods
-	        // The marker used to handle path vertex. You will usually interact with a `VertexMarker`
-	        // instance when listening for events like `editable:vertex:ctrlclick`.
-
-	        initialize: function (latlng, latlngs, editor, options) {
-	            // We don't use this._latlng, because on drag Leaflet replace it while
-	            // we want to keep reference.
-	            this.latlng = latlng;
-	            this.latlngs = latlngs;
-	            this.editor = editor;
-	            L.Marker.prototype.initialize.call(this, latlng, options);
-	            this.options.icon = this.editor.tools.createVertexIcon({className: this.options.className});
-	            this.latlng.__vertex = this;
-	            this.editor.editLayer.addLayer(this);
-	            this.setZIndexOffset(editor.tools._lastZIndex + 1);
-	        },
-
-	        onAdd: function (map) {
-	            L.Marker.prototype.onAdd.call(this, map);
-	            this.on('drag', this.onDrag);
-	            this.on('dragstart', this.onDragStart);
-	            this.on('dragend', this.onDragEnd);
-	            this.on('mouseup', this.onMouseup);
-	            this.on('click', this.onClick);
-	            this.on('contextmenu', this.onContextMenu);
-	            this.on('mousedown touchstart', this.onMouseDown);
-	            this.addMiddleMarkers();
-	        },
-
-	        onRemove: function (map) {
-	            if (this.middleMarker) this.middleMarker.delete();
-	            delete this.latlng.__vertex;
-	            this.off('drag', this.onDrag);
-	            this.off('dragstart', this.onDragStart);
-	            this.off('dragend', this.onDragEnd);
-	            this.off('mouseup', this.onMouseup);
-	            this.off('click', this.onClick);
-	            this.off('contextmenu', this.onContextMenu);
-	            this.off('mousedown touchstart', this.onMouseDown);
-	            L.Marker.prototype.onRemove.call(this, map);
-	        },
-
-	        onDrag: function (e) {
-	            e.vertex = this;
-	            this.editor.onVertexMarkerDrag(e);
-	            var iconPos = L.DomUtil.getPosition(this._icon),
-	                latlng = this._map.layerPointToLatLng(iconPos);
-	            this.latlng.update(latlng);
-	            this._latlng = this.latlng;  // Push back to Leaflet our reference.
-	            this.editor.refresh();
-	            if (this.middleMarker) this.middleMarker.updateLatLng();
-	            var next = this.getNext();
-	            if (next && next.middleMarker) next.middleMarker.updateLatLng();
-	        },
-
-	        onDragStart: function (e) {
-	            e.vertex = this;
-	            this.editor.onVertexMarkerDragStart(e);
-	        },
-
-	        onDragEnd: function (e) {
-	            e.vertex = this;
-	            this.editor.onVertexMarkerDragEnd(e);
-	        },
-
-	        onClick: function (e) {
-	            e.vertex = this;
-	            this.editor.onVertexMarkerClick(e);
-	        },
-
-	        onMouseup: function (e) {
-	            L.DomEvent.stop(e);
-	            e.vertex = this;
-	            this.editor.map.fire('mouseup', e);
-	        },
-
-	        onContextMenu: function (e) {
-	            e.vertex = this;
-	            this.editor.onVertexMarkerContextMenu(e);
-	        },
-
-	        onMouseDown: function (e) {
-	            e.vertex = this;
-	            this.editor.onVertexMarkerMouseDown(e);
-	        },
-
-	        // 🍂method delete()
-	        // Delete a vertex and the related LatLng.
-	        delete: function () {
-	            var next = this.getNext();  // Compute before changing latlng
-	            this.latlngs.splice(this.getIndex(), 1);
-	            this.editor.editLayer.removeLayer(this);
-	            this.editor.onVertexDeleted({latlng: this.latlng, vertex: this});
-	            if (!this.latlngs.length) this.editor.deleteShape(this.latlngs);
-	            if (next) next.resetMiddleMarker();
-	            this.editor.refresh();
-	        },
-
-	        // 🍂method getIndex(): int
-	        // Get the index of the current vertex among others of the same LatLngs group.
-	        getIndex: function () {
-	            return this.latlngs.indexOf(this.latlng);
-	        },
-
-	        // 🍂method getLastIndex(): int
-	        // Get last vertex index of the LatLngs group of the current vertex.
-	        getLastIndex: function () {
-	            return this.latlngs.length - 1;
-	        },
-
-	        // 🍂method getPrevious(): VertexMarker
-	        // Get the previous VertexMarker in the same LatLngs group.
-	        getPrevious: function () {
-	            if (this.latlngs.length < 2) return;
-	            var index = this.getIndex(),
-	                previousIndex = index - 1;
-	            if (index === 0 && this.editor.CLOSED) previousIndex = this.getLastIndex();
-	            var previous = this.latlngs[previousIndex];
-	            if (previous) return previous.__vertex;
-	        },
-
-	        // 🍂method getNext(): VertexMarker
-	        // Get the next VertexMarker in the same LatLngs group.
-	        getNext: function () {
-	            if (this.latlngs.length < 2) return;
-	            var index = this.getIndex(),
-	                nextIndex = index + 1;
-	            if (index === this.getLastIndex() && this.editor.CLOSED) nextIndex = 0;
-	            var next = this.latlngs[nextIndex];
-	            if (next) return next.__vertex;
-	        },
-
-	        addMiddleMarker: function (previous) {
-	            if (!this.editor.hasMiddleMarkers()) return;
-	            previous = previous || this.getPrevious();
-	            if (previous && !this.middleMarker) this.middleMarker = this.editor.addMiddleMarker(previous, this, this.latlngs, this.editor);
-	        },
-
-	        addMiddleMarkers: function () {
-	            if (!this.editor.hasMiddleMarkers()) return;
-	            var previous = this.getPrevious();
-	            if (previous) this.addMiddleMarker(previous);
-	            var next = this.getNext();
-	            if (next) next.resetMiddleMarker();
-	        },
-
-	        resetMiddleMarker: function () {
-	            if (this.middleMarker) this.middleMarker.delete();
-	            this.addMiddleMarker();
-	        },
-
-	        // 🍂method split()
-	        // Split the vertex LatLngs group at its index, if possible.
-	        split: function () {
-	            if (!this.editor.splitShape) return;  // Only for PolylineEditor
-	            this.editor.splitShape(this.latlngs, this.getIndex());
-	        },
-
-	        // 🍂method continue()
-	        // Continue the vertex LatLngs from this vertex. Only active for first and last vertices of a Polyline.
-	        continue: function () {
-	            if (!this.editor.continueBackward) return;  // Only for PolylineEditor
-	            var index = this.getIndex();
-	            if (index === 0) this.editor.continueBackward(this.latlngs);
-	            else if (index === this.getLastIndex()) this.editor.continueForward(this.latlngs);
-	        }
-
-	    });
-
-	    L.Editable.mergeOptions({
-
-	        // 🍂namespace Editable
-	        // 🍂option vertexMarkerClass: class = VertexMarker
-	        // Class to be used as vertex, for path editing.
-	        vertexMarkerClass: L.Editable.VertexMarker
-
-	    });
-
-	    L.Editable.MiddleMarker = L.Marker.extend({
-
-	        options: {
-	            opacity: 0.5,
-	            className: 'leaflet-div-icon leaflet-middle-icon',
-	            draggable: true
-	        },
-
-	        initialize: function (left, right, latlngs, editor, options) {
-	            this.left = left;
-	            this.right = right;
-	            this.editor = editor;
-	            this.latlngs = latlngs;
-	            L.Marker.prototype.initialize.call(this, this.computeLatLng(), options);
-	            this._opacity = this.options.opacity;
-	            this.options.icon = this.editor.tools.createVertexIcon({className: this.options.className});
-	            this.editor.editLayer.addLayer(this);
-	            this.setVisibility();
-	        },
-
-	        setVisibility: function () {
-	            var leftPoint = this._map.latLngToContainerPoint(this.left.latlng),
-	                rightPoint = this._map.latLngToContainerPoint(this.right.latlng),
-	                size = L.point(this.options.icon.options.iconSize);
-	            if (leftPoint.distanceTo(rightPoint) < size.x * 3) this.hide();
-	            else this.show();
-	        },
-
-	        show: function () {
-	            this.setOpacity(this._opacity);
-	        },
-
-	        hide: function () {
-	            this.setOpacity(0);
-	        },
-
-	        updateLatLng: function () {
-	            this.setLatLng(this.computeLatLng());
-	            this.setVisibility();
-	        },
-
-	        computeLatLng: function () {
-	            var leftPoint = this.editor.map.latLngToContainerPoint(this.left.latlng),
-	                rightPoint = this.editor.map.latLngToContainerPoint(this.right.latlng),
-	                y = (leftPoint.y + rightPoint.y) / 2,
-	                x = (leftPoint.x + rightPoint.x) / 2;
-	            return this.editor.map.containerPointToLatLng([x, y]);
-	        },
-
-	        onAdd: function (map) {
-	            L.Marker.prototype.onAdd.call(this, map);
-	            L.DomEvent.on(this._icon, 'mousedown touchstart', this.onMouseDown, this);
-	            map.on('zoomend', this.setVisibility, this);
-	        },
-
-	        onRemove: function (map) {
-	            delete this.right.middleMarker;
-	            L.DomEvent.off(this._icon, 'mousedown touchstart', this.onMouseDown, this);
-	            map.off('zoomend', this.setVisibility, this);
-	            L.Marker.prototype.onRemove.call(this, map);
-	        },
-
-	        onMouseDown: function (e) {
-	            var iconPos = L.DomUtil.getPosition(this._icon),
-	                latlng = this.editor.map.layerPointToLatLng(iconPos);
-	            e = {
-	                originalEvent: e,
-	                latlng: latlng
-	            };
-	            if (this.options.opacity === 0) return;
-	            L.Editable.makeCancellable(e);
-	            this.editor.onMiddleMarkerMouseDown(e);
-	            if (e._cancelled) return;
-	            this.latlngs.splice(this.index(), 0, e.latlng);
-	            this.editor.refresh();
-	            var icon = this._icon;
-	            var marker = this.editor.addVertexMarker(e.latlng, this.latlngs);
-	            /* Hack to workaround browser not firing touchend when element is no more on DOM */
-	            var parent = marker._icon.parentNode;
-	            parent.removeChild(marker._icon);
-	            marker._icon = icon;
-	            parent.appendChild(marker._icon);
-	            marker._initIcon();
-	            marker._initInteraction();
-	            marker.setOpacity(1);
-	            /* End hack */
-	            // Transfer ongoing dragging to real marker
-	            L.Draggable._dragging = false;
-	            marker.dragging._draggable._onDown(e.originalEvent);
-	            this.delete();
-	        },
-
-	        delete: function () {
-	            this.editor.editLayer.removeLayer(this);
-	        },
-
-	        index: function () {
-	            return this.latlngs.indexOf(this.right.latlng);
-	        }
-
-	    });
-
-	    L.Editable.mergeOptions({
-
-	        // 🍂namespace Editable
-	        // 🍂option middleMarkerClass: class = VertexMarker
-	        // Class to be used as middle vertex, pulled by the user to create a new point in the middle of a path.
-	        middleMarkerClass: L.Editable.MiddleMarker
-
-	    });
-
-	    // 🍂namespace Editable; 🍂class BaseEditor; 🍂aka L.Editable.BaseEditor
-	    // When editing a feature (Marker, Polyline…), an editor is attached to it. This
-	    // editor basically knows how to handle the edition.
-	    L.Editable.BaseEditor = L.Handler.extend({
-
-	        initialize: function (map, feature, options) {
-	            L.setOptions(this, options);
-	            this.map = map;
-	            this.feature = feature;
-	            this.feature.editor = this;
-	            this.editLayer = new L.LayerGroup();
-	            this.tools = this.options.editTools || map.editTools;
-	        },
-
-	        // 🍂method enable(): this
-	        // Set up the drawing tools for the feature to be editable.
-	        addHooks: function () {
-	            if (this.isConnected()) this.onFeatureAdd();
-	            else this.feature.once('add', this.onFeatureAdd, this);
-	            this.onEnable();
-	            this.feature.on(this._getEvents(), this);
-	            return;
-	        },
-
-	        // 🍂method disable(): this
-	        // Remove the drawing tools for the feature.
-	        removeHooks: function () {
-	            this.feature.off(this._getEvents(), this);
-	            if (this.feature.dragging) this.feature.dragging.disable();
-	            this.editLayer.clearLayers();
-	            this.tools.editLayer.removeLayer(this.editLayer);
-	            this.onDisable();
-	            if (this._drawing) this.cancelDrawing();
-	            return;
-	        },
-
-	        // 🍂method drawing(): boolean
-	        // Return true if any drawing action is ongoing with this editor.
-	        drawing: function () {
-	            return !!this._drawing;
-	        },
-
-	        reset: function () {},
-
-	        onFeatureAdd: function () {
-	            this.tools.editLayer.addLayer(this.editLayer);
-	            if (this.feature.dragging) this.feature.dragging.enable();
-	        },
-
-	        hasMiddleMarkers: function () {
-	            return !this.options.skipMiddleMarkers && !this.tools.options.skipMiddleMarkers;
-	        },
-
-	        fireAndForward: function (type, e) {
-	            e = e || {};
-	            e.layer = this.feature;
-	            this.feature.fire(type, e);
-	            this.tools.fireAndForward(type, e);
-	        },
-
-	        onEnable: function () {
-	            // 🍂namespace Editable
-	            // 🍂event editable:enable: Event
-	            // Fired when an existing feature is ready to be edited.
-	            this.fireAndForward('editable:enable');
-	        },
-
-	        onDisable: function () {
-	            // 🍂namespace Editable
-	            // 🍂event editable:disable: Event
-	            // Fired when an existing feature is not ready anymore to be edited.
-	            this.fireAndForward('editable:disable');
-	        },
-
-	        onEditing: function () {
-	            // 🍂namespace Editable
-	            // 🍂event editable:editing: Event
-	            // Fired as soon as any change is made to the feature geometry.
-	            this.fireAndForward('editable:editing');
-	        },
-
-	        onStartDrawing: function () {
-	            // 🍂namespace Editable
-	            // 🍂section Drawing events
-	            // 🍂event editable:drawing:start: Event
-	            // Fired when a feature is to be drawn.
-	            this.fireAndForward('editable:drawing:start');
-	        },
-
-	        onEndDrawing: function () {
-	            // 🍂namespace Editable
-	            // 🍂section Drawing events
-	            // 🍂event editable:drawing:end: Event
-	            // Fired when a feature is not drawn anymore.
-	            this.fireAndForward('editable:drawing:end');
-	        },
-
-	        onCancelDrawing: function () {
-	            // 🍂namespace Editable
-	            // 🍂section Drawing events
-	            // 🍂event editable:drawing:cancel: Event
-	            // Fired when user cancel drawing while a feature is being drawn.
-	            this.fireAndForward('editable:drawing:cancel');
-	        },
-
-	        onCommitDrawing: function (e) {
-	            // 🍂namespace Editable
-	            // 🍂section Drawing events
-	            // 🍂event editable:drawing:commit: Event
-	            // Fired when user finish drawing a feature.
-	            this.fireAndForward('editable:drawing:commit', e);
-	        },
-
-	        onDrawingMouseDown: function (e) {
-	            // 🍂namespace Editable
-	            // 🍂section Drawing events
-	            // 🍂event editable:drawing:mousedown: Event
-	            // Fired when user `mousedown` while drawing.
-	            this.fireAndForward('editable:drawing:mousedown', e);
-	        },
-
-	        onDrawingMouseUp: function (e) {
-	            // 🍂namespace Editable
-	            // 🍂section Drawing events
-	            // 🍂event editable:drawing:mouseup: Event
-	            // Fired when user `mouseup` while drawing.
-	            this.fireAndForward('editable:drawing:mouseup', e);
-	        },
-
-	        startDrawing: function () {
-	            if (!this._drawing) this._drawing = L.Editable.FORWARD;
-	            this.tools.registerForDrawing(this);
-	            this.onStartDrawing();
-	        },
-
-	        commitDrawing: function (e) {
-	            this.onCommitDrawing(e);
-	            this.endDrawing();
-	        },
-
-	        cancelDrawing: function () {
-	            // If called during a vertex drag, the vertex will be removed before
-	            // the mouseup fires on it. This is a workaround. Maybe better fix is
-	            // To have L.Draggable reset it's status on disable (Leaflet side).
-	            L.Draggable._dragging = false;
-	            this.onCancelDrawing();
-	            this.endDrawing();
-	        },
-
-	        endDrawing: function () {
-	            this._drawing = false;
-	            this.tools.unregisterForDrawing(this);
-	            this.onEndDrawing();
-	        },
-
-	        onDrawingClick: function (e) {
-	            if (!this.drawing()) return;
-	            L.Editable.makeCancellable(e);
-	            // 🍂namespace Editable
-	            // 🍂section Drawing events
-	            // 🍂event editable:drawing:click: CancelableEvent
-	            // Fired when user `click` while drawing, before any internal action is being processed.
-	            this.fireAndForward('editable:drawing:click', e);
-	            if (e._cancelled) return;
-	            if (!this.isConnected()) this.connect(e);
-	            this.processDrawingClick(e);
-	        },
-
-	        isConnected: function () {
-	            return this.map.hasLayer(this.feature);
-	        },
-
-	        connect: function (e) {
-	            this.tools.connectCreatedToMap(this.feature);
-	            this.tools.editLayer.addLayer(this.editLayer);
-	        },
-
-	        onMove: function (e) {
-	            // 🍂namespace Editable
-	            // 🍂section Drawing events
-	            // 🍂event editable:drawing:move: Event
-	            // Fired when `move` mouse while drawing, while dragging a marker, and while dragging a vertex.
-	            this.fireAndForward('editable:drawing:move', e);
-	        },
-
-	        onDrawingMouseMove: function (e) {
-	            this.onMove(e);
-	        },
-
-	        _getEvents: function () {
-	            return {
-	                dragstart: this.onDragStart,
-	                drag: this.onDrag,
-	                dragend: this.onDragEnd,
-	                remove: this.disable
-	            };
-	        },
-
-	        onDragStart: function (e) {
-	            this.onEditing();
-	            // 🍂namespace Editable
-	            // 🍂event editable:dragstart: Event
-	            // Fired before a path feature is dragged.
-	            this.fireAndForward('editable:dragstart', e);
-	        },
-
-	        onDrag: function (e) {
-	            this.onMove(e);
-	            // 🍂namespace Editable
-	            // 🍂event editable:drag: Event
-	            // Fired when a path feature is being dragged.
-	            this.fireAndForward('editable:drag', e);
-	        },
-
-	        onDragEnd: function (e) {
-	            // 🍂namespace Editable
-	            // 🍂event editable:dragend: Event
-	            // Fired after a path feature has been dragged.
-	            this.fireAndForward('editable:dragend', e);
-	        }
-
-	    });
-
-	    // 🍂namespace Editable; 🍂class MarkerEditor; 🍂aka L.Editable.MarkerEditor
-	    // 🍂inherits BaseEditor
-	    // Editor for Marker.
-	    L.Editable.MarkerEditor = L.Editable.BaseEditor.extend({
-
-	        onDrawingMouseMove: function (e) {
-	            L.Editable.BaseEditor.prototype.onDrawingMouseMove.call(this, e);
-	            if (this._drawing) this.feature.setLatLng(e.latlng);
-	        },
-
-	        processDrawingClick: function (e) {
-	            // 🍂namespace Editable
-	            // 🍂section Drawing events
-	            // 🍂event editable:drawing:clicked: Event
-	            // Fired when user `click` while drawing, after all internal actions.
-	            this.fireAndForward('editable:drawing:clicked', e);
-	            this.commitDrawing(e);
-	        },
-
-	        connect: function (e) {
-	            // On touch, the latlng has not been updated because there is
-	            // no mousemove.
-	            if (e) this.feature._latlng = e.latlng;
-	            L.Editable.BaseEditor.prototype.connect.call(this, e);
-	        }
-
-	    });
-
-	    // 🍂namespace Editable; 🍂class PathEditor; 🍂aka L.Editable.PathEditor
-	    // 🍂inherits BaseEditor
-	    // Base class for all path editors.
-	    L.Editable.PathEditor = L.Editable.BaseEditor.extend({
-
-	        CLOSED: false,
-	        MIN_VERTEX: 2,
-
-	        addHooks: function () {
-	            L.Editable.BaseEditor.prototype.addHooks.call(this);
-	            if (this.feature) this.initVertexMarkers();
-	            return this;
-	        },
-
-	        initVertexMarkers: function (latlngs) {
-	            if (!this.enabled()) return;
-	            latlngs = latlngs || this.getLatLngs();
-	            if (L.Polyline._flat(latlngs)) this.addVertexMarkers(latlngs);
-	            else for (var i = 0; i < latlngs.length; i++) this.initVertexMarkers(latlngs[i]);
-	        },
-
-	        getLatLngs: function () {
-	            return this.feature.getLatLngs();
-	        },
-
-	        // 🍂method reset()
-	        // Rebuild edit elements (Vertex, MiddleMarker, etc.).
-	        reset: function () {
-	            this.editLayer.clearLayers();
-	            this.initVertexMarkers();
-	        },
-
-	        addVertexMarker: function (latlng, latlngs) {
-	            return new this.tools.options.vertexMarkerClass(latlng, latlngs, this);
-	        },
-
-	        addVertexMarkers: function (latlngs) {
-	            for (var i = 0; i < latlngs.length; i++) {
-	                this.addVertexMarker(latlngs[i], latlngs);
-	            }
-	        },
-
-	        refreshVertexMarkers: function (latlngs) {
-	            latlngs = latlngs || this.getDefaultLatLngs();
-	            for (var i = 0; i < latlngs.length; i++) {
-	                latlngs[i].__vertex.update();
-	            }
-	        },
-
-	        addMiddleMarker: function (left, right, latlngs) {
-	            return new this.tools.options.middleMarkerClass(left, right, latlngs, this);
-	        },
-
-	        onVertexMarkerClick: function (e) {
-	            L.Editable.makeCancellable(e);
-	            // 🍂namespace Editable
-	            // 🍂section Vertex events
-	            // 🍂event editable:vertex:click: CancelableVertexEvent
-	            // Fired when a `click` is issued on a vertex, before any internal action is being processed.
-	            this.fireAndForward('editable:vertex:click', e);
-	            if (e._cancelled) return;
-	            if (this.tools.drawing() && this.tools._drawingEditor !== this) return;
-	            var index = e.vertex.getIndex(), commit;
-	            if (e.originalEvent.ctrlKey) {
-	                this.onVertexMarkerCtrlClick(e);
-	            } else if (e.originalEvent.altKey) {
-	                this.onVertexMarkerAltClick(e);
-	            } else if (e.originalEvent.shiftKey) {
-	                this.onVertexMarkerShiftClick(e);
-	            } else if (e.originalEvent.metaKey) {
-	                this.onVertexMarkerMetaKeyClick(e);
-	            } else if (index === e.vertex.getLastIndex() && this._drawing === L.Editable.FORWARD) {
-	                if (index >= this.MIN_VERTEX - 1) commit = true;
-	            } else if (index === 0 && this._drawing === L.Editable.BACKWARD && this._drawnLatLngs.length >= this.MIN_VERTEX) {
-	                commit = true;
-	            } else if (index === 0 && this._drawing === L.Editable.FORWARD && this._drawnLatLngs.length >= this.MIN_VERTEX && this.CLOSED) {
-	                commit = true;  // Allow to close on first point also for polygons
-	            } else {
-	                this.onVertexRawMarkerClick(e);
-	            }
-	            // 🍂namespace Editable
-	            // 🍂section Vertex events
-	            // 🍂event editable:vertex:clicked: VertexEvent
-	            // Fired when a `click` is issued on a vertex, after all internal actions.
-	            this.fireAndForward('editable:vertex:clicked', e);
-	            if (commit) this.commitDrawing(e);
-	        },
-
-	        onVertexRawMarkerClick: function (e) {
-	            // 🍂namespace Editable
-	            // 🍂section Vertex events
-	            // 🍂event editable:vertex:rawclick: CancelableVertexEvent
-	            // Fired when a `click` is issued on a vertex without any special key and without being in drawing mode.
-	            this.fireAndForward('editable:vertex:rawclick', e);
-	            if (e._cancelled) return;
-	            if (!this.vertexCanBeDeleted(e.vertex)) return;
-	            e.vertex.delete();
-	        },
-
-	        vertexCanBeDeleted: function (vertex) {
-	            return vertex.latlngs.length > this.MIN_VERTEX;
-	        },
-
-	        onVertexDeleted: function (e) {
-	            // 🍂namespace Editable
-	            // 🍂section Vertex events
-	            // 🍂event editable:vertex:deleted: VertexEvent
-	            // Fired after a vertex has been deleted by user.
-	            this.fireAndForward('editable:vertex:deleted', e);
-	        },
-
-	        onVertexMarkerCtrlClick: function (e) {
-	            // 🍂namespace Editable
-	            // 🍂section Vertex events
-	            // 🍂event editable:vertex:ctrlclick: VertexEvent
-	            // Fired when a `click` with `ctrlKey` is issued on a vertex.
-	            this.fireAndForward('editable:vertex:ctrlclick', e);
-	        },
-
-	        onVertexMarkerShiftClick: function (e) {
-	            // 🍂namespace Editable
-	            // 🍂section Vertex events
-	            // 🍂event editable:vertex:shiftclick: VertexEvent
-	            // Fired when a `click` with `shiftKey` is issued on a vertex.
-	            this.fireAndForward('editable:vertex:shiftclick', e);
-	        },
-
-	        onVertexMarkerMetaKeyClick: function (e) {
-	            // 🍂namespace Editable
-	            // 🍂section Vertex events
-	            // 🍂event editable:vertex:metakeyclick: VertexEvent
-	            // Fired when a `click` with `metaKey` is issued on a vertex.
-	            this.fireAndForward('editable:vertex:metakeyclick', e);
-	        },
-
-	        onVertexMarkerAltClick: function (e) {
-	            // 🍂namespace Editable
-	            // 🍂section Vertex events
-	            // 🍂event editable:vertex:altclick: VertexEvent
-	            // Fired when a `click` with `altKey` is issued on a vertex.
-	            this.fireAndForward('editable:vertex:altclick', e);
-	        },
-
-	        onVertexMarkerContextMenu: function (e) {
-	            // 🍂namespace Editable
-	            // 🍂section Vertex events
-	            // 🍂event editable:vertex:contextmenu: VertexEvent
-	            // Fired when a `contextmenu` is issued on a vertex.
-	            this.fireAndForward('editable:vertex:contextmenu', e);
-	        },
-
-	        onVertexMarkerMouseDown: function (e) {
-	            // 🍂namespace Editable
-	            // 🍂section Vertex events
-	            // 🍂event editable:vertex:mousedown: VertexEvent
-	            // Fired when user `mousedown` a vertex.
-	            this.fireAndForward('editable:vertex:mousedown', e);
-	        },
-
-	        onMiddleMarkerMouseDown: function (e) {
-	            // 🍂namespace Editable
-	            // 🍂section MiddleMarker events
-	            // 🍂event editable:middlemarker:mousedown: VertexEvent
-	            // Fired when user `mousedown` a middle marker.
-	            this.fireAndForward('editable:middlemarker:mousedown', e);
-	        },
-
-	        onVertexMarkerDrag: function (e) {
-	            this.onMove(e);
-	            if (this.feature._bounds) this.extendBounds(e);
-	            // 🍂namespace Editable
-	            // 🍂section Vertex events
-	            // 🍂event editable:vertex:drag: VertexEvent
-	            // Fired when a vertex is dragged by user.
-	            this.fireAndForward('editable:vertex:drag', e);
-	        },
-
-	        onVertexMarkerDragStart: function (e) {
-	            // 🍂namespace Editable
-	            // 🍂section Vertex events
-	            // 🍂event editable:vertex:dragstart: VertexEvent
-	            // Fired before a vertex is dragged by user.
-	            this.fireAndForward('editable:vertex:dragstart', e);
-	        },
-
-	        onVertexMarkerDragEnd: function (e) {
-	            // 🍂namespace Editable
-	            // 🍂section Vertex events
-	            // 🍂event editable:vertex:dragend: VertexEvent
-	            // Fired after a vertex is dragged by user.
-	            this.fireAndForward('editable:vertex:dragend', e);
-	        },
-
-	        setDrawnLatLngs: function (latlngs) {
-	            this._drawnLatLngs = latlngs || this.getDefaultLatLngs();
-	        },
-
-	        startDrawing: function () {
-	            if (!this._drawnLatLngs) this.setDrawnLatLngs();
-	            L.Editable.BaseEditor.prototype.startDrawing.call(this);
-	        },
-
-	        startDrawingForward: function () {
-	            this.startDrawing();
-	        },
-
-	        endDrawing: function () {
-	            this.tools.detachForwardLineGuide();
-	            this.tools.detachBackwardLineGuide();
-	            if (this._drawnLatLngs && this._drawnLatLngs.length < this.MIN_VERTEX) this.deleteShape(this._drawnLatLngs);
-	            L.Editable.BaseEditor.prototype.endDrawing.call(this);
-	            delete this._drawnLatLngs;
-	        },
-
-	        addLatLng: function (latlng) {
-	            if (this._drawing === L.Editable.FORWARD) this._drawnLatLngs.push(latlng);
-	            else this._drawnLatLngs.unshift(latlng);
-	            this.feature._bounds.extend(latlng);
-	            this.addVertexMarker(latlng, this._drawnLatLngs);
-	            this.refresh();
-	        },
-
-	        newPointForward: function (latlng) {
-	            this.addLatLng(latlng);
-	            this.tools.attachForwardLineGuide();
-	            this.tools.anchorForwardLineGuide(latlng);
-	        },
-
-	        newPointBackward: function (latlng) {
-	            this.addLatLng(latlng);
-	            this.tools.anchorBackwardLineGuide(latlng);
-	        },
-
-	        // 🍂namespace PathEditor
-	        // 🍂method push()
-	        // Programmatically add a point while drawing.
-	        push: function (latlng) {
-	            if (!latlng) return console.error('L.Editable.PathEditor.push expect a vaild latlng as parameter');
-	            if (this._drawing === L.Editable.FORWARD) this.newPointForward(latlng);
-	            else this.newPointBackward(latlng);
-	        },
-
-	        removeLatLng: function (latlng) {
-	            latlng.__vertex.delete();
-	            this.refresh();
-	        },
-
-	        // 🍂method pop(): L.LatLng or null
-	        // Programmatically remove last point (if any) while drawing.
-	        pop: function () {
-	            if (this._drawnLatLngs.length <= 1) return;
-	            var latlng;
-	            if (this._drawing === L.Editable.FORWARD) latlng = this._drawnLatLngs[this._drawnLatLngs.length - 1];
-	            else latlng = this._drawnLatLngs[0];
-	            this.removeLatLng(latlng);
-	            if (this._drawing === L.Editable.FORWARD) this.tools.anchorForwardLineGuide(this._drawnLatLngs[this._drawnLatLngs.length - 1]);
-	            else this.tools.anchorForwardLineGuide(this._drawnLatLngs[0]);
-	            return latlng;
-	        },
-
-	        processDrawingClick: function (e) {
-	            if (e.vertex && e.vertex.editor === this) return;
-	            if (this._drawing === L.Editable.FORWARD) this.newPointForward(e.latlng);
-	            else this.newPointBackward(e.latlng);
-	            this.fireAndForward('editable:drawing:clicked', e);
-	        },
-
-	        onDrawingMouseMove: function (e) {
-	            L.Editable.BaseEditor.prototype.onDrawingMouseMove.call(this, e);
-	            if (this._drawing) {
-	                this.tools.moveForwardLineGuide(e.latlng);
-	                this.tools.moveBackwardLineGuide(e.latlng);
-	            }
-	        },
-
-	        refresh: function () {
-	            this.feature.redraw();
-	            this.onEditing();
-	        },
-
-	        // 🍂namespace PathEditor
-	        // 🍂method newShape(latlng?: L.LatLng)
-	        // Add a new shape (Polyline, Polygon) in a multi, and setup up drawing tools to draw it;
-	        // if optional `latlng` is given, start a path at this point.
-	        newShape: function (latlng) {
-	            var shape = this.addNewEmptyShape();
-	            if (!shape) return;
-	            this.setDrawnLatLngs(shape[0] || shape);  // Polygon or polyline
-	            this.startDrawingForward();
-	            // 🍂namespace Editable
-	            // 🍂section Shape events
-	            // 🍂event editable:shape:new: ShapeEvent
-	            // Fired when a new shape is created in a multi (Polygon or Polyline).
-	            this.fireAndForward('editable:shape:new', {shape: shape});
-	            if (latlng) this.newPointForward(latlng);
-	        },
-
-	        deleteShape: function (shape, latlngs) {
-	            var e = {shape: shape};
-	            L.Editable.makeCancellable(e);
-	            // 🍂namespace Editable
-	            // 🍂section Shape events
-	            // 🍂event editable:shape:delete: CancelableShapeEvent
-	            // Fired before a new shape is deleted in a multi (Polygon or Polyline).
-	            this.fireAndForward('editable:shape:delete', e);
-	            if (e._cancelled) return;
-	            shape = this._deleteShape(shape, latlngs);
-	            if (this.ensureNotFlat) this.ensureNotFlat();  // Polygon.
-	            this.feature.setLatLngs(this.getLatLngs());  // Force bounds reset.
-	            this.refresh();
-	            this.reset();
-	            // 🍂namespace Editable
-	            // 🍂section Shape events
-	            // 🍂event editable:shape:deleted: ShapeEvent
-	            // Fired after a new shape is deleted in a multi (Polygon or Polyline).
-	            this.fireAndForward('editable:shape:deleted', {shape: shape});
-	            return shape;
-	        },
-
-	        _deleteShape: function (shape, latlngs) {
-	            latlngs = latlngs || this.getLatLngs();
-	            if (!latlngs.length) return;
-	            var self = this,
-	                inplaceDelete = function (latlngs, shape) {
-	                    // Called when deleting a flat latlngs
-	                    shape = latlngs.splice(0, Number.MAX_VALUE);
-	                    return shape;
-	                },
-	                spliceDelete = function (latlngs, shape) {
-	                    // Called when removing a latlngs inside an array
-	                    latlngs.splice(latlngs.indexOf(shape), 1);
-	                    if (!latlngs.length) self._deleteShape(latlngs);
-	                    return shape;
-	                };
-	            if (latlngs === shape) return inplaceDelete(latlngs, shape);
-	            for (var i = 0; i < latlngs.length; i++) {
-	                if (latlngs[i] === shape) return spliceDelete(latlngs, shape);
-	                else if (latlngs[i].indexOf(shape) !== -1) return spliceDelete(latlngs[i], shape);
-	            }
-	        },
-
-	        // 🍂namespace PathEditor
-	        // 🍂method deleteShapeAt(latlng: L.LatLng): Array
-	        // Remove a path shape at the given `latlng`.
-	        deleteShapeAt: function (latlng) {
-	            var shape = this.feature.shapeAt(latlng);
-	            if (shape) return this.deleteShape(shape);
-	        },
-
-	        // 🍂method appendShape(shape: Array)
-	        // Append a new shape to the Polygon or Polyline.
-	        appendShape: function (shape) {
-	            this.insertShape(shape);
-	        },
-
-	        // 🍂method prependShape(shape: Array)
-	        // Prepend a new shape to the Polygon or Polyline.
-	        prependShape: function (shape) {
-	            this.insertShape(shape, 0);
-	        },
-
-	        // 🍂method insertShape(shape: Array, index: int)
-	        // Insert a new shape to the Polygon or Polyline at given index (default is to append).
-	        insertShape: function (shape, index) {
-	            this.ensureMulti();
-	            shape = this.formatShape(shape);
-	            if (typeof index === 'undefined') index = this.feature._latlngs.length;
-	            this.feature._latlngs.splice(index, 0, shape);
-	            this.feature.redraw();
-	            if (this._enabled) this.reset();
-	        },
-
-	        extendBounds: function (e) {
-	            this.feature._bounds.extend(e.vertex.latlng);
-	        },
-
-	        onDragStart: function (e) {
-	            this.editLayer.clearLayers();
-	            L.Editable.BaseEditor.prototype.onDragStart.call(this, e);
-	        },
-
-	        onDragEnd: function (e) {
-	            this.initVertexMarkers();
-	            L.Editable.BaseEditor.prototype.onDragEnd.call(this, e);
-	        }
-
-	    });
-
-	    // 🍂namespace Editable; 🍂class PolylineEditor; 🍂aka L.Editable.PolylineEditor
-	    // 🍂inherits PathEditor
-	    L.Editable.PolylineEditor = L.Editable.PathEditor.extend({
-
-	        startDrawingBackward: function () {
-	            this._drawing = L.Editable.BACKWARD;
-	            this.startDrawing();
-	        },
-
-	        // 🍂method continueBackward(latlngs?: Array)
-	        // Set up drawing tools to continue the line backward.
-	        continueBackward: function (latlngs) {
-	            if (this.drawing()) return;
-	            latlngs = latlngs || this.getDefaultLatLngs();
-	            this.setDrawnLatLngs(latlngs);
-	            if (latlngs.length > 0) {
-	                this.tools.attachBackwardLineGuide();
-	                this.tools.anchorBackwardLineGuide(latlngs[0]);
-	            }
-	            this.startDrawingBackward();
-	        },
-
-	        // 🍂method continueForward(latlngs?: Array)
-	        // Set up drawing tools to continue the line forward.
-	        continueForward: function (latlngs) {
-	            if (this.drawing()) return;
-	            latlngs = latlngs || this.getDefaultLatLngs();
-	            this.setDrawnLatLngs(latlngs);
-	            if (latlngs.length > 0) {
-	                this.tools.attachForwardLineGuide();
-	                this.tools.anchorForwardLineGuide(latlngs[latlngs.length - 1]);
-	            }
-	            this.startDrawingForward();
-	        },
-
-	        getDefaultLatLngs: function (latlngs) {
-	            latlngs = latlngs || this.feature._latlngs;
-	            if (!latlngs.length || latlngs[0] instanceof L.LatLng) return latlngs;
-	            else return this.getDefaultLatLngs(latlngs[0]);
-	        },
-
-	        ensureMulti: function () {
-	            if (this.feature._latlngs.length && L.Polyline._flat(this.feature._latlngs)) {
-	                this.feature._latlngs = [this.feature._latlngs];
-	            }
-	        },
-
-	        addNewEmptyShape: function () {
-	            if (this.feature._latlngs.length) {
-	                var shape = [];
-	                this.appendShape(shape);
-	                return shape;
-	            } else {
-	                return this.feature._latlngs;
-	            }
-	        },
-
-	        formatShape: function (shape) {
-	            if (L.Polyline._flat(shape)) return shape;
-	            else if (shape[0]) return this.formatShape(shape[0]);
-	        },
-
-	        // 🍂method splitShape(latlngs?: Array, index: int)
-	        // Split the given `latlngs` shape at index `index` and integrate new shape in instance `latlngs`.
-	        splitShape: function (shape, index) {
-	            if (!index || index >= shape.length - 1) return;
-	            this.ensureMulti();
-	            var shapeIndex = this.feature._latlngs.indexOf(shape);
-	            if (shapeIndex === -1) return;
-	            var first = shape.slice(0, index + 1),
-	                second = shape.slice(index);
-	            // We deal with reference, we don't want twice the same latlng around.
-	            second[0] = L.latLng(second[0].lat, second[0].lng, second[0].alt);
-	            this.feature._latlngs.splice(shapeIndex, 1, first, second);
-	            this.refresh();
-	            this.reset();
-	        }
-
-	    });
-
-	    // 🍂namespace Editable; 🍂class PolygonEditor; 🍂aka L.Editable.PolygonEditor
-	    // 🍂inherits PathEditor
-	    L.Editable.PolygonEditor = L.Editable.PathEditor.extend({
-
-	        CLOSED: true,
-	        MIN_VERTEX: 3,
-
-	        newPointForward: function (latlng) {
-	            L.Editable.PathEditor.prototype.newPointForward.call(this, latlng);
-	            if (!this.tools.backwardLineGuide._latlngs.length) this.tools.anchorBackwardLineGuide(latlng);
-	            if (this._drawnLatLngs.length === 2) this.tools.attachBackwardLineGuide();
-	        },
-
-	        addNewEmptyHole: function (latlng) {
-	            this.ensureNotFlat();
-	            var latlngs = this.feature.shapeAt(latlng);
-	            if (!latlngs) return;
-	            var holes = [];
-	            latlngs.push(holes);
-	            return holes;
-	        },
-
-	        // 🍂method newHole(latlng?: L.LatLng, index: int)
-	        // Set up drawing tools for creating a new hole on the Polygon. If the `latlng` param is given, a first point is created.
-	        newHole: function (latlng) {
-	            var holes = this.addNewEmptyHole(latlng);
-	            if (!holes) return;
-	            this.setDrawnLatLngs(holes);
-	            this.startDrawingForward();
-	            if (latlng) this.newPointForward(latlng);
-	        },
-
-	        addNewEmptyShape: function () {
-	            if (this.feature._latlngs.length && this.feature._latlngs[0].length) {
-	                var shape = [];
-	                this.appendShape(shape);
-	                return shape;
-	            } else {
-	                return this.feature._latlngs;
-	            }
-	        },
-
-	        ensureMulti: function () {
-	            if (this.feature._latlngs.length && L.Polyline._flat(this.feature._latlngs[0])) {
-	                this.feature._latlngs = [this.feature._latlngs];
-	            }
-	        },
-
-	        ensureNotFlat: function () {
-	            if (!this.feature._latlngs.length || L.Polyline._flat(this.feature._latlngs)) this.feature._latlngs = [this.feature._latlngs];
-	        },
-
-	        vertexCanBeDeleted: function (vertex) {
-	            var parent = this.feature.parentShape(vertex.latlngs),
-	                idx = L.Util.indexOf(parent, vertex.latlngs);
-	            if (idx > 0) return true;  // Holes can be totally deleted without removing the layer itself.
-	            return L.Editable.PathEditor.prototype.vertexCanBeDeleted.call(this, vertex);
-	        },
-
-	        getDefaultLatLngs: function () {
-	            if (!this.feature._latlngs.length) this.feature._latlngs.push([]);
-	            return this.feature._latlngs[0];
-	        },
-
-	        formatShape: function (shape) {
-	            // [[1, 2], [3, 4]] => must be nested
-	            // [] => must be nested
-	            // [[]] => is already nested
-	            if (L.Polyline._flat(shape) && (!shape[0] || shape[0].length !== 0)) return [shape];
-	            else return shape;
-	        }
-
-	    });
-
-	    // 🍂namespace Editable; 🍂class RectangleEditor; 🍂aka L.Editable.RectangleEditor
-	    // 🍂inherits PathEditor
-	    L.Editable.RectangleEditor = L.Editable.PathEditor.extend({
-
-	        CLOSED: true,
-	        MIN_VERTEX: 4,
-
-	        options: {
-	            skipMiddleMarkers: true
-	        },
-
-	        extendBounds: function (e) {
-	            var index = e.vertex.getIndex(),
-	                next = e.vertex.getNext(),
-	                previous = e.vertex.getPrevious(),
-	                oppositeIndex = (index + 2) % 4,
-	                opposite = e.vertex.latlngs[oppositeIndex],
-	                bounds = new L.LatLngBounds(e.latlng, opposite);
-	            // Update latlngs by hand to preserve order.
-	            previous.latlng.update([e.latlng.lat, opposite.lng]);
-	            next.latlng.update([opposite.lat, e.latlng.lng]);
-	            this.updateBounds(bounds);
-	            this.refreshVertexMarkers();
-	        },
-
-	        onDrawingMouseDown: function (e) {
-	            L.Editable.PathEditor.prototype.onDrawingMouseDown.call(this, e);
-	            this.connect();
-	            var latlngs = this.getDefaultLatLngs();
-	            // L.Polygon._convertLatLngs removes last latlng if it equals first point,
-	            // which is the case here as all latlngs are [0, 0]
-	            if (latlngs.length === 3) latlngs.push(e.latlng);
-	            var bounds = new L.LatLngBounds(e.latlng, e.latlng);
-	            this.updateBounds(bounds);
-	            this.updateLatLngs(bounds);
-	            this.refresh();
-	            this.reset();
-	            // Stop dragging map.
-	            // L.Draggable has two workflows:
-	            // - mousedown => mousemove => mouseup
-	            // - touchstart => touchmove => touchend
-	            // Problem: L.Map.Tap does not allow us to listen to touchstart, so we only
-	            // can deal with mousedown, but then when in a touch device, we are dealing with
-	            // simulated events (actually simulated by L.Map.Tap), which are no more taken
-	            // into account by L.Draggable.
-	            // Ref.: https://github.com/Leaflet/Leaflet.Editable/issues/103
-	            e.originalEvent._simulated = false;
-	            this.map.dragging._draggable._onUp(e.originalEvent);
-	            // Now transfer ongoing drag action to the bottom right corner.
-	            // Should we refine which corne will handle the drag according to
-	            // drag direction?
-	            latlngs[3].__vertex.dragging._draggable._onDown(e.originalEvent);
-	        },
-
-	        onDrawingMouseUp: function (e) {
-	            this.commitDrawing(e);
-	            e.originalEvent._simulated = false;
-	            L.Editable.PathEditor.prototype.onDrawingMouseUp.call(this, e);
-	        },
-
-	        onDrawingMouseMove: function (e) {
-	            e.originalEvent._simulated = false;
-	            L.Editable.PathEditor.prototype.onDrawingMouseMove.call(this, e);
-	        },
-
-
-	        getDefaultLatLngs: function (latlngs) {
-	            return latlngs || this.feature._latlngs[0];
-	        },
-
-	        updateBounds: function (bounds) {
-	            this.feature._bounds = bounds;
-	        },
-
-	        updateLatLngs: function (bounds) {
-	            var latlngs = this.getDefaultLatLngs(),
-	                newLatlngs = this.feature._boundsToLatLngs(bounds);
-	            // Keep references.
-	            for (var i = 0; i < latlngs.length; i++) {
-	                latlngs[i].update(newLatlngs[i]);
-	            };
-	        }
-
-	    });
-
-	    // 🍂namespace Editable; 🍂class CircleEditor; 🍂aka L.Editable.CircleEditor
-	    // 🍂inherits PathEditor
-	    L.Editable.CircleEditor = L.Editable.PathEditor.extend({
-
-	        MIN_VERTEX: 2,
-
-	        options: {
-	            skipMiddleMarkers: true
-	        },
-
-	        initialize: function (map, feature, options) {
-	            L.Editable.PathEditor.prototype.initialize.call(this, map, feature, options);
-	            this._resizeLatLng = this.computeResizeLatLng();
-	        },
-
-	        computeResizeLatLng: function () {
-	            // While circle is not added to the map, _radius is not set.
-	            var delta = (this.feature._radius || this.feature._mRadius) * Math.cos(Math.PI / 4),
-	                point = this.map.project(this.feature._latlng);
-	            return this.map.unproject([point.x + delta, point.y - delta]);
-	        },
-
-	        updateResizeLatLng: function () {
-	            this._resizeLatLng.update(this.computeResizeLatLng());
-	            this._resizeLatLng.__vertex.update();
-	        },
-
-	        getLatLngs: function () {
-	            return [this.feature._latlng, this._resizeLatLng];
-	        },
-
-	        getDefaultLatLngs: function () {
-	            return this.getLatLngs();
-	        },
-
-	        onVertexMarkerDrag: function (e) {
-	            if (e.vertex.getIndex() === 1) this.resize(e);
-	            else this.updateResizeLatLng(e);
-	            L.Editable.PathEditor.prototype.onVertexMarkerDrag.call(this, e);
-	        },
-
-	        resize: function (e) {
-	            var radius = this.feature._latlng.distanceTo(e.latlng)
-	            this.feature.setRadius(radius);
-	        },
-
-	        onDrawingMouseDown: function (e) {
-	            L.Editable.PathEditor.prototype.onDrawingMouseDown.call(this, e);
-	            this._resizeLatLng.update(e.latlng);
-	            this.feature._latlng.update(e.latlng);
-	            this.connect();
-	            // Stop dragging map.
-	            e.originalEvent._simulated = false;
-	            this.map.dragging._draggable._onUp(e.originalEvent);
-	            // Now transfer ongoing drag action to the radius handler.
-	            this._resizeLatLng.__vertex.dragging._draggable._onDown(e.originalEvent);
-	        },
-
-	        onDrawingMouseUp: function (e) {
-	            this.commitDrawing(e);
-	            e.originalEvent._simulated = false;
-	            L.Editable.PathEditor.prototype.onDrawingMouseUp.call(this, e);
-	        },
-
-	        onDrawingMouseMove: function (e) {
-	            e.originalEvent._simulated = false;
-	            L.Editable.PathEditor.prototype.onDrawingMouseMove.call(this, e);
-	        },
-
-	        onDrag: function (e) {
-	            L.Editable.PathEditor.prototype.onDrag.call(this, e);
-	            this.feature.dragging.updateLatLng(this._resizeLatLng);
-	        }
-
-	    });
-
-	    // 🍂namespace Editable; 🍂class EditableMixin
-	    // `EditableMixin` is included to `L.Polyline`, `L.Polygon`, `L.Rectangle`, `L.Circle`
-	    // and `L.Marker`. It adds some methods to them.
-	    // *When editing is enabled, the editor is accessible on the instance with the
-	    // `editor` property.*
-	    var EditableMixin = {
-
-	        createEditor: function (map) {
-	            map = map || this._map;
-	            var tools = (this.options.editOptions || {}).editTools || map.editTools;
-	            if (!tools) throw Error('Unable to detect Editable instance.')
-	            var Klass = this.options.editorClass || this.getEditorClass(tools);
-	            return new Klass(map, this, this.options.editOptions);
-	        },
-
-	        // 🍂method enableEdit(map?: L.Map): this.editor
-	        // Enable editing, by creating an editor if not existing, and then calling `enable` on it.
-	        enableEdit: function (map) {
-	            if (!this.editor) this.createEditor(map);
-	            this.editor.enable();
-	            return this.editor;
-	        },
-
-	        // 🍂method editEnabled(): boolean
-	        // Return true if current instance has an editor attached, and this editor is enabled.
-	        editEnabled: function () {
-	            return this.editor && this.editor.enabled();
-	        },
-
-	        // 🍂method disableEdit()
-	        // Disable editing, also remove the editor property reference.
-	        disableEdit: function () {
-	            if (this.editor) {
-	                this.editor.disable();
-	                delete this.editor;
-	            }
-	        },
-
-	        // 🍂method toggleEdit()
-	        // Enable or disable editing, according to current status.
-	        toggleEdit: function () {
-	            if (this.editEnabled()) this.disableEdit();
-	            else this.enableEdit();
-	        },
-
-	        _onEditableAdd: function () {
-	            if (this.editor) this.enableEdit();
-	        }
-
-	    };
-
-	    var PolylineMixin = {
-
-	        getEditorClass: function (tools) {
-	            return (tools && tools.options.polylineEditorClass) ? tools.options.polylineEditorClass : L.Editable.PolylineEditor;
-	        },
-
-	        shapeAt: function (latlng, latlngs) {
-	            // We can have those cases:
-	            // - latlngs are just a flat array of latlngs, use this
-	            // - latlngs is an array of arrays of latlngs, loop over
-	            var shape = null;
-	            latlngs = latlngs || this._latlngs;
-	            if (!latlngs.length) return shape;
-	            else if (L.Polyline._flat(latlngs) && this.isInLatLngs(latlng, latlngs)) shape = latlngs;
-	            else for (var i = 0; i < latlngs.length; i++) if (this.isInLatLngs(latlng, latlngs[i])) return latlngs[i];
-	            return shape;
-	        },
-
-	        isInLatLngs: function (l, latlngs) {
-	            if (!latlngs) return false;
-	            var i, k, len, part = [], p,
-	                w = this._clickTolerance();
-	            this._projectLatlngs(latlngs, part, this._pxBounds);
-	            part = part[0];
-	            p = this._map.latLngToLayerPoint(l);
-
-	            if (!this._pxBounds.contains(p)) { return false; }
-	            for (i = 1, len = part.length, k = 0; i < len; k = i++) {
-
-	                if (L.LineUtil.pointToSegmentDistance(p, part[k], part[i]) <= w) {
-	                    return true;
-	                }
-	            }
-	            return false;
-	        }
-
-	    };
-
-	    var PolygonMixin = {
-
-	        getEditorClass: function (tools) {
-	            return (tools && tools.options.polygonEditorClass) ? tools.options.polygonEditorClass : L.Editable.PolygonEditor;
-	        },
-
-	        shapeAt: function (latlng, latlngs) {
-	            // We can have those cases:
-	            // - latlngs are just a flat array of latlngs, use this
-	            // - latlngs is an array of arrays of latlngs, this is a simple polygon (maybe with holes), use the first
-	            // - latlngs is an array of arrays of arrays, this is a multi, loop over
-	            var shape = null;
-	            latlngs = latlngs || this._latlngs;
-	            if (!latlngs.length) return shape;
-	            else if (L.Polyline._flat(latlngs) && this.isInLatLngs(latlng, latlngs)) shape = latlngs;
-	            else if (L.Polyline._flat(latlngs[0]) && this.isInLatLngs(latlng, latlngs[0])) shape = latlngs;
-	            else for (var i = 0; i < latlngs.length; i++) if (this.isInLatLngs(latlng, latlngs[i][0])) return latlngs[i];
-	            return shape;
-	        },
-
-	        isInLatLngs: function (l, latlngs) {
-	            var inside = false, l1, l2, j, k, len2;
-
-	            for (j = 0, len2 = latlngs.length, k = len2 - 1; j < len2; k = j++) {
-	                l1 = latlngs[j];
-	                l2 = latlngs[k];
-
-	                if (((l1.lat > l.lat) !== (l2.lat > l.lat)) &&
-	                        (l.lng < (l2.lng - l1.lng) * (l.lat - l1.lat) / (l2.lat - l1.lat) + l1.lng)) {
-	                    inside = !inside;
-	                }
-	            }
-
-	            return inside;
-	        },
-
-	        parentShape: function (shape, latlngs) {
-	            latlngs = latlngs || this._latlngs;
-	            if (!latlngs) return;
-	            var idx = L.Util.indexOf(latlngs, shape);
-	            if (idx !== -1) return latlngs;
-	            for (var i = 0; i < latlngs.length; i++) {
-	                idx = L.Util.indexOf(latlngs[i], shape);
-	                if (idx !== -1) return latlngs[i];
-	            }
-	        }
-
-	    };
-
-
-	    var MarkerMixin = {
-
-	        getEditorClass: function (tools) {
-	            return (tools && tools.options.markerEditorClass) ? tools.options.markerEditorClass : L.Editable.MarkerEditor;
-	        }
-
-	    };
-
-	    var RectangleMixin = {
-
-	        getEditorClass: function (tools) {
-	            return (tools && tools.options.rectangleEditorClass) ? tools.options.rectangleEditorClass : L.Editable.RectangleEditor;
-	        }
-
-	    };
-
-	    var CircleMixin = {
-
-	        getEditorClass: function (tools) {
-	            return (tools && tools.options.circleEditorClass) ? tools.options.circleEditorClass : L.Editable.CircleEditor;
-	        }
-
-	    };
-
-	    var keepEditable = function () {
-	        // Make sure you can remove/readd an editable layer.
-	        this.on('add', this._onEditableAdd);
-	    };
-
-
-
-	    if (L.Polyline) {
-	        L.Polyline.include(EditableMixin);
-	        L.Polyline.include(PolylineMixin);
-	        L.Polyline.addInitHook(keepEditable);
-	    }
-	    if (L.Polygon) {
-	        L.Polygon.include(EditableMixin);
-	        L.Polygon.include(PolygonMixin);
-	    }
-	    if (L.Marker) {
-	        L.Marker.include(EditableMixin);
-	        L.Marker.include(MarkerMixin);
-	        L.Marker.addInitHook(keepEditable);
-	    }
-	    if (L.Rectangle) {
-	        L.Rectangle.include(EditableMixin);
-	        L.Rectangle.include(RectangleMixin);
-	    }
-	    if (L.Circle) {
-	        L.Circle.include(EditableMixin);
-	        L.Circle.include(CircleMixin);
-	    }
-
-	    L.LatLng.prototype.update = function (latlng) {
-	        latlng = L.latLng(latlng);
-	        this.lat = latlng.lat;
-	        this.lng = latlng.lng;
-	    }
-
-	}, window));
+	}
+
+	function swap(arr, i, j) {
+	    var tmp = arr[i];
+	    arr[i] = arr[j];
+	    arr[j] = tmp;
+	}
+
+	function defaultCompare(a, b) {
+	    return a < b ? -1 : a > b ? 1 : 0;
+	}
 
 
 /***/ },
 /* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;// Packaging/modules magic dance.
-	(function (factory) {
-	    var L;
-	    if (true) {
-	        // AMD
-	        !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(2)], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-	    } else if (typeof module !== 'undefined') {
-	        // Node/CommonJS
-	        L = require('leaflet');
-	        module.exports = factory(L);
-	    } else {
-	        // Browser globals
-	        if (typeof window.L === 'undefined')
-	            throw 'Leaflet must be loaded first';
-	        factory(window.L);
+	'use strict'
+
+	module.exports = monotoneConvexHull2D
+
+	var orient = __webpack_require__(7)[3]
+
+	function monotoneConvexHull2D(points) {
+	  var n = points.length
+
+	  if(n < 3) {
+	    var result = new Array(n)
+	    for(var i=0; i<n; ++i) {
+	      result[i] = i
 	    }
-	}(function (L) {
-	"use strict";
 
-	L.Polyline._flat = L.Polyline._flat || function (latlngs) {
-	    // true if it's a flat array of latlngs; false if nested
-	    return !L.Util.isArray(latlngs[0]) || (typeof latlngs[0][0] !== 'object' && typeof latlngs[0][0] !== 'undefined');
-	};
-
-	/**
-	 * @fileOverview Leaflet Geometry utilities for distances and linear referencing.
-	 * @name L.GeometryUtil
-	 */
-
-	L.GeometryUtil = L.extend(L.GeometryUtil || {}, {
-
-	    /**
-	        Shortcut function for planar distance between two {L.LatLng} at current zoom.
-
-	        @tutorial distance-length
-
-	        @param {L.Map} map Leaflet map to be used for this method
-	        @param {L.LatLng} latlngA geographical point A
-	        @param {L.LatLng} latlngB geographical point B
-	        @returns {Number} planar distance
-	     */
-	    distance: function (map, latlngA, latlngB) {
-	        return map.latLngToLayerPoint(latlngA).distanceTo(map.latLngToLayerPoint(latlngB));
-	    },
-
-	    /**
-	        Shortcut function for planar distance between a {L.LatLng} and a segment (A-B).
-	        @param {L.Map} map Leaflet map to be used for this method
-	        @param {L.LatLng} latlng - The position to search
-	        @param {L.LatLng} latlngA geographical point A of the segment
-	        @param {L.LatLng} latlngB geographical point B of the segment
-	        @returns {Number} planar distance
-	    */
-	    distanceSegment: function (map, latlng, latlngA, latlngB) {
-	        var p = map.latLngToLayerPoint(latlng),
-	           p1 = map.latLngToLayerPoint(latlngA),
-	           p2 = map.latLngToLayerPoint(latlngB);
-	        return L.LineUtil.pointToSegmentDistance(p, p1, p2);
-	    },
-
-	    /**
-	        Shortcut function for converting distance to readable distance.
-	        @param {Number} distance distance to be converted
-	        @param {String} unit 'metric' or 'imperial'
-	        @returns {String} in yard or miles
-	    */
-	    readableDistance: function (distance, unit) {
-	        var isMetric = (unit !== 'imperial'),
-	            distanceStr;
-	        if (isMetric) {
-	            // show metres when distance is < 1km, then show km
-	            if (distance > 1000) {
-	                distanceStr = (distance  / 1000).toFixed(2) + ' km';
-	            }
-	            else {
-	                distanceStr = Math.ceil(distance) + ' m';
-	            }
-	        }
-	        else {
-	            distance *= 1.09361;
-	            if (distance > 1760) {
-	                distanceStr = (distance / 1760).toFixed(2) + ' miles';
-	            }
-	            else {
-	                distanceStr = Math.ceil(distance) + ' yd';
-	            }
-	        }
-	        return distanceStr;
-	    },
-
-	    /**
-	        Returns true if the latlng belongs to segment A-B
-	        @param {L.LatLng} latlng - The position to search
-	        @param {L.LatLng} latlngA geographical point A of the segment
-	        @param {L.LatLng} latlngB geographical point B of the segment
-	        @param {?Number} [tolerance=0.2] tolerance to accept if latlng belongs really
-	        @returns {boolean}
-	     */
-	    belongsSegment: function(latlng, latlngA, latlngB, tolerance) {
-	        tolerance = tolerance === undefined ? 0.2 : tolerance;
-	        var hypotenuse = latlngA.distanceTo(latlngB),
-	            delta = latlngA.distanceTo(latlng) + latlng.distanceTo(latlngB) - hypotenuse;
-	        return delta/hypotenuse < tolerance;
-	    },
-
-	    /**
-	     * Returns total length of line
-	     * @tutorial distance-length
-	     *
-	     * @param {L.Polyline|Array<L.Point>|Array<L.LatLng>} coords Set of coordinates
-	     * @returns {Number} Total length (pixels for Point, meters for LatLng)
-	     */
-	    length: function (coords) {
-	        var accumulated = L.GeometryUtil.accumulatedLengths(coords);
-	        return accumulated.length > 0 ? accumulated[accumulated.length-1] : 0;
-	    },
-
-	    /**
-	     * Returns a list of accumulated length along a line.
-	     * @param {L.Polyline|Array<L.Point>|Array<L.LatLng>} coords Set of coordinates
-	     * @returns {Array<Number>} Array of accumulated lengths (pixels for Point, meters for LatLng)
-	     */
-	    accumulatedLengths: function (coords) {
-	        if (typeof coords.getLatLngs == 'function') {
-	            coords = coords.getLatLngs();
-	        }
-	        if (coords.length === 0)
-	            return [];
-	        var total = 0,
-	            lengths = [0];
-	        for (var i = 0, n = coords.length - 1; i< n; i++) {
-	            total += coords[i].distanceTo(coords[i+1]);
-	            lengths.push(total);
-	        }
-	        return lengths;
-	    },
-
-	    /**
-	        Returns the closest point of a {L.LatLng} on the segment (A-B)
-
-	        @tutorial closest
-
-	        @param {L.Map} map Leaflet map to be used for this method
-	        @param {L.LatLng} latlng - The position to search
-	        @param {L.LatLng} latlngA geographical point A of the segment
-	        @param {L.LatLng} latlngB geographical point B of the segment
-	        @returns {L.LatLng} Closest geographical point
-	    */
-	    closestOnSegment: function (map, latlng, latlngA, latlngB) {
-	        var maxzoom = map.getMaxZoom();
-	        if (maxzoom === Infinity)
-	            maxzoom = map.getZoom();
-	        var p = map.project(latlng, maxzoom),
-	           p1 = map.project(latlngA, maxzoom),
-	           p2 = map.project(latlngB, maxzoom),
-	           closest = L.LineUtil.closestPointOnSegment(p, p1, p2);
-	        return map.unproject(closest, maxzoom);
-	    },
-
-	    /**
-	        Returns the closest latlng on layer.
-
-	        Accept nested arrays
-
-	        @tutorial closest
-
-	        @param {L.Map} map Leaflet map to be used for this method
-	        @param {Array<L.LatLng>|Array<Array<L.LatLng>>|L.PolyLine|L.Polygon} layer - Layer that contains the result
-	        @param {L.LatLng} latlng - The position to search
-	        @param {?boolean} [vertices=false] - Whether to restrict to path vertices.
-	        @returns {L.LatLng} Closest geographical point or null if layer param is incorrect
-	    */
-	    closest: function (map, layer, latlng, vertices) {
-
-	        var latlngs,
-	            mindist = Infinity,
-	            result = null,
-	            i, n, distance;
-
-	        if (layer instanceof Array) {
-	            // if layer is Array<Array<T>>
-	            if (layer[0] instanceof Array && typeof layer[0][0] !== 'number') {
-	                // if we have nested arrays, we calc the closest for each array
-	                // recursive
-	                for (var i = 0; i < layer.length; i++) {
-	                    var subResult = L.GeometryUtil.closest(map, layer[i], latlng, vertices);
-	                    if (subResult.distance < mindist) {
-	                        mindist = subResult.distance;
-	                        result = subResult;
-	                    }
-	                }
-	                return result;
-	            } else if (layer[0] instanceof L.LatLng
-	                        || typeof layer[0][0] === 'number'
-	                        || typeof layer[0].lat === 'number') { // we could have a latlng as [x,y] with x & y numbers or {lat, lng}
-	                layer = L.polyline(layer);
-	            } else {
-	                return result;
-	            }
-	        }
-
-	        // if we don't have here a Polyline, that means layer is incorrect
-	        // see https://github.com/makinacorpus/Leaflet.GeometryUtil/issues/23
-	        if (! ( layer instanceof L.Polyline ) )
-	            return result;
-
-	        // deep copy of latlngs
-	        latlngs = JSON.parse(JSON.stringify(layer.getLatLngs().slice(0)));
-
-	        // add the last segment for L.Polygon
-	        if (layer instanceof L.Polygon) {
-	            // add the last segment for each child that is a nested array
-	            var addLastSegment = function(latlngs) {
-	                if (L.Polyline._flat(latlngs)) {
-	                    latlngs.push(latlngs[0]);
-	                } else {
-	                    for (var i = 0; i < latlngs.length; i++) {
-	                        addLastSegment(latlngs[i]);
-	                    }
-	                }
-	            }
-	            addLastSegment(latlngs);
-	        }
-
-	        // we have a multi polygon / multi polyline / polygon with holes
-	        // use recursive to explore and return the good result
-	        if ( ! L.Polyline._flat(latlngs) ) {
-
-	            for (var i = 0; i < latlngs.length; i++) {
-	                // if we are at the lower level, and if we have a L.Polygon, we add the last segment
-	                var subResult = L.GeometryUtil.closest(map, latlngs[i], latlng, vertices);
-	                if (subResult.distance < mindist) {
-	                    mindist = subResult.distance;
-	                    result = subResult;
-	                }
-	            }
-	            return result;
-
-	        } else {
-
-	            // Lookup vertices
-	            if (vertices) {
-	                for(i = 0, n = latlngs.length; i < n; i++) {
-	                    var ll = latlngs[i];
-	                    distance = L.GeometryUtil.distance(map, latlng, ll);
-	                    if (distance < mindist) {
-	                        mindist = distance;
-	                        result = ll;
-	                        result.distance = distance;
-	                    }
-	                }
-	                return result;
-	            }
-
-	            // Keep the closest point of all segments
-	            for (i = 0, n = latlngs.length; i < n-1; i++) {
-	                var latlngA = latlngs[i],
-	                    latlngB = latlngs[i+1];
-	                distance = L.GeometryUtil.distanceSegment(map, latlng, latlngA, latlngB);
-	                if (distance <= mindist) {
-	                    mindist = distance;
-	                    result = L.GeometryUtil.closestOnSegment(map, latlng, latlngA, latlngB);
-	                    result.distance = distance;
-	                }
-	            }
-	            return result;
-	        }
-
-	    },
-
-	    /**
-	        Returns the closest layer to latlng among a list of layers.
-
-	        @tutorial closest
-
-	        @param {L.Map} map Leaflet map to be used for this method
-	        @param {Array<L.ILayer>} layers Set of layers
-	        @param {L.LatLng} latlng - The position to search
-	        @returns {object} ``{layer, latlng, distance}`` or ``null`` if list is empty;
-	    */
-	    closestLayer: function (map, layers, latlng) {
-	        var mindist = Infinity,
-	            result = null,
-	            ll = null,
-	            distance = Infinity;
-
-	        for (var i = 0, n = layers.length; i < n; i++) {
-	            var layer = layers[i];
-	            if (layer instanceof L.LayerGroup) {
-	                // recursive
-	                var subResult = L.GeometryUtil.closestLayer(map, layer.getLayers(), latlng);
-	                if (subResult.distance < mindist) {
-	                    mindist = subResult.distance;
-	                    result = subResult;
-	                }
-	            } else {
-	                // Single dimension, snap on points, else snap on closest
-	                if (typeof layer.getLatLng == 'function') {
-	                    ll = layer.getLatLng();
-	                    distance = L.GeometryUtil.distance(map, latlng, ll);
-	                }
-	                else {
-	                    ll = L.GeometryUtil.closest(map, layer, latlng);
-	                    if (ll) distance = ll.distance;  // Can return null if layer has no points.
-	                }
-	                if (distance < mindist) {
-	                    mindist = distance;
-	                    result = {layer: layer, latlng: ll, distance: distance};
-	                }
-	            }
-	        }
-	        return result;
-	    },
-
-	    /**
-	        Returns the n closest layers to latlng among a list of input layers.
-
-	        @param {L.Map} map - Leaflet map to be used for this method
-	        @param {Array<L.ILayer>} layers - Set of layers
-	        @param {L.LatLng} latlng - The position to search
-	        @param {?Number} [n=layers.length] - the expected number of output layers.
-	        @returns {Array<object>} an array of objects ``{layer, latlng, distance}`` or ``null`` if the input is invalid (empty list or negative n)
-	    */
-	    nClosestLayers: function (map, layers, latlng, n) {
-	        n = typeof n === 'number' ? n : layers.length;
-
-	        if (n < 1 || layers.length < 1) {
-	            return null;
-	        }
-
-	        var results = [];
-	        var distance, ll;
-
-	        for (var i = 0, m = layers.length; i < m; i++) {
-	            var layer = layers[i];
-	            if (layer instanceof L.LayerGroup) {
-	                // recursive
-	                var subResult = L.GeometryUtil.closestLayer(map, layer.getLayers(), latlng);
-	                results.push(subResult)
-	            } else {
-	                // Single dimension, snap on points, else snap on closest
-	                if (typeof layer.getLatLng == 'function') {
-	                    ll = layer.getLatLng();
-	                    distance = L.GeometryUtil.distance(map, latlng, ll);
-	                }
-	                else {
-	                    ll = L.GeometryUtil.closest(map, layer, latlng);
-	                    if (ll) distance = ll.distance;  // Can return null if layer has no points.
-	                }
-	                results.push({layer: layer, latlng: ll, distance: distance})
-	            }
-	        }
-
-	        results.sort(function(a, b) {
-	            return a.distance - b.distance;
-	        });
-
-	        if (results.length > n) {
-	            return results.slice(0, n);
-	        } else  {
-	            return results;
-	        }
-	    },
-
-	    /**
-	     * Returns all layers within a radius of the given position, in an ascending order of distance.
-	       @param {L.Map} map Leaflet map to be used for this method
-	       @param {Array<ILayer>} layers - A list of layers.
-	       @param {L.LatLng} latlng - The position to search
-	       @param {?Number} [radius=Infinity] - Search radius in pixels
-	       @return {object[]} an array of objects including layer within the radius, closest latlng, and distance
-	     */
-	    layersWithin: function(map, layers, latlng, radius) {
-	      radius = typeof radius == 'number' ? radius : Infinity;
-
-	      var results = [];
-	      var ll = null;
-	      var distance = 0;
-
-	      for (var i = 0, n = layers.length; i < n; i++) {
-	        var layer = layers[i];
-
-	        if (typeof layer.getLatLng == 'function') {
-	            ll = layer.getLatLng();
-	            distance = L.GeometryUtil.distance(map, latlng, ll);
-	        }
-	        else {
-	            ll = L.GeometryUtil.closest(map, layer, latlng);
-	            if (ll) distance = ll.distance;  // Can return null if layer has no points.
-	        }
-
-	        if (ll && distance < radius) {
-	            results.push({layer: layer, latlng: ll, distance: distance});
-	        }
-	      }
-
-	      var sortedResults = results.sort(function(a, b) {
-	          return a.distance - b.distance;
-	      });
-
-	      return sortedResults;
-	    },
-
-	    /**
-	        Returns the closest position from specified {LatLng} among specified layers,
-	        with a maximum tolerance in pixels, providing snapping behaviour.
-
-	        @tutorial closest
-
-	        @param {L.Map} map Leaflet map to be used for this method
-	        @param {Array<ILayer>} layers - A list of layers to snap on.
-	        @param {L.LatLng} latlng - The position to snap
-	        @param {?Number} [tolerance=Infinity] - Maximum number of pixels.
-	        @param {?boolean} [withVertices=true] - Snap to layers vertices or segment points (not only vertex)
-	        @returns {object} with snapped {LatLng} and snapped {Layer} or null if tolerance exceeded.
-	    */
-	    closestLayerSnap: function (map, layers, latlng, tolerance, withVertices) {
-	        tolerance = typeof tolerance == 'number' ? tolerance : Infinity;
-	        withVertices = typeof withVertices == 'boolean' ? withVertices : true;
-
-	        var result = L.GeometryUtil.closestLayer(map, layers, latlng);
-	        if (!result || result.distance > tolerance)
-	            return null;
-
-	        // If snapped layer is linear, try to snap on vertices (extremities and middle points)
-	        if (withVertices && typeof result.layer.getLatLngs == 'function') {
-	            var closest = L.GeometryUtil.closest(map, result.layer, result.latlng, true);
-	            if (closest.distance < tolerance) {
-	                result.latlng = closest;
-	                result.distance = L.GeometryUtil.distance(map, closest, latlng);
-	            }
-	        }
-	        return result;
-	    },
-
-	    /**
-	        Returns the Point located on a segment at the specified ratio of the segment length.
-	        @param {L.Point} pA coordinates of point A
-	        @param {L.Point} pB coordinates of point B
-	        @param {Number} the length ratio, expressed as a decimal between 0 and 1, inclusive.
-	        @returns {L.Point} the interpolated point.
-	    */
-	    interpolateOnPointSegment: function (pA, pB, ratio) {
-	        return L.point(
-	            (pA.x * (1 - ratio)) + (ratio * pB.x),
-	            (pA.y * (1 - ratio)) + (ratio * pB.y)
-	        );
-	    },
-
-	    /**
-	        Returns the coordinate of the point located on a line at the specified ratio of the line length.
-	        @param {L.Map} map Leaflet map to be used for this method
-	        @param {Array<L.LatLng>|L.PolyLine} latlngs Set of geographical points
-	        @param {Number} ratio the length ratio, expressed as a decimal between 0 and 1, inclusive
-	        @returns {Object} an object with latLng ({LatLng}) and predecessor ({Number}), the index of the preceding vertex in the Polyline
-	        (-1 if the interpolated point is the first vertex)
-	    */
-	    interpolateOnLine: function (map, latLngs, ratio) {
-	        latLngs = (latLngs instanceof L.Polyline) ? latLngs.getLatLngs() : latLngs;
-	        var n = latLngs.length;
-	        if (n < 2) {
-	            return null;
-	        }
-
-	        // ensure the ratio is between 0 and 1;
-	        ratio = Math.max(Math.min(ratio, 1), 0);
-
-	        if (ratio === 0) {
-	            return {
-	                latLng: latLngs[0] instanceof L.LatLng ? latLngs[0] : L.latLng(latLngs[0]),
-	                predecessor: -1
-	            };
-	        }
-	        if (ratio == 1) {
-	            return {
-	                latLng: latLngs[latLngs.length -1] instanceof L.LatLng ? latLngs[latLngs.length -1] : L.latLng(latLngs[latLngs.length -1]),
-	                predecessor: latLngs.length - 2
-	            };
-	        }
-
-	        // project the LatLngs as Points,
-	        // and compute total planar length of the line at max precision
-	        var maxzoom = map.getMaxZoom();
-	        if (maxzoom === Infinity)
-	            maxzoom = map.getZoom();
-	        var pts = [];
-	        var lineLength = 0;
-	        for(var i = 0; i < n; i++) {
-	            pts[i] = map.project(latLngs[i], maxzoom);
-	            if(i > 0)
-	              lineLength += pts[i-1].distanceTo(pts[i]);
-	        }
-
-	        var ratioDist = lineLength * ratio;
-	        var a = pts[0],
-	            b = pts[1],
-	            distA = 0,
-	            distB = a.distanceTo(b);
-	        // follow the line segments [ab], adding lengths,
-	        // until we find the segment where the points should lie on
-	        var index = 1;
-	        for (; index < n && distB < ratioDist; index++) {
-	            a = b;
-	            distA = distB;
-	            b = pts[index];
-	            distB += a.distanceTo(b);
-	        }
-	        // compute the ratio relative to the segment [ab]
-	        var segmentRatio = ((distB - distA) !== 0) ? ((ratioDist - distA) / (distB - distA)) : 0;
-	        var interpolatedPoint = L.GeometryUtil.interpolateOnPointSegment(a, b, segmentRatio);
-	        return {
-	            latLng: map.unproject(interpolatedPoint, maxzoom),
-	            predecessor: index-2
-	        };
-	    },
-
-	    /**
-	        Returns a float between 0 and 1 representing the location of the
-	        closest point on polyline to the given latlng, as a fraction of total line length.
-	        (opposite of L.GeometryUtil.interpolateOnLine())
-	        @param {L.Map} map Leaflet map to be used for this method
-	        @param {L.PolyLine} polyline Polyline on which the latlng will be search
-	        @param {L.LatLng} latlng The position to search
-	        @returns {Number} Float between 0 and 1
-	    */
-	    locateOnLine: function (map, polyline, latlng) {
-	        var latlngs = polyline.getLatLngs();
-	        if (latlng.equals(latlngs[0]))
-	            return 0.0;
-	        if (latlng.equals(latlngs[latlngs.length-1]))
-	            return 1.0;
-
-	        var point = L.GeometryUtil.closest(map, polyline, latlng, false),
-	            lengths = L.GeometryUtil.accumulatedLengths(latlngs),
-	            total_length = lengths[lengths.length-1],
-	            portion = 0,
-	            found = false;
-	        for (var i=0, n = latlngs.length-1; i < n; i++) {
-	            var l1 = latlngs[i],
-	                l2 = latlngs[i+1];
-	            portion = lengths[i];
-	            if (L.GeometryUtil.belongsSegment(point, l1, l2)) {
-	                portion += l1.distanceTo(point);
-	                found = true;
-	                break;
-	            }
-	        }
-	        if (!found) {
-	            throw "Could not interpolate " + latlng.toString() + " within " + polyline.toString();
-	        }
-	        return portion / total_length;
-	    },
-
-	    /**
-	        Returns a clone with reversed coordinates.
-	        @param {L.PolyLine} polyline polyline to reverse
-	        @returns {L.PolyLine} polyline reversed
-	    */
-	    reverse: function (polyline) {
-	        return L.polyline(polyline.getLatLngs().slice(0).reverse());
-	    },
-
-	    /**
-	        Returns a sub-part of the polyline, from start to end.
-	        If start is superior to end, returns extraction from inverted line.
-	        @param {L.Map} map Leaflet map to be used for this method
-	        @param {L.PolyLine} polyline Polyline on which will be extracted the sub-part
-	        @param {Number} start ratio, expressed as a decimal between 0 and 1, inclusive
-	        @param {Number} end ratio, expressed as a decimal between 0 and 1, inclusive
-	        @returns {Array<L.LatLng>} new polyline
-	     */
-	    extract: function (map, polyline, start, end) {
-	        if (start > end) {
-	            return L.GeometryUtil.extract(map, L.GeometryUtil.reverse(polyline), 1.0-start, 1.0-end);
-	        }
-
-	        // Bound start and end to [0-1]
-	        start = Math.max(Math.min(start, 1), 0);
-	        end = Math.max(Math.min(end, 1), 0);
-
-	        var latlngs = polyline.getLatLngs(),
-	            startpoint = L.GeometryUtil.interpolateOnLine(map, polyline, start),
-	            endpoint = L.GeometryUtil.interpolateOnLine(map, polyline, end);
-	        // Return single point if start == end
-	        if (start == end) {
-	            var point = L.GeometryUtil.interpolateOnLine(map, polyline, end);
-	            return [point.latLng];
-	        }
-	        // Array.slice() works indexes at 0
-	        if (startpoint.predecessor == -1)
-	            startpoint.predecessor = 0;
-	        if (endpoint.predecessor == -1)
-	            endpoint.predecessor = 0;
-	        var result = latlngs.slice(startpoint.predecessor+1, endpoint.predecessor+1);
-	        result.unshift(startpoint.latLng);
-	        result.push(endpoint.latLng);
-	        return result;
-	    },
-
-	    /**
-	        Returns true if first polyline ends where other second starts.
-	        @param {L.PolyLine} polyline First polyline
-	        @param {L.PolyLine} other Second polyline
-	        @returns {bool}
-	    */
-	    isBefore: function (polyline, other) {
-	        if (!other) return false;
-	        var lla = polyline.getLatLngs(),
-	            llb = other.getLatLngs();
-	        return (lla[lla.length-1]).equals(llb[0]);
-	    },
-
-	    /**
-	        Returns true if first polyline starts where second ends.
-	        @param {L.PolyLine} polyline First polyline
-	        @param {L.PolyLine} other Second polyline
-	        @returns {bool}
-	    */
-	    isAfter: function (polyline, other) {
-	        if (!other) return false;
-	        var lla = polyline.getLatLngs(),
-	            llb = other.getLatLngs();
-	        return (lla[0]).equals(llb[llb.length-1]);
-	    },
-
-	    /**
-	        Returns true if first polyline starts where second ends or start.
-	        @param {L.PolyLine} polyline First polyline
-	        @param {L.PolyLine} other Second polyline
-	        @returns {bool}
-	    */
-	    startsAtExtremity: function (polyline, other) {
-	        if (!other) return false;
-	        var lla = polyline.getLatLngs(),
-	            llb = other.getLatLngs(),
-	            start = lla[0];
-	        return start.equals(llb[0]) || start.equals(llb[llb.length-1]);
-	    },
-
-	    /**
-	        Returns horizontal angle in degres between two points.
-	        @param {L.Point} a Coordinates of point A
-	        @param {L.Point} b Coordinates of point B
-	        @returns {Number} horizontal angle
-	     */
-	    computeAngle: function(a, b) {
-	        return (Math.atan2(b.y - a.y, b.x - a.x) * 180 / Math.PI);
-	    },
-
-	    /**
-	       Returns slope (Ax+B) between two points.
-	        @param {L.Point} a Coordinates of point A
-	        @param {L.Point} b Coordinates of point B
-	        @returns {Object} with ``a`` and ``b`` properties.
-	     */
-	    computeSlope: function(a, b) {
-	        var s = (b.y - a.y) / (b.x - a.x),
-	            o = a.y - (s * a.x);
-	        return {'a': s, 'b': o};
-	    },
-
-	    /**
-	       Returns LatLng of rotated point around specified LatLng center.
-	        @param {L.LatLng} latlngPoint: point to rotate
-	        @param {double} angleDeg: angle to rotate in degrees
-	        @param {L.LatLng} latlngCenter: center of rotation
-	        @returns {L.LatLng} rotated point
-	     */
-	    rotatePoint: function(map, latlngPoint, angleDeg, latlngCenter) {
-	        var maxzoom = map.getMaxZoom();
-	        if (maxzoom === Infinity)
-	            maxzoom = map.getZoom();
-	        var angleRad = angleDeg*Math.PI/180,
-	            pPoint = map.project(latlngPoint, maxzoom),
-	            pCenter = map.project(latlngCenter, maxzoom),
-	            x2 = Math.cos(angleRad)*(pPoint.x-pCenter.x) - Math.sin(angleRad)*(pPoint.y-pCenter.y) + pCenter.x,
-	            y2 = Math.sin(angleRad)*(pPoint.x-pCenter.x) + Math.cos(angleRad)*(pPoint.y-pCenter.y) + pCenter.y;
-	        return map.unproject(new L.Point(x2,y2), maxzoom);
-	    },
-
-	    /**
-	       Returns the bearing in degrees clockwise from north (0 degrees)
-	       from the first L.LatLng to the second, at the first LatLng
-	       @param {L.LatLng} latlng1: origin point of the bearing
-	       @param {L.LatLng} latlng2: destination point of the bearing
-	       @returns {float} degrees clockwise from north.
-	    */
-	    bearing: function(latlng1, latlng2) {
-	        var rad = Math.PI / 180,
-	            lat1 = latlng1.lat * rad,
-	            lat2 = latlng2.lat * rad,
-	            lon1 = latlng1.lng * rad,
-	            lon2 = latlng2.lng * rad,
-	            y = Math.sin(lon2 - lon1) * Math.cos(lat2),
-	            x = Math.cos(lat1) * Math.sin(lat2) -
-	                Math.sin(lat1) * Math.cos(lat2) * Math.cos(lon2 - lon1);
-
-	        var bearing = ((Math.atan2(y, x) * 180 / Math.PI) + 360) % 360;
-	        return bearing >= 180 ? bearing-360 : bearing;
-	    },
-
-	    /**
-	       Returns the point that is a distance and heading away from
-	       the given origin point.
-	       @param {L.LatLng} latlng: origin point
-	       @param {float}: heading in degrees, clockwise from 0 degrees north.
-	       @param {float}: distance in meters
-	       @returns {L.latLng} the destination point.
-	       Many thanks to Chris Veness at http://www.movable-type.co.uk/scripts/latlong.html
-	       for a great reference and examples.
-	    */
-	    destination: function(latlng, heading, distance) {
-	        heading = (heading + 360) % 360;
-	        var rad = Math.PI / 180,
-	            radInv = 180 / Math.PI,
-	            R = 6378137, // approximation of Earth's radius
-	            lon1 = latlng.lng * rad,
-	            lat1 = latlng.lat * rad,
-	            rheading = heading * rad,
-	            sinLat1 = Math.sin(lat1),
-	            cosLat1 = Math.cos(lat1),
-	            cosDistR = Math.cos(distance / R),
-	            sinDistR = Math.sin(distance / R),
-	            lat2 = Math.asin(sinLat1 * cosDistR + cosLat1 *
-	                sinDistR * Math.cos(rheading)),
-	            lon2 = lon1 + Math.atan2(Math.sin(rheading) * sinDistR *
-	                cosLat1, cosDistR - sinLat1 * Math.sin(lat2));
-	        lon2 = lon2 * radInv;
-	        lon2 = lon2 > 180 ? lon2 - 360 : lon2 < -180 ? lon2 + 360 : lon2;
-	        return L.latLng([lat2 * radInv, lon2]);
+	    if(n === 2 &&
+	       points[0][0] === points[1][0] &&
+	       points[0][1] === points[1][1]) {
+	      return [0]
 	    }
-	});
 
-	return L.GeometryUtil;
+	    return result
+	  }
 
-	}));
+	  //Sort point indices along x-axis
+	  var sorted = new Array(n)
+	  for(var i=0; i<n; ++i) {
+	    sorted[i] = i
+	  }
+	  sorted.sort(function(a,b) {
+	    var d = points[a][0]-points[b][0]
+	    if(d) {
+	      return d
+	    }
+	    return points[a][1] - points[b][1]
+	  })
 
+	  //Construct upper and lower hulls
+	  var lower = [sorted[0], sorted[1]]
+	  var upper = [sorted[0], sorted[1]]
+
+	  for(var i=2; i<n; ++i) {
+	    var idx = sorted[i]
+	    var p   = points[idx]
+
+	    //Insert into lower list
+	    var m = lower.length
+	    while(m > 1 && orient(
+	        points[lower[m-2]], 
+	        points[lower[m-1]], 
+	        p) <= 0) {
+	      m -= 1
+	      lower.pop()
+	    }
+	    lower.push(idx)
+
+	    //Insert into upper list
+	    m = upper.length
+	    while(m > 1 && orient(
+	        points[upper[m-2]], 
+	        points[upper[m-1]], 
+	        p) >= 0) {
+	      m -= 1
+	      upper.pop()
+	    }
+	    upper.push(idx)
+	  }
+
+	  //Merge lists together
+	  var result = new Array(upper.length + lower.length - 2)
+	  var ptr    = 0
+	  for(var i=0, nl=lower.length; i<nl; ++i) {
+	    result[ptr++] = lower[i]
+	  }
+	  for(var j=upper.length-2; j>0; --j) {
+	    result[ptr++] = upper[j]
+	  }
+
+	  //Return result
+	  return result
+	}
 
 /***/ },
 /* 7 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
-	/*
-	 * L.CircleEditor is an extension of L.Circle, just to add the edition part (remember, radius in meters).
-	 */
+	"use strict"
 
-	L.CircleEditor = L.Circle.extend ({
+	var twoProduct = __webpack_require__(8)
+	var robustSum = __webpack_require__(9)
+	var robustScale = __webpack_require__(10)
+	var robustSubtract = __webpack_require__(12)
 
-	    options: {
-	        icon: new L.DivIcon({
-	            iconSize: new L.Point(8, 8),
-	            className: 'leaflet-div-icon leaflet-editing-icon'
-	        }),
-	        extendedIconClass : 'extend-icon'
-	    },
+	var NUM_EXPAND = 5
 
-	    onAdd: function (map) {
-	        L.Path.prototype.onAdd.call(this, map);
+	var EPSILON     = 1.1102230246251565e-16
+	var ERRBOUND3   = (3.0 + 16.0 * EPSILON) * EPSILON
+	var ERRBOUND4   = (7.0 + 56.0 * EPSILON) * EPSILON
 
-	        this.addHooks();
-	    },
+	function cofactor(m, c) {
+	  var result = new Array(m.length-1)
+	  for(var i=1; i<m.length; ++i) {
+	    var r = result[i-1] = new Array(m.length-1)
+	    for(var j=0,k=0; j<m.length; ++j) {
+	      if(j === c) {
+	        continue
+	      }
+	      r[k++] = m[i][j]
+	    }
+	  }
+	  return result
+	}
 
-	    onRemove: function (map) {
-	        this.removeHooks();
+	function matrix(n) {
+	  var result = new Array(n)
+	  for(var i=0; i<n; ++i) {
+	    result[i] = new Array(n)
+	    for(var j=0; j<n; ++j) {
+	      result[i][j] = ["m", j, "[", (n-i-1), "]"].join("")
+	    }
+	  }
+	  return result
+	}
 
-	        L.Path.prototype.onRemove.call(this, map);
-	    },
+	function sign(n) {
+	  if(n & 1) {
+	    return "-"
+	  }
+	  return ""
+	}
 
+	function generateSum(expr) {
+	  if(expr.length === 1) {
+	    return expr[0]
+	  } else if(expr.length === 2) {
+	    return ["sum(", expr[0], ",", expr[1], ")"].join("")
+	  } else {
+	    var m = expr.length>>1
+	    return ["sum(", generateSum(expr.slice(0, m)), ",", generateSum(expr.slice(m)), ")"].join("")
+	  }
+	}
 
-	    addHooks: function () {
-	        if (this._map) {
-	            if (!this._markerGroup) {
-	                this._initMarkers();
-	            }
-	            this._map.addLayer(this._markerGroup);
-	        }
-	    },
+	function determinant(m) {
+	  if(m.length === 2) {
+	    return [["sum(prod(", m[0][0], ",", m[1][1], "),prod(-", m[0][1], ",", m[1][0], "))"].join("")]
+	  } else {
+	    var expr = []
+	    for(var i=0; i<m.length; ++i) {
+	      expr.push(["scale(", generateSum(determinant(cofactor(m, i))), ",", sign(i), m[0][i], ")"].join(""))
+	    }
+	    return expr
+	  }
+	}
 
-	    removeHooks: function () {
-	        if (this._map) {
-	            this._map.removeLayer(this._markerGroup);
-	            delete this._markerGroup;
-	            delete this._markers;
-	        }
-	    },
+	function orientation(n) {
+	  var pos = []
+	  var neg = []
+	  var m = matrix(n)
+	  var args = []
+	  for(var i=0; i<n; ++i) {
+	    if((i&1)===0) {
+	      pos.push.apply(pos, determinant(cofactor(m, i)))
+	    } else {
+	      neg.push.apply(neg, determinant(cofactor(m, i)))
+	    }
+	    args.push("m" + i)
+	  }
+	  var posExpr = generateSum(pos)
+	  var negExpr = generateSum(neg)
+	  var funcName = "orientation" + n + "Exact"
+	  var code = ["function ", funcName, "(", args.join(), "){var p=", posExpr, ",n=", negExpr, ",d=sub(p,n);\
+	return d[d.length-1];};return ", funcName].join("")
+	  var proc = new Function("sum", "prod", "scale", "sub", code)
+	  return proc(robustSum, twoProduct, robustScale, robustSubtract)
+	}
 
-	    updateMarkers: function () {
-	        this._markerGroup.clearLayers();
-	        this._initMarkers();
-	    },
+	var orientation3Exact = orientation(3)
+	var orientation4Exact = orientation(4)
 
-	    _initMarkers: function () {
-	        this._markerGroup = new L.LayerGroup();
-	        this._markers = [];
+	var CACHED = [
+	  function orientation0() { return 0 },
+	  function orientation1() { return 0 },
+	  function orientation2(a, b) { 
+	    return b[0] - a[0]
+	  },
+	  function orientation3(a, b, c) {
+	    var l = (a[1] - c[1]) * (b[0] - c[0])
+	    var r = (a[0] - c[0]) * (b[1] - c[1])
+	    var det = l - r
+	    var s
+	    if(l > 0) {
+	      if(r <= 0) {
+	        return det
+	      } else {
+	        s = l + r
+	      }
+	    } else if(l < 0) {
+	      if(r >= 0) {
+	        return det
+	      } else {
+	        s = -(l + r)
+	      }
+	    } else {
+	      return det
+	    }
+	    var tol = ERRBOUND3 * s
+	    if(det >= tol || det <= -tol) {
+	      return det
+	    }
+	    return orientation3Exact(a, b, c)
+	  },
+	  function orientation4(a,b,c,d) {
+	    var adx = a[0] - d[0]
+	    var bdx = b[0] - d[0]
+	    var cdx = c[0] - d[0]
+	    var ady = a[1] - d[1]
+	    var bdy = b[1] - d[1]
+	    var cdy = c[1] - d[1]
+	    var adz = a[2] - d[2]
+	    var bdz = b[2] - d[2]
+	    var cdz = c[2] - d[2]
+	    var bdxcdy = bdx * cdy
+	    var cdxbdy = cdx * bdy
+	    var cdxady = cdx * ady
+	    var adxcdy = adx * cdy
+	    var adxbdy = adx * bdy
+	    var bdxady = bdx * ady
+	    var det = adz * (bdxcdy - cdxbdy) 
+	            + bdz * (cdxady - adxcdy)
+	            + cdz * (adxbdy - bdxady)
+	    var permanent = (Math.abs(bdxcdy) + Math.abs(cdxbdy)) * Math.abs(adz)
+	                  + (Math.abs(cdxady) + Math.abs(adxcdy)) * Math.abs(bdz)
+	                  + (Math.abs(adxbdy) + Math.abs(bdxady)) * Math.abs(cdz)
+	    var tol = ERRBOUND4 * permanent
+	    if ((det > tol) || (-det > tol)) {
+	      return det
+	    }
+	    return orientation4Exact(a,b,c,d)
+	  }
+	]
 
-	        var markerCenter = this._createMarker(this._latlng, 0, true);
-	        this._markers.push(markerCenter);
+	function slowOrient(args) {
+	  var proc = CACHED[args.length]
+	  if(!proc) {
+	    proc = CACHED[args.length] = orientation(args.length)
+	  }
+	  return proc.apply(undefined, args)
+	}
 
-	        var circleBounds = this.getBounds(),
-	            center = circleBounds.getCenter(),
-	            neCoord = circleBounds.getNorthEast(),
-	            northCenterCoord = new L.LatLng(center.lat, neCoord.lng, true);
-	            markerNorthCenter = this._createMarker(northCenterCoord, 1);
-	        this._markers.push(markerNorthCenter);
-	    },
+	function generateOrientationProc() {
+	  while(CACHED.length <= NUM_EXPAND) {
+	    CACHED.push(orientation(CACHED.length))
+	  }
+	  var args = []
+	  var procArgs = ["slow"]
+	  for(var i=0; i<=NUM_EXPAND; ++i) {
+	    args.push("a" + i)
+	    procArgs.push("o" + i)
+	  }
+	  var code = [
+	    "function getOrientation(", args.join(), "){switch(arguments.length){case 0:case 1:return 0;"
+	  ]
+	  for(var i=2; i<=NUM_EXPAND; ++i) {
+	    code.push("case ", i, ":return o", i, "(", args.slice(0, i).join(), ");")
+	  }
+	  code.push("}var s=new Array(arguments.length);for(var i=0;i<arguments.length;++i){s[i]=arguments[i]};return slow(s);}return getOrientation")
+	  procArgs.push(code.join(""))
 
-	    _createMarker: function (latlng, index, isCenter) {
-	        var marker = new L.Marker(latlng, {
-	            draggable: true,
-	            icon: this.options.icon
-	        });
+	  var proc = Function.apply(undefined, procArgs)
+	  module.exports = proc.apply(undefined, [slowOrient].concat(CACHED))
+	  for(var i=0; i<=NUM_EXPAND; ++i) {
+	    module.exports[i] = CACHED[i]
+	  }
+	}
 
-	        if (isCenter === undefined) {
-	            isCenter = false;
-	        }
-	        //console.log("this is center point: " + isCenter);
-
-	        marker._origLatLng = latlng;
-	        marker._index = index;
-	        marker._isCenter = isCenter;
-
-	        if (isCenter) {
-	            marker.on('drag', this._onCenterMove, this)
-	                  .on('dragend', this._onCenterMoveEnd, this);
-	        } else {
-	            marker.on('drag', this._onMarkerDrag, this);
-	        }
-	        marker.on('dragend', this._fireEdit, this)
-	              .on('mouseover', this._onMouseOver, this)
-	              .on('mouseout', this._onMouseOut, this);
-
-	        this._markerGroup.addLayer(marker);
-
-	        return marker;
-	    },
-	    _onMouseOver: function (e) {
-	        var target = e.target,
-	            icon = target._icon,
-	            classValues = icon.getAttribute("class");
-	        //icon.setAttribute("class", "extend-icon " + classValues);
-	        icon.setAttribute("class", this.options.extendedIconClass + " " + classValues);
-	    },
-	    _onMouseOut: function (e) {
-	        var target = e.target,
-	            icon = target._icon,
-	            classValues = icon.getAttribute("class");
-	        //icon.setAttribute("class", classValues.replace("extend-icon", ""));
-	        icon.setAttribute("class", classValues.replace(this.options.extendedIconClass, ""));
-	    },
-
-	    _fireEdit: function () {
-	        this.fire('edit');
-	    },
-
-	    _onCenterMove: function (e) {
-	        var marker = e.target;
-	        //console.log("center move - START");
-
-	        L.Util.extend(marker._origLatLng, marker._latlng);
-
-	        var mm = this._markers[1];
-	        mm.setOpacity(0.1);
-
-	        this.redraw();
-	        
-	        //console.log("END");
-	    },
-
-	    _onCenterMoveEnd: function (e) {
-	        var marker = e.target;
-	        
-	        //now resetting the side point
-	        var circleBounds = this.getBounds(),
-	            center = circleBounds.getCenter(),
-	            neCoord = circleBounds.getNorthEast(),
-	            northCenterCoord = new L.LatLng(center.lat, neCoord.lng, true);
-
-	        var mm = this._markers[1];
-	        mm.setLatLng(northCenterCoord);
-	        mm.setOpacity(1);
-
-	        this.fire('centerchange');
-	    },
-
-	    _onMarkerDrag: function (e) {
-	        var marker = e.target;
-	        //console.log("marker drag - START");
-	        var center = this._markers[0].getLatLng();
-	        var axis = marker._latlng;
-
-	        var distance = center.distanceTo(axis);
-
-	        this.setRadius(distance);
-	        
-	        this.redraw();
-	        //console.log("END");
-
-	        this.fire('radiuschange');
-	    },
-
-	    centerchange: function() {},
-	    radiuschange: function() {}
-	});
-
+	generateOrientationProc()
 
 /***/ },
 /* 8 */
 /***/ function(module, exports) {
 
-	/*
-	  This measuring tool is created to measure the distance between different points.
-	  * It allows to set the icons for the markers.
-	  * Sets a css class for the popup information (which you can style it yourself).
-	  * Sets the line with a css class so you can manipulate it as well.
-	  * You can measure the distance between multiple points.
-	  * You can indicate if you want to show the distance between each point, 
-	    the total distance or both.
-	  * You can indicate if the popups show a close button.
-	*/
-	L.MeasuringTool = L.Class.extend({
-	    initialize: function (map, options, iconStart, iconEnd) {
-	        L.Util.setOptions(this, options);
-	        this._map = map;
-	        this._layer = new L.LayerGroup().addTo(this._map);
-	        this._popupLayer = new L.LayerGroup().addTo(this._map);
-	        this._totalDistancePopup;
+	"use strict"
 
-	        this._measureLine = null;
-	        this._distancePopupList = [];
-	        this._markerList = [];
+	module.exports = twoProduct
 
-	        this._markerIcons = null;
-	        if (iconStart || iconEnd) {
-	            this._markerIcons = [iconStart, iconEnd];
-	        }
-	    },
+	var SPLITTER = +(Math.pow(2, 27) + 1.0)
 
-	    options: {
-	        minWidth: 50,
-	        autoPan: false,
-	        closeButton: true, // should the popups have a close option?
-	        displayTotalDistance: true,
-	        displayPartialDistance: false,
-	        className: 'measuring-label', /*css label class name*/
-	        lineClassName: 'measuring-line-class', /*css class name for the line*/
-		    popupTemplate: '<b>Total distance:</b></br>{distance}m',
-		    popupAnchor: [0, -25]
-	    },
+	function twoProduct(a, b, result) {
+	  var x = a * b
 
-	    enable: function() {
-	        this._map.on('click', this._addMarker, this);
-	    },
+	  var c = SPLITTER * a
+	  var abig = c - a
+	  var ahi = c - abig
+	  var alo = a - ahi
 
-	    disable: function () {
-	        this._map.off('click', this._addMarker, this);
+	  var d = SPLITTER * b
+	  var bbig = d - b
+	  var bhi = d - bbig
+	  var blo = b - bhi
 
-	        while (this._distancePopupList.length > 0) {
-	            this._layer.removeLayer(this._distancePopupList.pop());
-	        }
-	        
-	        if (this._measureLine) {
-	            this._layer.removeLayer(this._measureLine);
-	            this._measureLine = undefined;
-	        }
+	  var err1 = x - (ahi * bhi)
+	  var err2 = err1 - (alo * bhi)
+	  var err3 = err2 - (ahi * blo)
 
-	        for (var i = 0; this._markerList.length; i++) {
-	            var marker = this._markerList.pop();
-	            marker.off('drag', this._updateRuler, this)
-	                  .off('contextmenu', this._removeMarker, this);
+	  var y = alo * blo - err3
 
-	            this._layer.removeLayer(marker);
-	        }
+	  if(result) {
+	    result[0] = y
+	    result[1] = x
+	    return result
+	  }
 
-	        this._popupLayer.clearLayers();
-	        this._layer.clearLayers();
-	    },
-
-	    // on click => adds a new point to the line
-	    _addMarker: function(e) {
-	        var markerPosition = this._markerList.length;
-
-	        var markerLocation = e.latlng;
-	        // created and adds the marker to the map
-	        var marker = new L.Marker(markerLocation, {draggable:true});
-	        this._layer.addLayer(marker);
-
-	        // sets the marker with the correct icons (if previously set)
-	        if (this._markerIcons && this._markerIcons.length == 2) {
-	            if (markerPosition == 0) { // if it is the first one
-	                marker.setIcon(this._markerIcons[0]);
-	            } else {
-	                marker.setIcon(this._markerIcons[1]);
-	                this._markerList[markerPosition - 1].setIcon(this._markerIcons[0]);
-	            }
-	        }
-
-	        // setting the position to the marker
-	        // (it is used when moving them or removing them)
-	        marker._pos = markerPosition;
-	        marker.on('drag', this._updateRuler, this)
-	              .on('contextmenu', this._removeMarker, this);
-
-	        this._markerList.push(marker);
-	        this._setupLine();
-
-	        // show total distance after there are at least 2 points
-	        if (markerPosition >= 1) {
-	            this._showTotalDistance();
-	        }
-	    },
-
-	    // on right click => remove the point from the line
-	    _removeMarker: function(e) {
-	        var target = e.target;
-
-	        // removing the popup showing the total distance as it will
-	        // be recalculated
-	        this._popupLayer.removeLayer(this._totalDistancePopup);
-
-	        // removing the point from the polyline
-	        var listLatng = this._measureLine.getLatLngs();
-	        listLatng.splice(target._pos, 1);
-	        this._measureLine.setLatLngs(listLatng);
-
-	        // removing the marker
-	        var deleteMarker = this._markerList.splice(target._pos, 1);
-	        this._layer.removeLayer(deleteMarker[0]);
-
-	        var totalMarkers = this._markerList.length;
-	        // removing the popups involved and update the distance between
-	        // the new neighbouring points
-	        if (target._pos == 0) { // first point
-	            this._distancePopupList.splice(target._pos, 1);
-
-	            if (totalMarkers > 1) {
-	                var startLatLng = this._markerList[target._pos].getLatLng(),
-	                    endLatLng = this._markerList[target._pos + 1].getLatLng();
-
-	                this._setDistancePopup(startLatLng, endLatLng, 1);
-	            }
-	        } else if (target._pos == listLatng.length) { // last point
-	            this._distancePopupList.pop();
-
-	            if (totalMarkers > 1) {
-	                var startLatLng = this._markerList[target._pos - 2].getLatLng(),
-	                    endLatLng = this._markerList[target._pos - 1].getLatLng();
-
-	                this._setDistancePopup(startLatLng, endLatLng, target._pos - 1);
-	            }
-	        } else { // point in the middle
-	            this._distancePopupList.splice(target._pos, 1);
-
-	            var startLatLng = this._markerList[target._pos - 1].getLatLng(),
-	                endLatLng = this._markerList[target._pos].getLatLng();
-	            this._setDistancePopup(startLatLng, endLatLng, target._pos);
-	        }
-
-	        // update the position numbers on the marker list
-	        for (var i = 0; i < this._markerList.length; i++) {
-	            this._markerList[i]._pos = i;
-	        }
-
-	        // show the updated total distance
-	        this._showTotalDistance();
-	    },
-
-	    // creates the line and adds the additional points for every click on the map
-	    _setupLine: function() {
-	        var totalMarkers = this._markerList.length;
-	        // do nothing in case there is only one point
-	        if (totalMarkers <= 1) {
-	            return;
-	        }
-
-	        // getting the old last two points of the line
-	        var startLatLng = this._markerList[totalMarkers - 2].getLatLng(),
-	            endLatLng = this._markerList[totalMarkers - 1].getLatLng();
-
-	        // if there are two points => create the line
-	        if (totalMarkers == 2) {
-	            //Do not worry, I decided to set this as the standard behaviour.
-	            //But you can change the style by setting your own class "lineClassName"
-	            this._measureLine = new L.Polyline(
-	                [startLatLng, endLatLng ], 
-	                { color: "black", opacity: 0.5, stroke: true });
-
-	            this._layer.addLayer(this._measureLine);
-	            this._measureLine._path.setAttribute("class", this.options['lineClassName']);
-
-	            // setting up the popup for the total distance
-	            this._totalDistancePopup = new L.Popup(this.options, this._measureLine);
-	        } else { // for every extra point just add the new point to the line
-	            this._measureLine.addLatLng(endLatLng);
-	        }
-
-	        this._setDistancePopup(startLatLng, endLatLng, totalMarkers - 1);
-	    },
-
-	    // obtains the distance between two points and 
-	    // updates the information for that segment
-	    _setDistancePopup: function(startLatLng, endLatLng, index) {
-	        var centerPos = new L.LatLng((startLatLng.lat + endLatLng.lat)/2, 
-	                                     (startLatLng.lng + endLatLng.lng)/2),
-	            distance = startLatLng.distanceTo(endLatLng);
-
-	        this.setContent(distance, centerPos, index);
-	        this._showSegmentsInfo();
-	    },
-
-	    // updates the segment information in case that segment has been updated
-	    // when dragging the markers
-	    _updateRuler: function (e) {
-	        // if there is no line => do nothing
-	        if (!this._measureLine) {
-	            return;
-	        }
-
-	        var target = e.target,
-	            listLatng = this._measureLine.getLatLngs();
-
-	        // updating line with the new point
-	        listLatng[target._pos] = target.getLatLng();
-	        // setting the new coordingates to the line
-	        this._measureLine.setLatLngs(listLatng);
-
-	        // updating each of the segments which were afected by the 
-	        // move
-	        if (target._pos == 0) { // first marker
-	            var startLatLng = this._markerList[0].getLatLng(),
-	                endLatLng = this._markerList[1].getLatLng();
-	            this._setDistancePopup(startLatLng, endLatLng, 1);
-	        } else if (target._pos == listLatng.length - 1) { // last marker
-	            var totalMarkers = this._markerList.length,
-	                startLatLng = this._markerList[totalMarkers - 2].getLatLng(),
-	                endLatLng = this._markerList[totalMarkers - 1].getLatLng();
-	            this._setDistancePopup(startLatLng, endLatLng, target._pos);
-	        } else { // markers in betweek
-	            var startLatLng = this._markerList[target._pos - 1].getLatLng(),
-	                endLatLng = this._markerList[target._pos].getLatLng();
-	            this._setDistancePopup(startLatLng, endLatLng, target._pos);
-
-	            var startLatLng = endLatLng,
-	                endLatLng = this._markerList[target._pos + 1].getLatLng();
-	            this._setDistancePopup(startLatLng, endLatLng, target._pos + 1);
-	        }
-
-	        this._showTotalDistance();
-	    },
-
-	    // shows the popups for every segment with its distance
-	    _showSegmentsInfo: function() {
-	        this._popupLayer.clearLayers();
-	        // if the user decided not to show the partials => return
-	        if (!this.options['displayPartialDistance']) {
-	            return;
-	        }
-
-	        // this has to be done everytime I want to show more than one popup
-	        // at the same time
-	        for (var i = 0; i < this._distancePopupList.length; i++) {
-	            var popup = this._distancePopupList[i];
-	            this._popupLayer.addLayer(popup);
-	        }
-	    },
-
-	    // shows a popup displaying the total distance of the line
-	    _showTotalDistance: function() {
-	        // if the user decided not to show the total distance => return
-	        if (!this.options['displayTotalDistance']) {
-	            return;
-	        }
-	        // if there are less than 2 points => no point of showing anything
-	        var totalMarkers = this._markerList.length;
-	        if (totalMarkers < 2) {
-	            return;
-	        }
-
-	        // calculating the total distance
-	        var totalDistance = 0;
-	        for (var i = 0; i < this._distancePopupList.length; i++) {
-	            var popup = this._distancePopupList[i];
-	            totalDistance += popup._distance;
-	        }
-
-	        // getting the last marker, whom will be the one showing the info
-	        var marker = this._markerList[totalMarkers - 1];
-	        // setting the correct content to the popup
-		    var content = L.Util.template(this.options.popupTemplate, {distance: totalDistance.toFixed(2)});
-	        this._totalDistancePopup.setContent(content);
-	        // moving the popup a bit on top so it doesn't hide the last marker
-		    var popupAnchor = L.point(this.options.popupAnchor);
-	        var shiftedPosition = this._shiftPosition(marker.getLatLng(), popupAnchor.y, popupAnchor.x)
-	        this._totalDistancePopup.setLatLng(shiftedPosition);
-	        // displaying the popup
-	        this._popupLayer.addLayer(this._totalDistancePopup);
-	    },
-
-	    // helper funtion to shift a point
-	    _shiftPosition: function (latlng, northPx, eastPx) {
-	        var p1 = this._map.latLngToLayerPoint(latlng);
-	        p1.y += northPx;
-	        p1.x += eastPx;
-	        return this._map.layerPointToLatLng(p1);
-	    },
-
-	    // updates the information for a segment
-	    setContent: function (distance, coord, index) {
-	        var popup = this._distancePopupList[index - 1];
-	        // if the popup for the segment does not exist => create one
-	        if (!popup) {
-	            popup = new L.Popup(this.options, this._measureLine);
-	            this._distancePopupList.push(popup);
-	        }
-
-		    var content = L.Util.template(this.options.popupTemplate, {distance: distance.toFixed(2)});
-	        popup.setContent(content);
-	        popup.setLatLng(coord);
-
-	        // storing the partial distance in the popup
-	        popup._distance = distance;
-	    },
-
-	    fire: function (fnName, params) {
-	        if (fnName) {
-	            console.log("fn called is: " + fnName);
-	            if (this[fnName]) {
-	                this[fnName](params);
-	            }
-	        }
-	    },
-
-	    popupopen: function(obj) {},
-	    popupclose: function(obj) {}
-	});
-
+	  return [ y, x ]
+	}
 
 /***/ },
 /* 9 */
 /***/ function(module, exports) {
 
-	/*The class shows the length of each of the side for a Polygon and Polyline.
-	* The distance is displayed in meter or kilometes.
-	* If the distance between each side is too small (by default 40m.) then instead of
-	* the distance a letter is shown for all sides and a pop over is shown on the side
-	* which includes the values for each of the letters.
-	* If the area is too small (becuase you zoomed out too much) the info is not shown.
-	* Included a limit on number of sides. Which is helpful is you think that showing more
-	* than 8, 10, 20 sides values is not helpful.
-	*
-	* TODOS:
-	*    1) Handling on IE7/8 is not the best, it works by showing all the sides of all
-	        the polygons/polylines.
-	*    2) If the area is too small, only the pop over should be shown, showing the area
-	        or total length.
-	*/
+	"use strict"
 
-	L.PolySideLabel = L.Class.extend({
+	module.exports = linearExpansionSum
 
-	    options: {
-	        minWidth: 40,
-	        autoPan: false,
-	        closeButton: false,
-	        className: 'poly-label',
-	        offset: new L.Point(0, -20),
-	        minSideLength: 40, //Min length for a side in meters before using Charactes
-	        minAreaToShow: 0.0025, //Min area for which is worth showing the distance info
-	        bordersLimit: 8
-	    },
-	    
-	    initialize: function (polyObj, options) {
-	        L.Util.setOptions(this, options);
-	        this._polygon = polyObj;
-	        this._labelsList = [];
-	        this._numberOfBordersLimit = this.options.bordersLimit;
-	        this._isViewable = null;
+	//Easy case: Add two scalars
+	function scalarScalar(a, b) {
+	  var x = a + b
+	  var bv = x - a
+	  var av = x - bv
+	  var br = b - bv
+	  var ar = a - av
+	  var y = ar + br
+	  if(y) {
+	    return [y, x]
+	  }
+	  return [x]
+	}
 
-	        //If it is attached to the map
-	        //and it has sides (circles won't work here)
-	        //then labels will be added to each side of the polygon
-	        if (this._polygon._path && this._hasSides(this._polygon)) { //this._polygon.getLatLngs) {
-	            L.DomEvent
-	                .addListener(this._polygon._path, 'mouseover', this._showLabels, this)
-	                .addListener(this._polygon._path, 'mouseout', this._hideLabels, this);
-
-	            this._map = this._polygon._map;
-
-	            //NOTE: Doing this, will show all the labels for all the geometries when you are over one geometry
-	            //This part will only work for IE7 and IE8
-	            var _this = this;
-	            $(".leaflet-vml-shape")
-	                .mouseover(function () { _this._showLabels(); })
-	                .mouseout(function () { _this._hideLabels(); });
-	                
-	            this._map.on("zoomend", this._isLabelViewable, this);
-	            this._isLabelViewable();
-	        }
-	    },
-
-	    /*TODO: This method should be re writen, it is too messy*/
-	    _showLabels: function () {
-	        if (this._labelsList.length > 0) {
-	            console.log('the label list is full');
-	            return;
-	        }
-	        if (!this._isViewable) {
-	            console.log('it is too small to be viewable');
-	            return;
-	        }
-
-	        //var sum = 0;
-	        var charCounter = 65;
-	        this.myDescription = "";
-	        var showLabels = true;
-
-	        var latlngs = this._polygon.getLatLngs();
-	        var numberOfSides = latlngs.length;
-	        var isPolygon = this._isPolygon(this._polygon);
-	        if (!isPolygon) {
-	            numberOfSides--;
-	        }
-
-	        if (latlngs.length > this._numberOfBordersLimit) {
-	            showLabels = false;
-	            console.log('max number of borders: '+this._numberOfBordersLimit+', there are: ' + latlngs.length);
-	            return;
-	        }
-
-	        var pointsArray = [];
-	        var distance;
-	        var isSmall = false;
-	        var nextPoint = 1;
-	        var i = 0;
-	        for (i = 0; i < numberOfSides; i++) {
-	            if ((nextPoint == numberOfSides) && (isPolygon)) {
-	                nextPoint = 0;
-	            }
-	            distance = latlngs[i].distanceTo(latlngs[nextPoint]);
-	     
-	            if (showLabels) {
-	                pointsArray.push({ Distance: distance,
-	                    Coord: this._getMiddleLatLng(latlngs[i], latlngs[nextPoint]),
-	                    Unit: this.LengthUnit(distance)
-	                });
-	                if (distance < this.options.minSideLength /*meters*/) {
-	                    isSmall = true;
-	                }
-	            }
-	            nextPoint++;
-	        }
-	        if (showLabels) {
-	            var pu, description = "";
-	            for (i = 0; i < pointsArray.length; i++) {
-	                pu = new L.Popup(this.options, this._polygon);
-	                pu.setContent(isSmall ? String.fromCharCode(charCounter) : pointsArray[i].Unit);
-	                pu.setLatLng(pointsArray[i].Coord);
-
-	                this._map.addLayer(pu);
-	                //this._map.fire('popupopen', {popup: pu});
-
-	                this._labelsList.push(pu);
-
-	                description += String.fromCharCode(charCounter++) + ": " + pointsArray[i].Unit + "<br/>";
-	            }
-
-	            if (isSmall) {
-	                var bounds = this._polygon.getBounds();
-	                var latLngNE = bounds.getNorthEast();
-	                latLngNE = this._shiftPosition(latLngNE, 0, 35);
-	                pu = new L.Popup(this.options, this._polygon);
-	                pu.setContent(description);
-	                pu.setLatLng(latLngNE);
-	                this._map.addLayer(pu);
-	                this._map.fire('popupopen', {popup: pu});
-
-	                this._labelsList.push(pu);
-	            }
-	        }
-	    },
-
-	    _getMiddleLatLng: function (latlng1, latlng2) {
-	        var p1 = this._map.latLngToLayerPoint(latlng1),
-	            p2 = this._map.latLngToLayerPoint(latlng2);
-
-	        return this._map.layerPointToLatLng(p1._add(p2).divideBy(2));
-	    },
-
-	    _shiftPosition: function (latlng, northPx, eastPx) {
-	        var p1 = this._map.latLngToLayerPoint(latlng);
-	        p1.y += northPx;
-	        p1.x += eastPx;
-	        return this._map.layerPointToLatLng(p1);
-	    },
-
-	    _hasSides: function () {
-	        //polygon inherits from polyline, so all polygons are polylines
-	        if (this._polygon instanceof L.Polyline) {
-	            return true;
-	        }
-	        return false;
-	    },
-
-	    _isPolygon: function () {
-	        if (this._polygon instanceof L.Polygon) {
-	            return true;
-	        }
-	        return false;
-	    },
-
-	    _hideLabels: function () {
-	        for (var i = 0; i < this._labelsList.length; i++) {
-	            this._map.removeLayer(this._labelsList[i]);
-	        }
-	        this._labelsList = [];
-	    },
-	    
-	    //This is thought as:
-	    /*
-	        Get the area of the geometry as well as the map area.
-	        If the area of the geometry is less than 0.25% of the map
-	        then it is too small to distinguish the sides and there for
-	        it should not be drawn.
-	    */
-	    _isLabelViewable: function () {
-	        var mapSize = this._map.getSize(),
-	            mapArea = mapSize.x * mapSize.y,
-	            polyBounds = this._polygon.getBounds();
-	            polySW = this._map.project(polyBounds.getSouthWest()),
-	            polyNE = this._map.project(polyBounds.getNorthEast()),
-	            polyArea = Math.abs( (polySW.x - polyNE.x) * (polySW.y - polyNE.y) );
-	        
-	        var result = (polyArea/mapArea);
-	        //console.log("% viewable: " + result + " --- poly area is: " + polyArea);
-	        if (result < this.options.minAreaToShow /* in m2 ... 0.0025*/) {
-	            this._isViewable = false;
-	        }
-	        this._isViewable = true;
-	    },
-
-	    LengthUnit: function (meters) {
-	        var str = meters.toFixed(1) + "";
-	        return meters > 999 ? ((str / 100) / 10).toFixed(1) + "km" : str + "m";
-	    },
-
-	    AreaUnit: function (meters) {
-	        var str = meters.toFixed(1) + "";
-	        if (meters > 1000000) {
-	            return ((meters / 1000000) / 10).toFixed(1) + "km\xB2";
-	        } else if (meters > 1000) {
-	            return ((meters / 1000) / 10).toFixed(1) + "ha";
-	        } else {
-	            return str + "m\xB2";
-	        }
+	function linearExpansionSum(e, f) {
+	  var ne = e.length|0
+	  var nf = f.length|0
+	  if(ne === 1 && nf === 1) {
+	    return scalarScalar(e[0], f[0])
+	  }
+	  var n = ne + nf
+	  var g = new Array(n)
+	  var count = 0
+	  var eptr = 0
+	  var fptr = 0
+	  var abs = Math.abs
+	  var ei = e[eptr]
+	  var ea = abs(ei)
+	  var fi = f[fptr]
+	  var fa = abs(fi)
+	  var a, b
+	  if(ea < fa) {
+	    b = ei
+	    eptr += 1
+	    if(eptr < ne) {
+	      ei = e[eptr]
+	      ea = abs(ei)
 	    }
-	});
-
-
+	  } else {
+	    b = fi
+	    fptr += 1
+	    if(fptr < nf) {
+	      fi = f[fptr]
+	      fa = abs(fi)
+	    }
+	  }
+	  if((eptr < ne && ea < fa) || (fptr >= nf)) {
+	    a = ei
+	    eptr += 1
+	    if(eptr < ne) {
+	      ei = e[eptr]
+	      ea = abs(ei)
+	    }
+	  } else {
+	    a = fi
+	    fptr += 1
+	    if(fptr < nf) {
+	      fi = f[fptr]
+	      fa = abs(fi)
+	    }
+	  }
+	  var x = a + b
+	  var bv = x - a
+	  var y = b - bv
+	  var q0 = y
+	  var q1 = x
+	  var _x, _bv, _av, _br, _ar
+	  while(eptr < ne && fptr < nf) {
+	    if(ea < fa) {
+	      a = ei
+	      eptr += 1
+	      if(eptr < ne) {
+	        ei = e[eptr]
+	        ea = abs(ei)
+	      }
+	    } else {
+	      a = fi
+	      fptr += 1
+	      if(fptr < nf) {
+	        fi = f[fptr]
+	        fa = abs(fi)
+	      }
+	    }
+	    b = q0
+	    x = a + b
+	    bv = x - a
+	    y = b - bv
+	    if(y) {
+	      g[count++] = y
+	    }
+	    _x = q1 + x
+	    _bv = _x - q1
+	    _av = _x - _bv
+	    _br = x - _bv
+	    _ar = q1 - _av
+	    q0 = _ar + _br
+	    q1 = _x
+	  }
+	  while(eptr < ne) {
+	    a = ei
+	    b = q0
+	    x = a + b
+	    bv = x - a
+	    y = b - bv
+	    if(y) {
+	      g[count++] = y
+	    }
+	    _x = q1 + x
+	    _bv = _x - q1
+	    _av = _x - _bv
+	    _br = x - _bv
+	    _ar = q1 - _av
+	    q0 = _ar + _br
+	    q1 = _x
+	    eptr += 1
+	    if(eptr < ne) {
+	      ei = e[eptr]
+	    }
+	  }
+	  while(fptr < nf) {
+	    a = fi
+	    b = q0
+	    x = a + b
+	    bv = x - a
+	    y = b - bv
+	    if(y) {
+	      g[count++] = y
+	    } 
+	    _x = q1 + x
+	    _bv = _x - q1
+	    _av = _x - _bv
+	    _br = x - _bv
+	    _ar = q1 - _av
+	    q0 = _ar + _br
+	    q1 = _x
+	    fptr += 1
+	    if(fptr < nf) {
+	      fi = f[fptr]
+	    }
+	  }
+	  if(q0) {
+	    g[count++] = q0
+	  }
+	  if(q1) {
+	    g[count++] = q1
+	  }
+	  if(!count) {
+	    g[count++] = 0.0  
+	  }
+	  g.length = count
+	  return g
+	}
 
 /***/ },
 /* 10 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict"
+
+	var twoProduct = __webpack_require__(8)
+	var twoSum = __webpack_require__(11)
+
+	module.exports = scaleLinearExpansion
+
+	function scaleLinearExpansion(e, scale) {
+	  var n = e.length
+	  if(n === 1) {
+	    var ts = twoProduct(e[0], scale)
+	    if(ts[0]) {
+	      return ts
+	    }
+	    return [ ts[1] ]
+	  }
+	  var g = new Array(2 * n)
+	  var q = [0.1, 0.1]
+	  var t = [0.1, 0.1]
+	  var count = 0
+	  twoProduct(e[0], scale, q)
+	  if(q[0]) {
+	    g[count++] = q[0]
+	  }
+	  for(var i=1; i<n; ++i) {
+	    twoProduct(e[i], scale, t)
+	    var pq = q[1]
+	    twoSum(pq, t[0], q)
+	    if(q[0]) {
+	      g[count++] = q[0]
+	    }
+	    var a = t[1]
+	    var b = q[1]
+	    var x = a + b
+	    var bv = x - a
+	    var y = b - bv
+	    q[1] = x
+	    if(y) {
+	      g[count++] = y
+	    }
+	  }
+	  if(q[1]) {
+	    g[count++] = q[1]
+	  }
+	  if(count === 0) {
+	    g[count++] = 0.0
+	  }
+	  g.length = count
+	  return g
+	}
+
+/***/ },
+/* 11 */
 /***/ function(module, exports) {
 
-	L.River = L.Path.extend({
-	    initialize: function (latlngs, options) {
-	        L.setOptions(this, options);
-	        this._setLatLngs(latlngs);
+	"use strict"
+
+	module.exports = fastTwoSum
+
+	function fastTwoSum(a, b, result) {
+		var x = a + b
+		var bv = x - a
+		var av = x - bv
+		var br = b - bv
+		var ar = a - av
+		if(result) {
+			result[0] = ar + br
+			result[1] = x
+			return result
+		}
+		return [ar+br, x]
+	}
+
+/***/ },
+/* 12 */
+/***/ function(module, exports) {
+
+	"use strict"
+
+	module.exports = robustSubtract
+
+	//Easy case: Add two scalars
+	function scalarScalar(a, b) {
+	  var x = a + b
+	  var bv = x - a
+	  var av = x - bv
+	  var br = b - bv
+	  var ar = a - av
+	  var y = ar + br
+	  if(y) {
+	    return [y, x]
+	  }
+	  return [x]
+	}
+
+	function robustSubtract(e, f) {
+	  var ne = e.length|0
+	  var nf = f.length|0
+	  if(ne === 1 && nf === 1) {
+	    return scalarScalar(e[0], -f[0])
+	  }
+	  var n = ne + nf
+	  var g = new Array(n)
+	  var count = 0
+	  var eptr = 0
+	  var fptr = 0
+	  var abs = Math.abs
+	  var ei = e[eptr]
+	  var ea = abs(ei)
+	  var fi = -f[fptr]
+	  var fa = abs(fi)
+	  var a, b
+	  if(ea < fa) {
+	    b = ei
+	    eptr += 1
+	    if(eptr < ne) {
+	      ei = e[eptr]
+	      ea = abs(ei)
+	    }
+	  } else {
+	    b = fi
+	    fptr += 1
+	    if(fptr < nf) {
+	      fi = -f[fptr]
+	      fa = abs(fi)
+	    }
+	  }
+	  if((eptr < ne && ea < fa) || (fptr >= nf)) {
+	    a = ei
+	    eptr += 1
+	    if(eptr < ne) {
+	      ei = e[eptr]
+	      ea = abs(ei)
+	    }
+	  } else {
+	    a = fi
+	    fptr += 1
+	    if(fptr < nf) {
+	      fi = -f[fptr]
+	      fa = abs(fi)
+	    }
+	  }
+	  var x = a + b
+	  var bv = x - a
+	  var y = b - bv
+	  var q0 = y
+	  var q1 = x
+	  var _x, _bv, _av, _br, _ar
+	  while(eptr < ne && fptr < nf) {
+	    if(ea < fa) {
+	      a = ei
+	      eptr += 1
+	      if(eptr < ne) {
+	        ei = e[eptr]
+	        ea = abs(ei)
+	      }
+	    } else {
+	      a = fi
+	      fptr += 1
+	      if(fptr < nf) {
+	        fi = -f[fptr]
+	        fa = abs(fi)
+	      }
+	    }
+	    b = q0
+	    x = a + b
+	    bv = x - a
+	    y = b - bv
+	    if(y) {
+	      g[count++] = y
+	    }
+	    _x = q1 + x
+	    _bv = _x - q1
+	    _av = _x - _bv
+	    _br = x - _bv
+	    _ar = q1 - _av
+	    q0 = _ar + _br
+	    q1 = _x
+	  }
+	  while(eptr < ne) {
+	    a = ei
+	    b = q0
+	    x = a + b
+	    bv = x - a
+	    y = b - bv
+	    if(y) {
+	      g[count++] = y
+	    }
+	    _x = q1 + x
+	    _bv = _x - q1
+	    _av = _x - _bv
+	    _br = x - _bv
+	    _ar = q1 - _av
+	    q0 = _ar + _br
+	    q1 = _x
+	    eptr += 1
+	    if(eptr < ne) {
+	      ei = e[eptr]
+	    }
+	  }
+	  while(fptr < nf) {
+	    a = fi
+	    b = q0
+	    x = a + b
+	    bv = x - a
+	    y = b - bv
+	    if(y) {
+	      g[count++] = y
+	    } 
+	    _x = q1 + x
+	    _bv = _x - q1
+	    _av = _x - _bv
+	    _br = x - _bv
+	    _ar = q1 - _av
+	    q0 = _ar + _br
+	    q1 = _x
+	    fptr += 1
+	    if(fptr < nf) {
+	      fi = -f[fptr]
+	    }
+	  }
+	  if(q0) {
+	    g[count++] = q0
+	  }
+	  if(q1) {
+	    g[count++] = q1
+	  }
+	  if(!count) {
+	    g[count++] = 0.0  
+	  }
+	  g.length = count
+	  return g
+	}
+
+/***/ },
+/* 13 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	module.exports = TinyQueue;
+
+	function TinyQueue(data, compare) {
+	    if (!(this instanceof TinyQueue)) return new TinyQueue(data, compare);
+
+	    this.data = data || [];
+	    this.length = this.data.length;
+	    this.compare = compare || defaultCompare;
+
+	    if (data) for (var i = Math.floor(this.length / 2); i >= 0; i--) this._down(i);
+	}
+
+	function defaultCompare(a, b) {
+	    return a < b ? -1 : a > b ? 1 : 0;
+	}
+
+	TinyQueue.prototype = {
+
+	    push: function (item) {
+	        this.data.push(item);
+	        this.length++;
+	        this._up(this.length - 1);
 	    },
 
-	});
+	    pop: function () {
+	        var top = this.data[0];
+	        this.data[0] = this.data[this.length - 1];
+	        this.length--;
+	        this.data.pop();
+	        this._down(0);
+	        return top;
+	    },
 
-	L.river = function (args) {
-	    return new L.River(args);
+	    peek: function () {
+	        return this.data[0];
+	    },
+
+	    _up: function (pos) {
+	        var data = this.data,
+	            compare = this.compare;
+
+	        while (pos > 0) {
+	            var parent = Math.floor((pos - 1) / 2);
+	            if (compare(data[pos], data[parent]) < 0) {
+	                swap(data, parent, pos);
+	                pos = parent;
+
+	            } else break;
+	        }
+	    },
+
+	    _down: function (pos) {
+	        var data = this.data,
+	            compare = this.compare,
+	            len = this.length;
+
+	        while (true) {
+	            var left = 2 * pos + 1,
+	                right = left + 1,
+	                min = pos;
+
+	            if (left < len && compare(data[left], data[min]) < 0) min = left;
+	            if (right < len && compare(data[right], data[min]) < 0) min = right;
+
+	            if (min === pos) return;
+
+	            swap(data, min, pos);
+	            pos = min;
+	        }
+	    }
+	};
+
+	function swap(data, i, j) {
+	    var tmp = data[i];
+	    data[i] = data[j];
+	    data[j] = tmp;
+	}
+
+
+/***/ },
+/* 14 */
+/***/ function(module, exports) {
+
+	module.exports = function (point, vs) {
+	    // ray-casting algorithm based on
+	    // http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
+	    
+	    var x = point[0], y = point[1];
+	    
+	    var inside = false;
+	    for (var i = 0, j = vs.length - 1; i < vs.length; j = i++) {
+	        var xi = vs[i][0], yi = vs[i][1];
+	        var xj = vs[j][0], yj = vs[j][1];
+	        
+	        var intersect = ((yi > y) != (yj > y))
+	            && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+	        if (intersect) inside = !inside;
+	    }
+	    
+	    return inside;
 	};
 
 
 /***/ },
-/* 11 */
+/* 15 */
+/***/ function(module, exports) {
+
+	/**
+	 * @module linear coeff
+	 * @param point1
+	 * @param point2
+	 * @return Object {a, b, c} linear coefficients
+	 */
+
+	function findLinearCoef(point1, point2) {
+	    var x1 = point1.x,
+	        x2 = point2.x,
+	        y1 = point1.y,
+	        y2 = point2.y,
+	        a = y1 - y2,
+	        b = x2 - x1,
+	        c = x1 * y2 - x2 * y1;
+
+	    return {
+	        a: a,
+	        b: b,
+	        c: c
+	    };
+	}
+
+	// module.exports = findLinearCoef;
+
+
+/***/ },
+/* 16 */
+/***/ function(module, exports) {
+
+	/**
+	 * equation system
+	 * - line:
+	 *   a * x + b * y + c = 0;
+	 * - circle:
+	 *   Math.pow((x - x2), 2)  + Math.pow((y - y2), 2) = Math.pow(r, 2);
+	 * @param linearParams
+	 * @param center circle center point
+	 * @param radius circle radius
+	 * @return Object {a, b, c} quadratic equation coefficients
+	 *
+	 */
+
+	function squareCircleSystem(linearParams, center, radius) {
+	    var a = linearParams.a,
+	        b = linearParams.b,
+	        c = linearParams.c,
+	        cx = center.x,
+	        cy = center.y,
+	        r = radius,
+	        A, B, C;
+
+	    A = Math.pow(a, 2) + Math.pow(b, 2);
+	    B = -2 * (Math.pow(b, 2) * cx - a * c - a * b * cy);
+	    C = b * (b * Math.pow(cx, 2) + 2 * cy * c + b * Math.pow(cy, 2) - b * Math.pow(r, 2)) + Math.pow(c, 2);
+
+	    return {
+	        a: A,
+	        b: B,
+	        c: C
+	    };
+	}
+
+	// module.exports = squareCircleSystem;
+
+
+/***/ },
+/* 17 */
+/***/ function(module, exports) {
+
+	/**
+	 * equation system
+	 * - circle:
+	 *   Math.pow((x - x2), 2)  + Math.pow((y - y2), 2) = Math.pow(r, 2);
+	 * - circle:
+	 *   Math.pow((x - x2), 2)  + Math.pow((y - y2), 2) = Math.pow(r, 2);
+	 * @param vertex line vertex point
+	 * @param center circle center point
+	 * @param radius circle radius
+	 * @return Object {a, b, c} quadratic equation coefficients
+	 *
+	 */
+
+	function triangleSystem(vertex, center, radius) {
+	    var x1 = vertex.x,
+	        y1 = vertex.y,
+	        x2 = center.x,
+	        y2 = center.y,
+	        r = radius,
+	        h = Math.sqrt(Math.pow(r, 2) - Math.pow(r / 2, 2)),
+
+	        a = x2 - x1,
+	        b = y2 - y1,
+	        mn = Math.pow(a, 2) + Math.pow(b, 2),
+	        A, B, C;
+
+	    A = mn;
+	    B = -2 * x1 * mn;
+	    C = (Math.pow(x1, 2) * mn - Math.pow(b, 2) * Math.pow(h, 2));
+
+	    return {
+	        a: A,
+	        b: B,
+	        c: C
+	    };
+	}
+
+	// module.exports = triangleSystem;
+
+
+/***/ },
+/* 18 */
+/***/ function(module, exports) {
+
+	/**
+	 * point-line orientation calculator
+	 * @param point1 [Object] line point 1
+	 * @param point2 [Object] line point 2
+	 * @param point3 [Object] Side point
+	 * @return [Boolean] true if right, false if left
+	 */
+
+	 function findOrientation(point1, point2, point3) {
+	    var x1 = point1.x,
+	        y1 = point1.y,
+	        x2 = point2.x,
+	        y2 = point2.y,
+	        x3 = point3.x,
+	        y3 = point3.y,
+	        d;
+
+	        d = (x2 - x1) * (y3 - y1) - (y2 - y1) * (x3 - x1);
+
+	    if (d > 0) {
+	        return true;
+	    } else if (d < 0) {
+	        return false;
+	    } else if (d == 0) {
+	    // TODO: handle 90 degrees angle
+	    };
+	 }
+
+	 // module.exports = findOrientation;
+
+
+/***/ },
+/* 19 */
+/***/ function(module, exports) {
+
+	/**
+	 * square equation calculation
+	 * @param params Array quadratic params [a, b, c]
+	 */
+
+	function findSquareRoots(params) {
+	    var a = params.a,
+	        b = params.b,
+	        c = params.c,
+	        d = Math.pow(b, 2) - 4 * a * c,
+	        x1, x2;
+	    if (d > 0) {
+	        x1 = (-b + Math.sqrt(d)) / (2 * a);
+	        x2 = (-b - Math.sqrt(d)) / (2 * a);
+	        return [x1, x2];
+	    } else if (d === 0) {
+	        x1 = -b / (2 * a);
+	        return [x1, x1];
+	    }
+	}
+
+	// module.exports = findSquareRoots;
+
+
+/***/ },
+/* 20 */,
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(12);
+	var content = __webpack_require__(22);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(14)(content, {});
+	var update = __webpack_require__(24)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -16912,10 +15143,10 @@ var leaflet = leaflet || {}; leaflet["leaflet-geometryutil"] =
 	}
 
 /***/ },
-/* 12 */
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(13)();
+	exports = module.exports = __webpack_require__(23)();
 	// imports
 
 
@@ -16926,7 +15157,7 @@ var leaflet = leaflet || {}; leaflet["leaflet-geometryutil"] =
 
 
 /***/ },
-/* 13 */
+/* 23 */
 /***/ function(module, exports) {
 
 	/*
@@ -16982,7 +15213,7 @@ var leaflet = leaflet || {}; leaflet["leaflet-geometryutil"] =
 
 
 /***/ },
-/* 14 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*

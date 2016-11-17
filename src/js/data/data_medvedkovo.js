@@ -1,5 +1,5 @@
 // test polyline data
-var coordinates = [
+var medvedkovo = [
           [
             37.62821674346924,
             55.86890627080961

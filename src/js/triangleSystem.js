@@ -34,3 +34,5 @@ function triangleSystem(vertex, center, radius) {
         c: C
     };
 }
+
+// module.exports = triangleSystem;
