@@ -195,7 +195,7 @@ function getLineAndEndCircleIntersections(points) {
         c = linearParams.c;
         x2 = second.x;
         y2 = second.y;
-        r = second.offset;
+        r = second.offset / COEF;
         squareParams = squareCircleSystem(linearParams, second, r);
         nextSquareParams = squareCircleSystem(nextLinearParams, second, r);
         roots = findSquareRoots(squareParams);
@@ -236,6 +236,13 @@ function getLineAndEndCircleIntersections(points) {
             nres2.x = nextRoots[1];
             nres2.y = (-cn - an * nextRoots[1]) / bn;
         }
+        var limits1 = [first, second],
+            limits2 = [second, next];
+
+        var coords1 = filterPoints([res1, res2], limits1),
+            coords2 = filterPoints([nres1, nres2], limits2);
+        console.log(coords1);
+        console.log(coords2);
 
         points[i+1].ll1 = map.unproject([res1.x, res1.y]);
         points[i+1].ll2 = map.unproject([res2.x, res2.y]);
@@ -247,13 +254,27 @@ function getLineAndEndCircleIntersections(points) {
             x: res2.x,
             y: res2.y
         };
+        // L.circleMarker(map.unproject(coords1), upperPointsOptions).addTo(map);
+        // L.circleMarker(map.unproject(coords2), circlesCentersOptions).addTo(map);
 
 
         L.circleMarker(map.unproject([res1.x, res1.y]), upperPointsOptions).addTo(map);
-        // L.circleMarker(map.unproject([res2.x, res2.y]), circlesCentersOptions).addTo(map);
-        // L.circleMarker(map.unproject([nres1.x, nres1.y]), circlesCentersOptions).addTo(map);
+        L.circleMarker(map.unproject([res2.x, res2.y]), upperPointsOptions).addTo(map);
+        L.circleMarker(map.unproject([nres1.x, nres1.y]), circlesCentersOptions).addTo(map);
         L.circleMarker(map.unproject([nres2.x, nres2.y]), circlesCentersOptions).addTo(map);
     }
+
+    function filterPoints(points, limits) {
+        var x1 = Math.min(limits[0].x, limits[1].x),
+            y1 = Math.min(limits[0].y, limits[1].y),
+            x2 = Math.max(limits[0].x, limits[1].x),
+            y2 = Math.max(limits[0].y, limits[1].y);
+
+        return points.filter(function(point){
+            return point.x >= x1 && point.x <= x2 && point.y >= y1 && point.y <= y2;
+        })
+    }
+
     return points;
 }
 

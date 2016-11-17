@@ -50,6 +50,8 @@ var rightPointsOptions = {
     fillOpacity: 0.8
 };
 
+// var coordinates = medvedkovo;
+// var coordinates = los;
 var coordinates = mongolia;
 
 coordinates.forEach(function(ll){
@@ -70,8 +72,8 @@ polygonLL.push(
 )
 
 var widthRange = {
-    startWidth: 5,
-    endWidth: 12
+    startWidth: 0,
+    endWidth: 10
 };
 
 L.setOptions(testRiver, {
@@ -130,22 +132,26 @@ function interpolateRange(latLngs, range) {
     return latLngs;
 }
 
-// draw end circles
-function drawEndCircles(latLngs) {
-    for (var i = 0; i < latLngs.length; i++) {
-        // var circle = L.circle(latLngs[i], latLngs[i].offset).addTo(map);
-    }
-    return latLngs;
-}
-
 // project
 function projectAll(latLngs) {
     return latLngs.map(function(ll) {
         var offset = ll.offset;
         ll = map.project(ll);
         ll.offset = offset;
+        // console.log(ll.offset);
         return ll;
     });
+}
+
+// draw end circles
+function drawEndCircles(points) {
+    for (var i = 0; i < points.length; i++) {
+        // var mrk = L.marker(map.unproject(points[i])).addTo(map);
+        var circle = L.circle(map.unproject(points[i]), points[i].offset).bindPopup('id: ' + i).addTo(map);
+        // console.log(points[i].offset);
+        // console.log(points[i].offset / COEF);
+    }
+    return points;
 }
 
 // line equation
@@ -167,6 +173,7 @@ function getLineAndEndCircleIntersections(points) {
         }
 
     for (var i = 0; i < points.length - 1; i++) {
+        var COEF = Math.cos((Math.PI*map.unproject(points[i]).lat))/180;
         first = points[i];
         second = points[i+1];
         linearParams = findLinearCoef(first, second);
@@ -176,7 +183,7 @@ function getLineAndEndCircleIntersections(points) {
         c = linearParams.c;
         x2 = second.x;
         y2 = second.y;
-        r = second.offset;
+        r = second.offset / COEF;
 
         squareParams = squareCircleSystem(linearParams, second, r);
         roots = findSquareRoots(squareParams);
@@ -220,6 +227,12 @@ function getLineAndEndCircleIntersections(points) {
 function drawBigCircles(points) {
     for (var i = 1; i < points.length; i++) {
         var radius = map.distance(points[i].ll1, points[i].ll2);
+        var lat = map.unproject(points[i]).lat;
+
+        console.log(i + ' / ' + (radius / (points[i].offset) / Math.pow(Math.cos((Math.PI*lat)/180), 1)));
+        // console.log(Math.cos((Math.PI*map.unproject(points[i]).lat))/180);
+        // console.log(map.unproject(points[i]).lat);
+        // console.log(Math.sin((Math.PI*lat)/180));
         // var circle1 = L.circle(points[i].ll1, radius).addTo(map);
         // var circle2 = L.circle(points[i].ll2, radius).addTo(map);
         points[i].radius = radius;
@@ -255,7 +268,7 @@ function getTwoCirclesIntersection(points) {
         y2 = center1.y;
         a = x2 - x1;
         b = y2 - y1;
-        radius = points[i].radius / COEF;
+        radius = points[i].radius/* / COEF*/;
         squareParams = triangleSystem(points[i], center1, radius);
         // console.log(squareParams);
         // console.log(x1, x2);
@@ -315,7 +328,7 @@ function getRightPoints(points) {
         c = linearParams.c;
         x2 = points[i].x;
         y2 = points[i].y;
-        r = points[i].offset / COEF;
+        r = points[i].offset/* / COEF*/;
         squareParams = squareCircleSystem(linearParams, points[i], r);
         roots = findSquareRoots(squareParams);
         // каждая следующая точка не может повторять себя
@@ -354,10 +367,10 @@ function getRightPoints(points) {
         var one = map.unproject([res1.x, res1.y]),
             two = map.unproject([res2.x, res2.y]);
 
-        L.polyline([one, two], {color: 'red', weight: 0.8}).addTo(map);
+        // L.polyline([one, two], {color: 'red', weight: 0.8}).addTo(map);
 
-        L.circleMarker(one, rightPointsOptions).bindPopup('id: ' + i + ' lr: ' + lr).addTo(map);
-        L.circleMarker(two, rightPointsOptions).bindPopup('id: ' + j).addTo(map);
+        // L.circleMarker(one, rightPointsOptions).bindPopup('id: ' + i + ' lr: ' + lr).addTo(map);
+        // L.circleMarker(two, rightPointsOptions).bindPopup('id: ' + j).addTo(map);
 
         var offset = points[i].offset,
             centersDistance = map.distance(points[i].ll1, points[i].ll2),
@@ -378,8 +391,8 @@ function getRightPoints(points) {
 var mileStoned = countMileStones(testRiver),
     percentaged = countPercentage(mileStoned),
     interpolated = interpolateRange(percentaged, widthRange),
-    circled = drawEndCircles(interpolated),
-    projected = projectAll(circled),
+    projected = projectAll(interpolated),
+    circled = drawEndCircles(projected),
     lineEqCalculated = getLineAndEndCircleIntersections(projected),
     bigCircled = drawBigCircles(lineEqCalculated),
     twoCirclesCalculated = getTwoCirclesIntersection(bigCircled),
@@ -399,7 +412,7 @@ var plg = polygonLL.map(function(obj){
     return obj.latLng;
 });
 // simple
-L.polygon(plg, {weight: 1, fillOpacity: 0.5}).addTo(map);
+// L.polygon(plg, {weight: 1, fillOpacity: 0.5}).addTo(map);
 // beautyfied
 // L.polygon(plg, {color: '#8086fc', weight: 1, fillColor: '#97d2e3', fillOpacity: 1}).addTo(map);
 // var testRiver = L.polyline(coordinates, {color: 'red', weight: 1}).addTo(map);
