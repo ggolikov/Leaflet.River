@@ -9,7 +9,8 @@
 // require('./js/findOrientation.js');
 // require('./js/findSquareRoots.js');
 
-var COEF = 1.337972467;
+// var COEF = 1.337972467;
+// var COEF = 794;
 
 var osm = L.tileLayer(
     // standart osm
@@ -22,6 +23,8 @@ var osm = L.tileLayer(
     }),
     map = new L.Map('map', {layers: [osm], center: new L.LatLng(55.86531828981331, 37.630534172058105), zoom: 16, maxZoom: 22}),
     moscow = L.latLng(37, 55);
+
+L.control.scale().addTo(map);
 
 var circlesCentersOptions = {
     weight: 1,
@@ -50,9 +53,9 @@ var rightPointsOptions = {
     fillOpacity: 0.8
 };
 
-// var coordinates = medvedkovo;
+var coordinates = medvedkovo;
 // var coordinates = los;
-var coordinates = mongolia;
+// var coordinates = mongolia;
 
 coordinates.forEach(function(ll){
     return ll.reverse();
@@ -64,7 +67,7 @@ var testRiver = L.polyline(coordinates, {color: 'blue', weight: 1, smooth: 3});
 testRiver.addTo(map);
 
 map.fitBounds(testRiver.getBounds());
-
+// map.setZoom(14);
 var startPoint = testRiver.getLatLngs()[0];
 
 polygonLL.push(
@@ -72,8 +75,8 @@ polygonLL.push(
 )
 
 var widthRange = {
-    startWidth: 0,
-    endWidth: 10
+    startWidth: 10,
+    endWidth: 100
 };
 
 L.setOptions(testRiver, {
@@ -86,9 +89,24 @@ function setPoints(polyline) {
 
     for (var i = 0; i < latLngs.length; i++) {
         points.push({
-            milestone: 0
+            id: i,
+            lat: latLngs[i].lat,
+            lng: latLngs[i].lng,
+            latLng: L.latLng(latLngs[i].lat, latLngs[i].lng),
+            projected: map.project(latLngs[i]/*, map.getZoom()*/),
+            x: null,
+            y: null,
+            milestone: null,
+            percent: null,
+            offset: null,
+            x: null,
+            y: null,
+            ll1: null,
+            ll2: null
         });
     }
+
+    return points;
 }
 
 /**
@@ -97,59 +115,44 @@ function setPoints(polyline) {
 
 // counting milestones in meters on every vertex on polyline
 function countMileStones(polyline) {
-    var latLngs = polyline.getLatLngs(),
-        points = polyline.options.points;
-        totalLength = latLngs[0].mileStone = 0;
+    var points = polyline.options.points,
+        totalLength = points[0].milestone = 0;
 
-    for (var i = 0; i < latLngs.length - 1; i++) {
-        var length = map.distance(latLngs[i], latLngs[i+1]);
+    for (var i = 0; i < points.length - 1; i++) {
+        var length = map.distance(points[i].latLng, points[i+1].latLng);
 
         totalLength += length;
-        latLngs[i+1].mileStone = totalLength;
+        points[i+1].milestone = totalLength;
     }
-    return latLngs;
+    return points;
 }
 
 // count percentage
-function countPercentage(latLngs) {
-    var totalLength = latLngs[latLngs.length-1].mileStone;
+function countPercentage(points) {
+    var totalLength = points[points.length-1].milestone;
 
-    latLngs.forEach(function(latLng){
-        latLng.percent = latLng.mileStone / totalLength;
+    points.forEach(function(point){
+        point.percent = point.milestone / totalLength;
     });
 
-    return latLngs;
+    return points;
 }
 
 // interpolate range
-function interpolateRange(latLngs, range) {
-    var range = range.endWidth - range.startWidth;
+function interpolateRange(points, range) {
+    var interval = range.endWidth - range.startWidth;
 
-    latLngs.forEach(function(latLng){
-        latLng.offset = latLng.percent * range;
-    });
+    for (var i = 0; i < points.length; i++) {
+        points[i].offset = range.startWidth + points[i].percent * interval;
+    }
 
-    return latLngs;
-}
-
-// project
-function projectAll(latLngs) {
-    return latLngs.map(function(ll) {
-        var offset = ll.offset;
-        ll = map.project(ll);
-        ll.offset = offset;
-        // console.log(ll.offset);
-        return ll;
-    });
+    return points;
 }
 
 // draw end circles
 function drawEndCircles(points) {
-    for (var i = 0; i < points.length; i++) {
-        // var mrk = L.marker(map.unproject(points[i])).addTo(map);
-        var circle = L.circle(map.unproject(points[i]), points[i].offset).bindPopup('id: ' + i).addTo(map);
-        // console.log(points[i].offset);
-        // console.log(points[i].offset / COEF);
+    for (var i = 1; i < points.length; i++) {
+        var circle = L.circle(points[i].latLng, {radius: points[i].offset, color: 'red'}).bindPopup('id: ' + i).addTo(map);
     }
     return points;
 }
@@ -173,21 +176,31 @@ function getLineAndEndCircleIntersections(points) {
         }
 
     for (var i = 0; i < points.length - 1; i++) {
-        var COEF = Math.cos((Math.PI*map.unproject(points[i]).lat))/180;
-        first = points[i];
-        second = points[i+1];
+        // var COEF = Math.cos((Math.PI*map.unproject(points[i].projected).lat)/180);
+        // var COEF = 1;
+        // console.log(COEF);
+        first = points[i].projected;
+        second = points[i+1].projected;
         linearParams = findLinearCoef(first, second);
+        // var COEF_2 = 30;
+        //
+        // linearParams.a *= COEF_2;
+        // linearParams.b *= COEF_2;
+        // linearParams.c *= COEF_2;
+
+        // console.log(first.x);
         // console.log(linearParams);
         a = linearParams.a;
         b = linearParams.b;
         c = linearParams.c;
         x2 = second.x;
         y2 = second.y;
-        r = second.offset / COEF;
-
+        r = points[i+1].offset;
+        // console.log(r);
         squareParams = squareCircleSystem(linearParams, second, r);
         roots = findSquareRoots(squareParams);
-
+        // console.log(squareParams);
+        // console.log(roots);
         // каждая следующая точка не может повторять себя
         // a и b не могут быть равны 0 одновременно
         if (!a) {
@@ -206,7 +219,8 @@ function getLineAndEndCircleIntersections(points) {
             res2.x = roots[1];
             res2.y = (-c - a * roots[1]) / b;
         }
-
+        // console.log(points[i+1].offset);
+        // console.log(res1.x - first.x);
         points[i+1].ll1 = map.unproject([res1.x, res1.y]);
         points[i+1].ll2 = map.unproject([res2.x, res2.y]);
         points[i+1].circleCenter1 = {
@@ -217,8 +231,9 @@ function getLineAndEndCircleIntersections(points) {
             x: res2.x,
             y: res2.y
         };
-        // L.circleMarker(map.unproject([res1.x, res1.y]), circlesCentersOptions).addTo(map);
-        // L.circleMarker(map.unproject([res2.x, res2.y]), circlesCentersOptions).addTo(map);
+        // console.log(res1, res2);
+        L.circleMarker(map.unproject([res1.x, res1.y]), circlesCentersOptions).addTo(map);
+        L.circleMarker(map.unproject([res2.x, res2.y]), upperPointsOptions).addTo(map);
     }
     return points;
 }
@@ -227,14 +242,17 @@ function getLineAndEndCircleIntersections(points) {
 function drawBigCircles(points) {
     for (var i = 1; i < points.length; i++) {
         var radius = map.distance(points[i].ll1, points[i].ll2);
-        var lat = map.unproject(points[i]).lat;
-
-        console.log(i + ' / ' + (radius / (points[i].offset) / Math.pow(Math.cos((Math.PI*lat)/180), 1)));
+        var lat = points[i].lat;
+        // console.log(lat);
+        // console.log(radius);
+        // console.log(i + '   ' + ((radius / 2) / (points[i].offset)));
+        console.log(i + '   ' + ((radius / 2) / (points[i].offset))  + '   ' + lat + '   ' + Math.sin((Math.PI*lat)/180) + '   ' + Math.cos((Math.PI*lat)/180) + '   ' + Math.tan((Math.PI*lat)/180) + '   ' + Math.atan((Math.PI*lat)/180));
+        // console.log(i + ' / ' + (radius / (points[i].offset) / Math.pow(Math.cos((Math.PI*lat)/180), 1)));
         // console.log(Math.cos((Math.PI*map.unproject(points[i]).lat))/180);
         // console.log(map.unproject(points[i]).lat);
         // console.log(Math.sin((Math.PI*lat)/180));
-        // var circle1 = L.circle(points[i].ll1, radius).addTo(map);
-        // var circle2 = L.circle(points[i].ll2, radius).addTo(map);
+        // var circle1 = L.circle(points[i].ll1, {radius: radius}).addTo(map);
+        // var circle2 = L.circle(points[i].ll2, {radius: radius}).addTo(map);
         points[i].radius = radius;
     }
     return points;
@@ -391,9 +409,8 @@ function getRightPoints(points) {
 var mileStoned = countMileStones(testRiver),
     percentaged = countPercentage(mileStoned),
     interpolated = interpolateRange(percentaged, widthRange),
-    projected = projectAll(interpolated),
-    circled = drawEndCircles(projected),
-    lineEqCalculated = getLineAndEndCircleIntersections(projected),
+    circled = drawEndCircles(interpolated),
+    lineEqCalculated = getLineAndEndCircleIntersections(circled),
     bigCircled = drawBigCircles(lineEqCalculated),
     twoCirclesCalculated = getTwoCirclesIntersection(bigCircled),
     right = getRightPoints(twoCirclesCalculated);
