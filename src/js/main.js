@@ -142,7 +142,7 @@ function drawEndCircles(latLngs) {
 function projectAll(latLngs) {
     return latLngs.map(function(ll) {
         var offset = ll.offset;
-        ll = map.project(ll);
+        ll = map.options.crs.project(ll);
         ll.offset = offset;
         return ll;
     });
@@ -244,8 +244,8 @@ function getLineAndEndCircleIntersections(points) {
         console.log(coords1);
         console.log(coords2);
 
-        points[i+1].ll1 = map.unproject([res1.x, res1.y]);
-        points[i+1].ll2 = map.unproject([res2.x, res2.y]);
+        points[i+1].ll1 = map.options.crs.unproject([res1.x, res1.y]);
+        points[i+1].ll2 = map.options.crs.unproject([res2.x, res2.y]);
         points[i+1].circleCenter1 = {
             x: res1.x,
             y: res1.y
@@ -254,14 +254,14 @@ function getLineAndEndCircleIntersections(points) {
             x: res2.x,
             y: res2.y
         };
-        // L.circleMarker(map.unproject(coords1), upperPointsOptions).addTo(map);
-        // L.circleMarker(map.unproject(coords2), circlesCentersOptions).addTo(map);
+        // L.circleMarker(map.options.crs.unproject(coords1), upperPointsOptions).addTo(map);
+        // L.circleMarker(map.options.crs.unproject(coords2), circlesCentersOptions).addTo(map);
 
 
-        L.circleMarker(map.unproject([res1.x, res1.y]), upperPointsOptions).addTo(map);
-        L.circleMarker(map.unproject([res2.x, res2.y]), upperPointsOptions).addTo(map);
-        L.circleMarker(map.unproject([nres1.x, nres1.y]), circlesCentersOptions).addTo(map);
-        L.circleMarker(map.unproject([nres2.x, nres2.y]), circlesCentersOptions).addTo(map);
+        // L.circleMarker(map.options.crs.unproject([res1.x, res1.y]), upperPointsOptions).addTo(map);
+        // L.circleMarker(map.options.crs.unproject([res2.x, res2.y]), upperPointsOptions).addTo(map);
+        // L.circleMarker(map.options.crs.unproject([nres1.x, nres1.y]), circlesCentersOptions).addTo(map);
+        // L.circleMarker(map.options.crs.unproject([nres2.x, nres2.y]), circlesCentersOptions).addTo(map);
     }
 
     function filterPoints(points, limits) {
@@ -341,8 +341,8 @@ function getTwoCirclesIntersection(points) {
             y: res2.y
         };
 
-        // L.circleMarker(map.unproject([res1.x, res1.y]), upperPointsOptions).addTo(map);
-        // L.circleMarker(map.unproject([res2.x, res2.y]), upperPointsOptions).addTo(map);
+        // L.circleMarker(map.options.crs.unproject([res1.x, res1.y]), upperPointsOptions).addTo(map);
+        // L.circleMarker(map.options.crs.unproject([res2.x, res2.y]), upperPointsOptions).addTo(map);
     }
     return points;
 }
@@ -413,8 +413,8 @@ function getRightPoints(points) {
 
         var j = points.length - 1 + points.length - i;
 
-        var one = map.unproject([res1.x, res1.y]),
-            two = map.unproject([res2.x, res2.y]);
+        var one = map.options.crs.unproject([res1.x, res1.y]),
+            two = map.options.crs.unproject([res2.x, res2.y]);
 
         // L.polyline([one, two], {color: 'red', weight: 0.8}).addTo(map);
 
@@ -423,8 +423,8 @@ function getRightPoints(points) {
 
         var offset = points[i].offset,
             centersDistance = map.distance(points[i].ll1, points[i].ll2),
-            // centersDistance2 = map.distance(map.unproject([points[i].circleCenter1.x, points[i].circleCenter1.y]), map.unproject([points[i].circleCenter2.x, points[i].circleCenter2.y])),
-            distance = map.distance(map.unproject([res1.x, res1.y]), map.unproject([res2.x, res2.y]));
+            // centersDistance2 = map.distance(map.options.crs.unproject([points[i].circleCenter1.x, points[i].circleCenter1.y]), map.unproject([points[i].circleCenter2.x, points[i].circleCenter2.y])),
+            distance = map.distance(map.options.crs.unproject([res1.x, res1.y]), map.options.crs.unproject([res2.x, res2.y]));
 
         // console.log(i + ' / ' + j);
 
