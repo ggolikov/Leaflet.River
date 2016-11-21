@@ -16,6 +16,8 @@ function findSquareRoots(params) {
     } else if (d === 0) {
         x1 = -b / (2 * a);
         return [x1, x1];
+    } else {
+        return null;
     }
 }
 
