@@ -33,7 +33,7 @@ var circlesCentersOptions = {
 };
 
 var coordinates = medvedkovo;
-var coordinates = los;
+// var coordinates = los;
 var coordinates = mongolia;
 // var coordinates = world;
 
@@ -190,7 +190,7 @@ function getLineAndEndCircleIntersections(points) {
     var firstLinePoints, secondLinePoints,
         lr; // left or right
 
-    for (var i = 1; i < points.length - 2; i++) {
+    for (var i = 0; i < points.length - 2; i++) {
         pos = findLineCircleIntersection(points[i+1].bisectorPoint, points[i+1], points[i+1]);
 
         lr = findOrientation(points[i].projected, points[i+1].projected, pos[0]);
@@ -208,14 +208,14 @@ function getLineAndEndCircleIntersections(points) {
         points[i+1].ll1 = map.options.crs.unproject(points[i+1].circleCenter1);
         points[i+1].ll2 = map.options.crs.unproject(points[i+1].circleCenter2);
 
-        var j = points.length - 1 + points.length - i;
+        var j = points.length  + points.length - i;
         // L.polyline([points[i+1].ll1, points[i+1].ll2], {color: 'red', weight: 0.8}).addTo(map);
         polygonLL.push(
             {id: i+1, latLng: points[i+1].ll1},
             {id: j, latLng: points[i+1].ll2}
         )
-            // L.circleMarker(points[i+1].ll1, rightPointsOptions).bindPopup('id: ' + i + ' lr: ' + lr).addTo(map);
-            // L.circleMarker(points[i+1].ll2, rightPointsOptions).bindPopup('id: ' + j).addTo(map);
+            // L.circleMarker(points[i+1].ll1, circlesCentersOptions).bindPopup('id: ' + i + ' lr: ' + lr).addTo(map);
+            // L.circleMarker(points[i+1].ll2, circlesCentersOptions).bindPopup('id: ' + j).addTo(map);
     }
 
     return points;
@@ -243,4 +243,4 @@ var plg = polygonLL.map(function(obj){
 // console.log(plg);
 // L.polygon(plg, {weight: 1, fillOpacity: 0.5}).addTo(map);
 // beautyfied
-L.polygon(plg, {color: '#8086fc', weight: 1, fillColor: '#97d2e3', fillOpacity: 1}).addTo(map);
+// L.polygon(plg, {color: '#8086fc', weight: 1, fillColor: '#97d2e3', fillOpacity: 1}).addTo(map);
