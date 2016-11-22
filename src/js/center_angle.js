@@ -172,8 +172,8 @@ function getLineAndEndCircleIntersections(points) {
         firstLinePoints = findLineCircleIntersection(points[i], points[i+1], points[i+1]);
         secondLinePoints = i === points.length - 2 ? findLineCircleIntersection(points[i], points[i+1], points[i+1]) : findLineCircleIntersection(points[i+1], points[i+2], points[i+1]);
 
-        var limits1 = [points[i].projected, points[i+1].projected],
-            limits2 = i === points.length - 2 ? limits1 : [points[i+1].projected, points[i+2].projected];
+        var limits1 = [points[i], points[i+1]],
+            limits2 = i === points.length - 2 ? limits1 : [points[i+1], points[i+2]];
 // debugger;
         var firstLineFiltered = filterPoints(firstLinePoints, limits1),
             secondLineFiltered = filterPoints(secondLinePoints, limits2);
@@ -183,7 +183,7 @@ function getLineAndEndCircleIntersections(points) {
 
         points[i+1].circleCenter1 = L.point(firstLineFiltered[0]);
         points[i+1].circleCenter2 = L.point(secondLineFiltered[0]);
-        if (!points[i+1].circleCenter1 || !points[i+1].circleCenter2) {debugger;}
+        // if (!points[i+1].circleCenter1 || !points[i+1].circleCenter2) {debugger;}
         // points[i+1].circleCenter3 = L.point(secondLineFiltered[0]);
         // points[i+1].circleCenter4 = L.point(secondLineFiltered[1]);
 
@@ -201,13 +201,21 @@ function getLineAndEndCircleIntersections(points) {
 
 
         function filterPoints(points, limits) {
-            var x1 = Math.min(limits[0].x, limits[1].x),
-                y1 = Math.min(limits[0].y, limits[1].y),
-                x2 = Math.max(limits[0].x, limits[1].x),
-                y2 = Math.max(limits[0].y, limits[1].y);
+            var x1 = Math.min(limits[0].projected.x, limits[1].projected.x),
+                y1 = Math.min(limits[0].projected.y, limits[1].projected.y),
+                x2 = Math.max(limits[0].projected.x, limits[1].projected.x),
+                y2 = Math.max(limits[0].projected.y, limits[1].projected.y);
+// debugger;
 
+            console.log('------NEW POINTS------');
             return points.filter(function(point){
-                return point[0] >= x1 && point[0] <= x2 && point[1] >= y1 && point[1] <= y2;
+                console.log(Math.sqrt(Math.pow((limits[1].projected.x - point[0]), 2) + Math.pow((limits[1].projected.y - point[1]), 2)));
+                console.log((limits[1]._mRadius / Math.cos((Math.PI * limits[1].lat) / 180)));
+                // console.log(Math.sqrt(Math.pow((limits[1].projected.x - point[0]), 2) + Math.pow((limits[1].projected.y - point[1]), 2)) < (limits[1]._mRadius / Math.cos((Math.PI * limits[1].lat) / 180)));
+                console.log('-final-');
+                console.log((point[0] >= x1 && point[0] <= x2 && point[1] >= y1 && point[1] <= y2) || Math.sqrt(Math.pow((limits[1].projected.x - point[0]), 2) + Math.pow((limits[1].projected.y - point[1]), 2)) < (limits[1]._mRadius / Math.cos((Math.PI * limits[1].lat) / 180)));
+                console.log();
+                return (point[0] >= x1 && point[0] <= x2 && point[1] >= y1 && point[1] <= y2) || Math.sqrt(Math.pow((limits[1].projected.x - point[0]), 2) + Math.pow((limits[1].projected.y - point[1]), 2)) < (limits[1]._mRadius / Math.cos((Math.PI * limits[1].lat) / 180));
             })
         }
 
