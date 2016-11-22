@@ -108,8 +108,7 @@ function setPoints(polyline) {
             y: null,
             ll1: null,
             ll2: null,
-            ll3: null,
-            ll4: null
+            _updateBounds: function() {return;}
         });
     }
 
@@ -159,66 +158,82 @@ function interpolateRange(points, range) {
 // draw end circles
 function drawEndCircles(points) {
     for (var i = 1; i < points.length; i++) {
-        var circle = L.circle(points[i]._latlng, {radius: points[i]._mRadius, color: 'red'}).bindPopup('id: ' + i).addTo(map);
+        // var circle = L.circle(points[i]._latlng, {radius: points[i]._mRadius, color: 'red'}).bindPopup('id: ' + i).addTo(map);
     }
     return points;
 }
 
 // line equation
 function getLineAndEndCircleIntersections(points) {
-    var firstLinePoints, secondLinePoints;
+    var first, second,
+        linearParams,
+        a, b, c,
+        x2, y2,
+        r,
+        squareParams,
+        roots,
+        res1 = {
+            x: null,
+            y: null
+        },
+        res2 = {
+            x: null,
+            y: null
+        }
 
     for (var i = 0; i < points.length - 1; i++) {
-        firstLinePoints = findLineCircleIntersection(points[i], points[i+1], points[i+1]);
-        secondLinePoints = i === points.length - 2 ? findLineCircleIntersection(points[i], points[i+1], points[i+1]) : findLineCircleIntersection(points[i+1], points[i+2], points[i+1]);
+        // console.log(L.Circle.prototype._project);
+        // L.Circle.prototype._project.call(points[i+1]);
+        // findEllipseFocus(points[i+1]);
+        first = points[i].projected;
+        second = points[i+1].projected;
+        linearParams = findLinearCoef(first, second);
+        a = linearParams.a;
+        b = linearParams.b;
+        c = linearParams.c;
+        x2 = second.x;
+        y2 = second.y;
+        r = points[i+1]._mRadius / Math.cos((Math.PI*points[i].lat)/180);
+        // console.log(r);
+        squareParams = squareCircleSystem(linearParams, second, r);
+        roots = findSquareRoots(squareParams);
 
-        var limits1 = [points[i], points[i+1]],
-            limits2 = i === points.length - 2 ? limits1 : [points[i+1], points[i+2]];
-// debugger;
-        var firstLineFiltered = filterPoints(firstLinePoints, limits1),
-            secondLineFiltered = filterPoints(secondLinePoints, limits2);
+        // edge case
+        if (!roots) {
+            res1.x = x2;
+            res1.y = y2;
+            res2.x = x2;
+            res2.y = y2;
+        } else {
+            // каждая следующая точка не может повторять себя
+            // a и b не могут быть равны 0 одновременно
+            if (!a) {
+                res1.x = x2 - r;
+                res1.y = y2;
+                res2.x = x2 + r;
+                res2.y = y2;
+            } else if (!b) {
+                res1.x = x2;
+                res1.y = y2 - r;
+                res2.x = x2;
+                res2.y = y2 + r;
+            } else {
+                res1.x = roots[0];
+                res1.y = (-c - a * roots[0]) / b;
+                res2.x = roots[1];
+                res2.y = (-c - a * roots[1]) / b;
+            }
+        }
 
-        // console.log(firstLineFiltered);
-        // console.log(secondLineFiltered);
 
-        points[i+1].circleCenter1 = L.point(firstLineFiltered[0]);
-        points[i+1].circleCenter2 = L.point(secondLineFiltered[0]);
-        // if (!points[i+1].circleCenter1 || !points[i+1].circleCenter2) {debugger;}
-        // points[i+1].circleCenter3 = L.point(secondLineFiltered[0]);
-        // points[i+1].circleCenter4 = L.point(secondLineFiltered[1]);
+        points[i+1].circleCenter1 = L.point(res1.x, res1.y);
+        points[i+1].circleCenter2 = L.point(res2.x, res2.y);
 
         points[i+1].ll1 = map.options.crs.unproject(points[i+1].circleCenter1);
         points[i+1].ll2 = map.options.crs.unproject(points[i+1].circleCenter2);
-        // points[i+1].ll3 = map.options.crs.unproject(points[i+1].circleCenter3);
-        // points[i+1].ll4 = map.options.crs.unproject(points[i+1].circleCenter4);
 
-
-
-        L.circleMarker(points[i+1].ll1, circlesCentersOptions).addTo(map);
-        L.circleMarker(points[i+1].ll2, upperPointsOptions).addTo(map);
-        // L.circleMarker(points[i+1].ll3, upperPointsOptions).addTo(map);
-        // L.circleMarker(points[i+1].ll4, upperPointsOptions).addTo(map);
-
-
-        function filterPoints(points, limits) {
-            var x1 = Math.min(limits[0].projected.x, limits[1].projected.x),
-                y1 = Math.min(limits[0].projected.y, limits[1].projected.y),
-                x2 = Math.max(limits[0].projected.x, limits[1].projected.x),
-                y2 = Math.max(limits[0].projected.y, limits[1].projected.y);
-// debugger;
-
-            console.log('------NEW POINTS------');
-            return points.filter(function(point){
-                console.log(Math.sqrt(Math.pow((limits[1].projected.x - point[0]), 2) + Math.pow((limits[1].projected.y - point[1]), 2)));
-                console.log((limits[1]._mRadius / Math.cos((Math.PI * limits[1].lat) / 180)));
-                // console.log(Math.sqrt(Math.pow((limits[1].projected.x - point[0]), 2) + Math.pow((limits[1].projected.y - point[1]), 2)) < (limits[1]._mRadius / Math.cos((Math.PI * limits[1].lat) / 180)));
-                console.log('-final-');
-                console.log((point[0] >= x1 && point[0] <= x2 && point[1] >= y1 && point[1] <= y2) || Math.sqrt(Math.pow((limits[1].projected.x - point[0]), 2) + Math.pow((limits[1].projected.y - point[1]), 2)) < (limits[1]._mRadius / Math.cos((Math.PI * limits[1].lat) / 180)));
-                console.log();
-                return (point[0] >= x1 && point[0] <= x2 && point[1] >= y1 && point[1] <= y2) || Math.sqrt(Math.pow((limits[1].projected.x - point[0]), 2) + Math.pow((limits[1].projected.y - point[1]), 2)) < (limits[1]._mRadius / Math.cos((Math.PI * limits[1].lat) / 180));
-            })
-        }
-
+        // L.circleMarker(points[i+1].ll1, circlesCentersOptions).addTo(map);
+        // L.circleMarker(points[i+1].ll2, upperPointsOptions).addTo(map);
     }
     return points;
 }
@@ -360,6 +375,7 @@ function getRightPoints(points) {
             res1 = res2;
             res2 = temp;
         }
+        console.log(i + '   ' + lr);
 
         var j = points.length - 1 + points.length - i;
         var one = L.point(res1.x, res1.y),
@@ -370,8 +386,8 @@ function getRightPoints(points) {
 
         L.polyline([llone, lltwo], {color: 'red', weight: 0.8}).addTo(map);
 
-        // L.circleMarker(llone, rightPointsOptions).bindPopup('id: ' + i + ' lr: ' + lr).addTo(map);
-        // L.circleMarker(lltwo, rightPointsOptions).bindPopup('id: ' + j).addTo(map);
+        L.circleMarker(llone, rightPointsOptions).bindPopup('id: ' + i + ' lr: ' + lr).addTo(map);
+        L.circleMarker(lltwo, rightPointsOptions).bindPopup('id: ' + j).addTo(map);
 
         var _mRadius = points[i]._mRadius,
             centersDistance = map.distance(points[i].ll1, points[i].ll2),
