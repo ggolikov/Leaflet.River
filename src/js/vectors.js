@@ -11,9 +11,9 @@
 
 var osm = L.tileLayer(
     // standart osm
-    // 'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
+    'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
     // relief map
-    'http://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+    // 'http://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
     {
     maxZoom: 18,
     attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
@@ -32,7 +32,7 @@ var circlesCentersOptions = {
     fillOpacity: 0.8
 };
 
-var coordinates = medvedkovo;
+// var coordinates = medvedkovo;
 // var coordinates = los;
 var coordinates = mongolia;
 // var coordinates = world;
@@ -44,7 +44,7 @@ coordinates.forEach(function(ll){
 var polygonLL = [];
 // test polyline
 var testRiver = L.polyline(coordinates, {color: 'blue', weight: 1, smooth: 3});
-// testRiver.addTo(map);
+testRiver.addTo(map);
 
 map.fitBounds(testRiver.getBounds());
 
@@ -56,7 +56,7 @@ polygonLL.push(
 
 var widthRange = {
     startWidth: 0,
-    endWidth: 800
+    endWidth: 5000
 };
 
 L.setOptions(testRiver, {
@@ -241,6 +241,6 @@ var plg = polygonLL.map(function(obj){
 });
 // simple
 // console.log(plg);
-// L.polygon(plg, {weight: 1, fillOpacity: 0.5}).addTo(map);
+L.polygon(plg, {weight: 1, fillOpacity: 0.5}).addTo(map);
 // beautyfied
 // L.polygon(plg, {color: '#8086fc', weight: 1, fillColor: '#97d2e3', fillOpacity: 1}).addTo(map);
