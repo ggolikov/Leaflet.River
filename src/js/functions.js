@@ -3,15 +3,15 @@ function convertToVector(point1, point2) {
     var x = point2.x - point1.x,
         y = point2.y - point1.y;
 
-    return [x, y];
+    return {x: x, y: y};
 }
 
 // vector {x, y} -> cos(angle)
 function findTwoVectorsAngle(vector1, vector2) {
-    var x1 = vector1[0],
-        y1 = vector1[1],
-        x2 = vector2[0],
-        y2 = vector2[1],
+    var x1 = vector1.x,
+        y1 = vector1.y,
+        x2 = vector2.x,
+        y2 = vector2.y,
         cos = (x1 * x2 + y1 * y2) / (Math.sqrt(Math.pow(x1, 2) + Math.pow(y1, 2)) * Math.sqrt(Math.pow(x2, 2) + Math.pow(y2, 2)));
 
     return cos;
@@ -31,20 +31,38 @@ function findLength(point1, point2) {
 function findVectorLength(point1, point2) {
     var x1 = point1.x,
         y1 = point1.y,
-        x2 = point2[0],
-        y2 = point2[1];
+        x2 = point2.x,
+        y2 = point2.y;
 
     return Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
 }
 
 // vectors {x1, y1}, {x2, y2} -> vector {x3, y3}
 function addVectors(vector1, vector2) {
-    return [vector1[0] + vector2[0], vector1[1] + vector2[1]];
+    return {x: vector1.x + vector2.x, y: vector1.y + vector2.y};
 }
 
 // point {x1, y1}, vector {x2, y2} -> point {x3, y3}
 function findVectorCoords(point, vector) {
-    return [point.x + vector[0], point.y + vector[1]];
+    return {x: point.x + vector.x, y: point.y + vector.y};
+}
+
+function findVectorCos(vector, length) {
+    var cosA = vector.x / length,
+        cosB = vector.y / length;
+
+    return {cosA: cosA, cosB: cosB}
+}
+
+function findVectorfromOrts(coss, radius) {
+    return {x: radius * coss.cosA, y: radius * coss.cosB}
+}
+
+function multipleVector(vector, number) {
+    var x = vector.x,
+        y = vector.y;
+
+    return {x:  x * number, y: y * number}
 }
 
 function findEllipseFocus(point) {
