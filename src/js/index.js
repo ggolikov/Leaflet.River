@@ -1,5 +1,5 @@
 var line = L.polyline([[55, 37], [57, 38]],{color: 'red'}).addTo(map);
-map.fitBounds(line.getBounds());
+// map.fitBounds(line.getBounds());
 
 console.log(line);
 

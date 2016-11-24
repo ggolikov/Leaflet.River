@@ -27,6 +27,16 @@ function findLength(point1, point2) {
     return Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
 }
 
+// points {x1, y1}, {x1, y1} -> length (number)
+function findVectorLength(point1, point2) {
+    var x1 = point1.x,
+        y1 = point1.y,
+        x2 = point2[0],
+        y2 = point2[1];
+
+    return Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
+}
+
 // vectors {x1, y1}, {x2, y2} -> vector {x3, y3}
 function addVectors(vector1, vector2) {
     return [vector1[0] + vector2[0], vector1[1] + vector2[1]];

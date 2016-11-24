@@ -56,7 +56,7 @@ polygonLL.push(
 
 var widthRange = {
     startWidth: 0,
-    endWidth: 5000
+    endWidth: 1000
 };
 
 L.setOptions(testRiver, {
@@ -136,7 +136,7 @@ function interpolateRange(points, range) {
 // draw end circles
 function drawEndCircles(points) {
     for (var i = 1; i < points.length; i++) {
-        // var circle = L.circle(points[i]._latlng, {radius: points[i]._mRadius, color: 'red'}).bindPopup('id: ' + i).addTo(map);
+        var circle = L.circle(points[i]._latlng, {radius: points[i]._mRadius, color: 'red'}).bindPopup('id: ' + i).addTo(map);
     }
     return points;
 }
@@ -149,7 +149,7 @@ function findVectors(points) {
         length1, length2,
         sVector1, sVector2,
         sVector3, sVector4,
-        point1, point2,
+        point1, point2, point3,
         cos,
         angle1,
         angle2,
@@ -177,10 +177,20 @@ function findVectors(points) {
             return coord;
         });
 
-        point1 = findVectorCoords(points[i+1].projected, vector3);
+        point1 = findVectorCoords(points[i+1].projected, sVector1);
+        point2 = findVectorCoords(points[i+1].projected, sVector2);
+        point3 = findVectorCoords(points[i+1].projected, vector3);
 
-        points[i+1].bisectorPoint = L.point(point1[0], point1[1]);
+        // console.log(findVectorLength(points[i+1].projected, point1));
+        // console.log(findVectorLength(points[i+1].projected, point2));
+        console.log(i+1 + '   ' + findVectorLength(points[i+1].projected, point3));
+        // console.log(r);
+        // console.log(r / findVectorLength(points[i+1].projected, point3));
+        // console.log('-------');
+        points[i+1].bisectorPoint = L.point(point3[0], point3[1]);
         points[i+1].llb = map.options.crs.unproject(points[i+1].bisectorPoint);
+        L.circleMarker(points[i+1].llb, circlesCentersOptions).bindPopup('id: ' + i).addTo(map);
+
     }
 
     return points;
@@ -241,6 +251,6 @@ var plg = polygonLL.map(function(obj){
 });
 // simple
 // console.log(plg);
-L.polygon(plg, {weight: 1, fillOpacity: 0.5}).addTo(map);
+// L.polygon(plg, {weight: 1, fillOpacity: 0.5}).addTo(map);
 // beautyfied
 // L.polygon(plg, {color: '#8086fc', weight: 1, fillColor: '#97d2e3', fillOpacity: 1}).addTo(map);
