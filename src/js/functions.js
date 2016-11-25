@@ -65,6 +65,13 @@ function multipleVector(vector, number) {
     return {x:  x * number, y: y * number}
 }
 
+function divideVector(vector, number) {
+    var x = vector.x,
+        y = vector.y;
+
+    return {x:  x / number, y: y / number}
+}
+
 function findEllipseFocus(point) {
     var lng = point._latlng.lng,
         lat = point._latlng.lat,
@@ -240,6 +247,39 @@ function findLineCircleIntersection(point1, point2, circleCenter) {
     }
 
     return [{x: res1.x, y: res1.y}, {x: res2.x, y: res2.y}];
+}
+
+function findEndPoints(point, center, radius) {
+    var x1 = point.x,
+        y1 = point.y,
+        x2 = center.x,
+        y2 = center.y,
+        a = x2 - x1,
+        b = y2 - y1,
+        squareParams = triangleSystem(point, center, radius),
+        roots = findSquareRoots(squareParams),
+        res1 = {
+            x: null,
+            y: null
+        },
+        res2 = {
+            x: null,
+            y: null
+        };
+
+    // edge cases
+    if (!roots) {
+        res1.x = x2;
+        res1.y = y2;
+        res2.x = x2;
+        res2.y = y2;
+    } else {
+        res1.x = roots[0];
+        res1.y = (-a * (roots[0] - x1) / b) + y1;
+        res2.x = roots[1];
+        res2.y = (-a * (roots[1] - x1) / b) + y1;
+    }
+    return [res1, res2];
 }
 
 /**
