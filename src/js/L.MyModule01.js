@@ -2,47 +2,44 @@ L.River = L.Polyline.extend({
     initialize: function (latlngs, options) {
         L.Polyline.prototype.initialize.call(this, latlngs, options);
         this._setPoints(this._latlngs);
-        // L.setOptions(this, options);
     },
 
     onAdd: function (map) {
-        L.Polyline.prototype.onAdd.call(this, map);
+        // L.Polyline.prototype.onAdd.call(this, map);
         this._getProjectedPoints(map);
+        this._interpolateLength();
+        this._countOffset();
+        this._createPolygon();
     },
 
     _setPoints: function(latlngs) {
         var points = [],
             polygonLL = [],
-            plg = [];
-            // map = this._map;
-            // console.log(map);
+            plg = null;
 
         for (var i = 0; i < latlngs.length; i++) {
             points.push({
                 id: i,
                 lat: latlngs[i].lat,
                 lng: latlngs[i].lng,
-                // _map: this._map,
                 _latlng: L.latLng(latlngs[i].lat, latlngs[i].lng),
                 _point: null,
-                _radius: null,
-                _radiusY: null,
                 projected: null,
                 x: null,
                 y: null,
                 milestone: null,
                 percent: null,
-                _mRadius: null,
-                ll1: null,
-                ll2: null,
-                ll3: null,
-                ll4: null
+                offset: null,
+                bisectorPoint: null,
+                bisectorPoint2: null,
+                llb: null,
+                llb2: null
             });
         }
 
         this._points = points;
-        this.polygonLL = polygonLL;
-        this.plg = plg;
+        this._polygonLL = polygonLL;
+        this._plg = plg;
     },
 
     _getProjectedPoints: function(map) {
@@ -56,7 +53,7 @@ L.River = L.Polyline.extend({
     },
 
     // counting milestones in meters on every vertex on polyline
-    _countMileStones: function() {
+    _interpolateLength: function() {
         var points = this._points,
             totalLength = points[0].milestone = 0;
 
@@ -69,23 +66,17 @@ L.River = L.Polyline.extend({
     },
 
     // count percentage
-    _countPercentage: function() {
+    _countOffset: function() {
         var points = this._points,
+            start = this.options.startWidth,
+            end = this.options.endWidth,
+            interval = end - start,
             totalLength = points[points.length-1].milestone;
 
         points.forEach(function(point){
             point.percent = point.milestone / totalLength;
+            point.offset = start + point.percent * interval;
         });
-    },
-
-    // interpolate range
-    _interpolateRange: function() {
-        var points = this._points,
-            interval = this.options.endWidth - this.options.startWidth;
-
-        for (var i = 0; i < points.length; i++) {
-            points[i]._mRadius = this.options.startWidth + points[i].percent * interval;
-        }
     },
 
     _createPolygon: function() {
@@ -98,12 +89,12 @@ L.River = L.Polyline.extend({
             coss,
             r;
 
-        this.polygonLL.push(
+        this._polygonLL.push(
             {id: 0, latLng: points[0]._latlng}
         );
 
         for (var i = 0; i < points.length - 2; i++) {
-            r = points[i+1]._mRadius / Math.cos((Math.PI*points[i+1].lat)/180);
+            r = points[i+1].offset / Math.cos((Math.PI*points[i+1].lat)/180);
 
             length1 = findLength(points[i+1], points[i]);
             length2 = findLength(points[i+1], points[i+2]);
@@ -144,22 +135,21 @@ L.River = L.Polyline.extend({
 
             var j = points.length  + points.length - i;
 
-            this.polygonLL.push(
+            this._polygonLL.push(
                 {id: i+1, latLng: points[i+1].llb},
                 {id: j, latLng: points[i+1].llb2}
             );
         }
 
-        this.polygonLL.sort(function(a, b){
+        this._polygonLL.sort(function(a, b){
             return a.id - b.id;
         });
-
-        this.plg = this.polygonLL.map(function(obj){
+        this._polygonLL = this._polygonLL.map(function(obj){
             return obj.latLng;
         });
 
+        this._plg = L.polygon(this._polygonLL, this.options).addTo(this._map);
     }
-
 });
 
 L.river = function (latlngs, options) {
