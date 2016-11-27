@@ -99,9 +99,9 @@ L.River = L.Polygon.extend({
             coss,
             r;
 
-        this._latlngs.push(
-            {id: 0, latLng: points[0]._latlng}
-        );
+        // this._latlngs.push(
+        //     {id: 0, latLng: points[0]._latlng}
+        // );
 
         for (var i = 0; i < points.length - 2; i++) {
             r = points[i+1].offset / Math.cos((Math.PI*points[i+1].lat)/180);
