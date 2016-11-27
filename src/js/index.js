@@ -18,13 +18,14 @@ medvedkovo.forEach(function(ll){
 });
 
 var medvedkovo = L.river(medvedkovo, {
-    fill: true,
-    weight: 1,
+    // weight: 7,
     fillOpacity: 1,
     startWidth: 1,
     endWidth: 10
 }).addTo(map);
-console.log(medvedkovo._plg);
-// {weight: 1, fillOpacity: 1});//.addTo(map);
 
-map.fitBounds(medvedkovo._plg.getBounds());
+// var medvedkovo_line = medvedkovo.convertToPolyline({color: 'red'}).addTo(map);
+// console.log(medvedkovo_line);
+console.log(medvedkovo);
+
+map.fitBounds(medvedkovo.getBounds());

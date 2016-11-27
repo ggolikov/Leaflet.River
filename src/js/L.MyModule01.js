@@ -1,21 +1,32 @@
-L.River = L.Polyline.extend({
+L.River = L.Polygon.extend({
     initialize: function (latlngs, options) {
-        L.Polyline.prototype.initialize.call(this, latlngs, options);
-        this._setPoints(this._latlngs);
+        L.Polygon.prototype.initialize.call(this, latlngs, options);
+        this._setPoints(this._latlngs[0]);
     },
 
     onAdd: function (map) {
-        // L.Polyline.prototype.onAdd.call(this, map);
         this._getProjectedPoints(map);
         this._interpolateLength();
         this._countOffset();
         this._createPolygon();
+        L.Polygon.prototype.onAdd.call(this, map);
+    },
+
+    // conversion method
+    convertToPolyline: function(options) {
+        var points = this._points,
+            latlngs = [];
+
+        for (var i = 0; i < points.length; i++) {
+            latlngs.push(points[i]._latlng);
+        }
+
+        return L.polyline(latlngs, options);
     },
 
     _setPoints: function(latlngs) {
         var points = [],
-            polygonLL = [],
-            plg = null;
+            polygonLL = [];
 
         for (var i = 0; i < latlngs.length; i++) {
             points.push({
@@ -38,8 +49,7 @@ L.River = L.Polyline.extend({
         }
 
         this._points = points;
-        this._polygonLL = polygonLL;
-        this._plg = plg;
+        this._latlngs = polygonLL;
     },
 
     _getProjectedPoints: function(map) {
@@ -89,7 +99,7 @@ L.River = L.Polyline.extend({
             coss,
             r;
 
-        this._polygonLL.push(
+        this._latlngs.push(
             {id: 0, latLng: points[0]._latlng}
         );
 
@@ -135,20 +145,18 @@ L.River = L.Polyline.extend({
 
             var j = points.length  + points.length - i;
 
-            this._polygonLL.push(
+            this._latlngs.push(
                 {id: i+1, latLng: points[i+1].llb},
                 {id: j, latLng: points[i+1].llb2}
             );
         }
 
-        this._polygonLL.sort(function(a, b){
+        this._latlngs.sort(function(a, b){
             return a.id - b.id;
         });
-        this._polygonLL = this._polygonLL.map(function(obj){
+        this._latlngs = this._latlngs.map(function(obj){
             return obj.latLng;
         });
-
-        this._plg = L.polygon(this._polygonLL, this.options).addTo(this._map);
     }
 });
 
