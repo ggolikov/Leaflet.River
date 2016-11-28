@@ -204,13 +204,21 @@ function findVectors(points) {
         } else {
             var x = 100,
                 y = - (vector1.x * x) / vector1.y;
-            next = {x: x, y: y};
-            vector2 = convertToVector(cur, next);
+            vector2 = {x: x, y: y};
+            next = findVectorCoords(cur, vector2);
             length2 = findLength(cur, next);
             bVector1 = multipleVector(vector2, r / length2);
+
+            // ortPoint = findVectorCoords(cur, ortVector3);
+            // ortLength = findVectorLength(cur, ortPoint);
+            //
+            // coss = findVectorCos(ortVector3, ortLength);
+
+            // bVector1 = multipleVector(coss, r);
             bVector2 = multipleVector(bVector1, -1)
             bPoint1 = findVectorCoords(cur, bVector1);
             bPoint2 = findVectorCoords(cur, bVector2);
+
             // L.circleMarker(L.point(bPoint1.x, bPoint1.y), circlesCentersOptions).addTo(map);
             // L.circleMarker(L.point(bPoint2.x, bPoint2.y), circlesCentersOptions).addTo(map);
         }
