@@ -47,7 +47,7 @@ rivers.forEach(function(river){
 
 // main
 L.river(river2, {
-    color: '#97d2e3', weight: 1, fillColor: '#97d2e3',
+    color: 'black', weight: 1, fillColor: '#97d2e3',
     fillOpacity: 1,
     startWidth: 1,
     endWidth: 3000
@@ -55,7 +55,7 @@ L.river(river2, {
 .addTo(map);
 
 L.river(river3, {
-    color: '#97d2e3', weight: 1, fillColor: '#97d2e3',
+    color: 'black', weight: 1, fillColor: '#97d2e3',
     fillOpacity: 1,
     startWidth: 1,
     endWidth: 1000
@@ -63,7 +63,7 @@ L.river(river3, {
 .addTo(map);
 
 L.river(river4, {
-    color: '#97d2e3', weight: 1, fillColor: '#97d2e3',
+    color: 'black', weight: 1, fillColor: '#97d2e3',
     fillOpacity: 1,
     startWidth: 1,
     endWidth: 1000
@@ -71,7 +71,7 @@ L.river(river4, {
 .addTo(map);
 
 L.river(river5, {
-    color: '#97d2e3', weight: 1, fillColor: '#97d2e3',
+    color: 'black', weight: 1, fillColor: '#97d2e3',
     fillOpacity: 1,
     startWidth: 1,
     endWidth: 1000
@@ -80,7 +80,7 @@ L.river(river5, {
 
 // broken
 // L.river(river6, {
-//     color: '#97d2e3', weight: 1, fillColor: '#97d2e3',
+//     color: 'black', weight: 1, fillColor: '#97d2e3',
 //     fillOpacity: 1,
 //     startWidth: 1,
 //     endWidth: 1000
@@ -88,7 +88,7 @@ L.river(river5, {
 // .addTo(map);
 
 L.river(river7, {
-    color: '#97d2e3', weight: 1, fillColor: '#97d2e3',
+    color: 'black', weight: 1, fillColor: '#97d2e3',
     fillOpacity: 1,
     startWidth: 1,
     endWidth: 1000
@@ -96,7 +96,7 @@ L.river(river7, {
 .addTo(map);
 
 L.river(river8, {
-    color: '#97d2e3', weight: 1, fillColor: '#97d2e3',
+    color: 'black', weight: 1, fillColor: '#97d2e3',
     fillOpacity: 1,
     startWidth: 1,
     endWidth: 700
@@ -104,7 +104,7 @@ L.river(river8, {
 .addTo(map);
 
 L.river(river9, {
-    color: '#97d2e3', weight: 1, fillColor: '#97d2e3',
+    color: 'black', weight: 1, fillColor: '#97d2e3',
     fillOpacity: 1,
     startWidth: 1,
     endWidth: 700
@@ -112,7 +112,7 @@ L.river(river9, {
 .addTo(map);
 
 L.river(river10, {
-    color: '#97d2e3', weight: 1, fillColor: '#97d2e3',
+    color: 'black', weight: 1, fillColor: '#97d2e3',
     fillOpacity: 1,
     startWidth: 1,
     endWidth: 700
@@ -120,7 +120,7 @@ L.river(river10, {
 .addTo(map);
 
 L.river(river11, {
-    color: '#97d2e3', weight: 1, fillColor: '#97d2e3',
+    color: 'black', weight: 1, fillColor: '#97d2e3',
     fillOpacity: 1,
     startWidth: 1,
     endWidth: 700
@@ -128,7 +128,7 @@ L.river(river11, {
 .addTo(map);
 
 L.river(river12, {
-    color: '#97d2e3', weight: 1, fillColor: '#97d2e3',
+    color: 'black', weight: 1, fillColor: '#97d2e3',
     fillOpacity: 1,
     startWidth: 1,
     endWidth: 600

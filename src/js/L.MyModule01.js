@@ -90,64 +90,147 @@ L.River = L.Polygon.extend({
     },
 
     _createPolygon: function() {
+        // var points = this._points,
+        //     length1, length2, length3,
+        //     ortVector1, ortVector2, ortVector3,
+        //     bVector1, bVector2,
+        //     bPoint1, bPoint2,
+        //     pos, lr,
+        //     coss,
+        //     r;
+        //
+        // // this._latlngs.push(
+        // //     {id: 0, latLng: points[0]._latlng}
+        // // );
+        //
+        // for (var i = 0; i < points.length - 2; i++) {
+        //     r = points[i+1].offset / Math.cos((Math.PI*points[i+1].lat)/180);
+        //
+        //     length1 = findLength(points[i+1], points[i]);
+        //     length2 = findLength(points[i+1], points[i+2]);
+        //
+        //     // vector1 && vector2 have to be ort-vectors
+        //     ortVector1 = divideVector(convertToVector(points[i+1], points[i]), length1);
+        //     ortVector2 = divideVector(convertToVector(points[i+1], points[i+2]), length2);
+        //
+        //     // ort-vector3
+        //     ortVector3 = addVectors(ortVector1, ortVector2);
+        //
+        //     ortPoint = findVectorCoords(points[i+1], ortVector3);
+        //     length3 = findVectorLength(points[i+1], ortPoint);
+        //
+        //     // ort-angles
+        //     coss = findVectorCos(ortVector3, length3);
+        //
+        //     //
+        //     bVector1 = findVectorfromOrts(coss, r);
+        //     bVector2 = multipleVector(bVector1, -1)
+        //     bPoint1 = findVectorCoords(points[i+1], bVector1);
+        //     bPoint2 = findVectorCoords(points[i+1], bVector2);
+        //
+        //     lr = findOrientation(points[i], points[i+1], bPoint1);
+        //
+        //     if (lr) {
+        //         var temp = {x: bPoint1.x, y: bPoint1.y};
+        //
+        //         bPoint1 = bPoint2;
+        //         bPoint2 = temp;
+        //     }
+        //
+        //     points[i+1].bisectorPoint = L.point(bPoint1.x, bPoint1.y);
+        //     points[i+1].bisectorPoint2 = L.point(bPoint2.x, bPoint2.y);
+        //
+        //     points[i+1].llb = map.options.crs.unproject(points[i+1].bisectorPoint);
+        //     points[i+1].llb2 = map.options.crs.unproject(points[i+1].bisectorPoint2);
         var points = this._points,
+            prev, cur, next,
             length1, length2, length3,
+            vector1, vector2, vector3,
+            vectorsSumPoint,
             ortVector1, ortVector2, ortVector3,
+            ortLength,
+            rVector, virtualVector,
             bVector1, bVector2,
             bPoint1, bPoint2,
             pos, lr,
             coss,
+            endPoints,
             r;
 
-        // this._latlngs.push(
-        //     {id: 0, latLng: points[0]._latlng}
-        // );
+        for (var i = 1; i <= points.length - 1; i++) {
+            prev = points[i-1];
+            cur = points[i];
+            r = cur.offset / Math.cos((Math.PI*cur.lat)/180);
 
-        for (var i = 0; i < points.length - 2; i++) {
-            r = points[i+1].offset / Math.cos((Math.PI*points[i+1].lat)/180);
+            if (i < points.length - 1) {
+                next = points[i+1];
+            } else {
+                //purpendicular to the last point
+                rVector = convertToVector(prev, cur),
+                virtualVector = multipleVector(rVector, 2),
+                next = findVectorCoords(prev, virtualVector);
+            }
 
-            length1 = findLength(points[i+1], points[i]);
-            length2 = findLength(points[i+1], points[i+2]);
 
-            // vector1 && vector2 have to be ort-vectors
-            ortVector1 = divideVector(convertToVector(points[i+1], points[i]), length1);
-            ortVector2 = divideVector(convertToVector(points[i+1], points[i+2]), length2);
+            vector1 = convertToVector(cur, prev);
+            vector2 = convertToVector(cur, next);
+            vector3 = addVectors(vector1, vector2);
+            vectorsSumPoint = findVectorCoords(cur, vector3);
 
-            // ort-vector3
-            ortVector3 = addVectors(ortVector1, ortVector2);
+            length3 = findVectorLength(cur, vectorsSumPoint);
+            length1 = findLength(cur, prev);
+            length2 = findLength(cur, next);
 
-            ortPoint = findVectorCoords(points[i+1], ortVector3);
-            length3 = findVectorLength(points[i+1], ortPoint);
+            if (length3) {
+                // vector1 && vector2 have to be ort-vectors
+                ortVector1 = divideVector(vector1, length1);
+                ortVector2 = divideVector(vector2, length2);
 
-            // ort-angles
-            coss = findVectorCos(ortVector3, length3);
+                // ort-vector3
+                ortVector3 = addVectors(ortVector1, ortVector2);
 
-            //
-            bVector1 = findVectorfromOrts(coss, r);
-            bVector2 = multipleVector(bVector1, -1)
-            bPoint1 = findVectorCoords(points[i+1], bVector1);
-            bPoint2 = findVectorCoords(points[i+1], bVector2);
+                ortPoint = findVectorCoords(cur, ortVector3);
+                ortLength = findVectorLength(cur, ortPoint);
 
-            lr = findOrientation(points[i], points[i+1], bPoint1);
+                // ort-angles
+                coss = findVectorCos(ortVector3, ortLength);
+                bVector1 = findVectorfromOrts(coss, r);
+                bVector2 = multipleVector(bVector1, -1)
+                bPoint1 = findVectorCoords(cur, bVector1);
+                bPoint2 = findVectorCoords(cur, bVector2);
+
+            // handle 180 degrees angle
+            } else {
+                var x = 100,
+                    y = - (vector1.x * x) / vector1.y;
+                next = {x: x, y: y};
+                vector2 = convertToVector(cur, next);
+                length2 = findLength(cur, next);
+                bVector1 = multipleVector(vector2, r / length2);
+                bVector2 = multipleVector(bVector1, -1)
+                bPoint1 = findVectorCoords(cur, bVector1);
+                bPoint2 = findVectorCoords(cur, bVector2);
+            }
+
+            lr = findOrientation(prev, cur, bPoint1);
 
             if (lr) {
                 var temp = {x: bPoint1.x, y: bPoint1.y};
-
                 bPoint1 = bPoint2;
                 bPoint2 = temp;
             }
 
-            points[i+1].bisectorPoint = L.point(bPoint1.x, bPoint1.y);
-            points[i+1].bisectorPoint2 = L.point(bPoint2.x, bPoint2.y);
+            cur.bisectorPoint = L.point(bPoint1.x, bPoint1.y);
+            cur.bisectorPoint2 = L.point(bPoint2.x, bPoint2.y);
 
-            points[i+1].llb = map.options.crs.unproject(points[i+1].bisectorPoint);
-            points[i+1].llb2 = map.options.crs.unproject(points[i+1].bisectorPoint2);
+            cur.llb = map.options.crs.unproject(cur.bisectorPoint);
+            cur.llb2 = map.options.crs.unproject(cur.bisectorPoint2);
 
             var j = points.length  + points.length - i;
 
             this._latlngs.push(
-                {id: i+1, latLng: points[i+1].llb},
-                {id: j, latLng: points[i+1].llb2}
+                {id: i+1, latLng: cur.llb},
+                {id: j, latLng: cur.llb2}
             );
         }
 

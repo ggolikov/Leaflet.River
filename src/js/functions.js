@@ -51,25 +51,25 @@ function findVectorCos(vector, length) {
     var cosA = vector.x / length,
         cosB = vector.y / length;
 
-    return {cosA: cosA, cosB: cosB}
+    return {cosA: cosA, cosB: cosB};
 }
 
 function findVectorfromOrts(coss, radius) {
-    return {x: radius * coss.cosA, y: radius * coss.cosB}
+    return {x: radius * coss.cosA, y: radius * coss.cosB};
 }
 
 function multipleVector(vector, number) {
     var x = vector.x,
         y = vector.y;
 
-    return {x:  x * number, y: y * number}
+    return {x:  x * number, y: y * number};
 }
 
 function divideVector(vector, number) {
     var x = vector.x,
         y = vector.y;
 
-    return {x:  x / number, y: y / number}
+    return {x:  x / number, y: y / number};
 }
 
 function findEllipseFocus(point) {
@@ -284,8 +284,6 @@ function findEndPoints(point, center, radius) {
 
 /**
  * equation system
- * - circle:
- *   Math.pow((x - x2), 2)  + Math.pow((y - y2), 2) = Math.pow(r, 2);
  * - circle:
  *   Math.pow((x - x2), 2)  + Math.pow((y - y2), 2) = Math.pow(r, 2);
  * @param vertex line vertex point

@@ -32,7 +32,7 @@ var circlesCentersOptions = {
     fillOpacity: 0.8
 };
 
-// var coordinates = medvedkovo;
+var coordinates = medvedkovo;
 // var coordinates = los;
 var coordinates = mongolia;
 // var coordinates = world;
@@ -144,8 +144,13 @@ function drawEndCircles(points) {
 // line equation
 
 function findVectors(points) {
-    var length1, length2, length3,
+    var prev, cur, next,
+        length1, length2, length3,
+        vector1, vector2, vector3,
+        vectorsSumPoint,
         ortVector1, ortVector2, ortVector3,
+        ortLength,
+        rVector, virtualVector,
         bVector1, bVector2,
         bPoint1, bPoint2,
         pos, lr,
@@ -153,66 +158,84 @@ function findVectors(points) {
         endPoints,
         r;
 
-    for (var i = 0; i < points.length - 2; i++) {
-        r = points[i+1]._mRadius / Math.cos((Math.PI*points[i+1].lat)/180);
+    for (var i = 1; i <= points.length - 1; i++) {
+        prev = points[i-1];
+        cur = points[i];
+        r = cur._mRadius / Math.cos((Math.PI*cur.lat)/180);
 
-        length1 = findLength(points[i+1], points[i]);
-        length2 = findLength(points[i+1], points[i+2]);
-
-        // vector1 && vector2 have to be ort-vectors
-        ortVector1 = divideVector(convertToVector(points[i+1], points[i]), length1);
-        ortVector2 = divideVector(convertToVector(points[i+1], points[i+2]), length2);
-
-        // ort-vector3
-        ortVector3 = addVectors(ortVector1, ortVector2);
-
-        ortPoint = findVectorCoords(points[i+1], ortVector3);
-        length3 = findVectorLength(points[i+1], ortPoint);
-
-        // ort-angles
-        coss = findVectorCos(ortVector3, length3);
-
-        //
-        bVector1 = findVectorfromOrts(coss, r);
-        bVector2 = multipleVector(bVector1, -1)
-        bPoint1 = findVectorCoords(points[i+1], bVector1);
-        bPoint2 = findVectorCoords(points[i+1], bVector2);
-        // pupendicular for the last point
-        if (i === points.length - 3) {
-            console.log(i);
-            r = points[i+2]._mRadius / Math.cos((Math.PI*points[i+2].lat)/180);
-            endPoints = findEndPoints(points[i+1], points[i+2], r);
-            bPoint1 = endPoints[0];
-            bPoint2 = endPoints[1];
-            console.log('sssss');
-            console.log(endPoints[0]);
-            L.circleMarker(map.options.crs.unproject(L.point(endPoints[0].x, endPoints[0].y)), circlesCentersOptions).bindPopup('id: ' + i).addTo(map);
-            L.circleMarker(map.options.crs.unproject(L.point(endPoints[1].x, endPoints[1].y)), circlesCentersOptions).bindPopup('id: ' + i).addTo(map);
+        if (i < points.length - 1) {
+            next = points[i+1];
+        } else {
+            //purpendicular to the last point
+            rVector = convertToVector(prev, cur),
+            virtualVector = multipleVector(rVector, 2),
+            next = findVectorCoords(prev, virtualVector);
         }
 
 
-        lr = findOrientation(points[i], points[i+1], bPoint1);
+        vector1 = convertToVector(cur, prev);
+        vector2 = convertToVector(cur, next);
+        vector3 = addVectors(vector1, vector2);
+        vectorsSumPoint = findVectorCoords(cur, vector3);
+
+        length3 = findVectorLength(cur, vectorsSumPoint);
+        length1 = findLength(cur, prev);
+        length2 = findLength(cur, next);
+
+        if (length3) {
+            // vector1 && vector2 have to be ort-vectors
+            ortVector1 = divideVector(vector1, length1);
+            ortVector2 = divideVector(vector2, length2);
+
+            // ort-vector3
+            ortVector3 = addVectors(ortVector1, ortVector2);
+
+            ortPoint = findVectorCoords(cur, ortVector3);
+            ortLength = findVectorLength(cur, ortPoint);
+
+            // ort-angles
+            coss = findVectorCos(ortVector3, ortLength);
+            bVector1 = findVectorfromOrts(coss, r);
+            bVector2 = multipleVector(bVector1, -1)
+            bPoint1 = findVectorCoords(cur, bVector1);
+            bPoint2 = findVectorCoords(cur, bVector2);
+
+        // handle 180 degrees angle
+        } else {
+            var x = 100,
+                y = - (vector1.x * x) / vector1.y;
+            next = {x: x, y: y};
+            vector2 = convertToVector(cur, next);
+            length2 = findLength(cur, next);
+            bVector1 = multipleVector(vector2, r / length2);
+            bVector2 = multipleVector(bVector1, -1)
+            bPoint1 = findVectorCoords(cur, bVector1);
+            bPoint2 = findVectorCoords(cur, bVector2);
+            // L.circleMarker(L.point(bPoint1.x, bPoint1.y), circlesCentersOptions).addTo(map);
+            // L.circleMarker(L.point(bPoint2.x, bPoint2.y), circlesCentersOptions).addTo(map);
+        }
+
+        lr = findOrientation(prev, cur, bPoint1);
 
         if (lr) {
             var temp = {x: bPoint1.x, y: bPoint1.y};
-
             bPoint1 = bPoint2;
             bPoint2 = temp;
         }
 
-        points[i+1].bisectorPoint = L.point(bPoint1.x, bPoint1.y);
-        points[i+1].bisectorPoint2 = L.point(bPoint2.x, bPoint2.y);
+        cur.bisectorPoint = L.point(bPoint1.x, bPoint1.y);
+        cur.bisectorPoint2 = L.point(bPoint2.x, bPoint2.y);
 
-        points[i+1].llb = map.options.crs.unproject(points[i+1].bisectorPoint);
-        points[i+1].llb2 = map.options.crs.unproject(points[i+1].bisectorPoint2);
+        cur.llb = map.options.crs.unproject(cur.bisectorPoint);
+        cur.llb2 = map.options.crs.unproject(cur.bisectorPoint2);
 
-        // L.circleMarker(points[i+1].llb, circlesCentersOptions).bindPopup('id: ' + i).addTo(map);
-        // L.circleMarker(points[i+1].llb2, circlesCentersOptions).bindPopup('id: ' + i).addTo(map);
+        // L.circleMarker(next.llb, circlesCentersOptions).bindPopup('id: ' + i).addTo(map);
+        // L.circleMarker(next.llb2, circlesCentersOptions).bindPopup('id: ' + i).addTo(map);
         var j = points.length  + points.length - i;
-        // L.polyline([points[i+1].llb, points[i+1].llb2], {color: 'red', weight: 0.8}).addTo(map);
+        // L.polyline([next.llb, next.llb2], {color: 'red', weight: 0.8}).addTo(map);
         polygonLL.push(
-            {id: i+1, latLng: points[i+1].llb},
-            {id: j, latLng: points[i+1].llb2}
+            {id: i, latLng: cur.llb},
+            {id: j, latLng: cur.llb2}
         );
     }
 
@@ -241,3 +264,6 @@ var plg = polygonLL.map(function(obj){
 L.polygon(plg, {weight: 1, fillOpacity: 0.5}).addTo(map);
 // beautyfied
 // L.polygon(plg, {color: '#8086fc', weight: 1, fillColor: '#97d2e3', fillOpacity: 1}).addTo(map);
+map.setView(L.latLng(49.34117458931808, 102.34906196594238), 13);
+
+// map.setZoom(10);

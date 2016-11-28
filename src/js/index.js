@@ -24,7 +24,7 @@ var medvedkovo = L.river(medvedkovo, {
     endWidth: 10
 }).addTo(map);
 
-// var medvedkovo_line = medvedkovo.convertToPolyline({color: 'red'}).addTo(map);
+var medvedkovo_line = medvedkovo.convertToPolyline({color: 'red'}).addTo(map);
 // console.log(medvedkovo_line);
 console.log(medvedkovo);
 
