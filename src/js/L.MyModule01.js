@@ -2,11 +2,11 @@ L.River = L.Polygon.extend({
     initialize: function (latlngs, options) {
         L.Polygon.prototype.initialize.call(this, latlngs, options);
         this._setPoints(this._latlngs[0]);
+        this._interpolateLength();
     },
 
     onAdd: function (map) {
         this._getProjectedPoints(map);
-        this._interpolateLength();
         this._countOffset();
         this._createPolygon();
         L.Polygon.prototype.onAdd.call(this, map);
@@ -24,6 +24,20 @@ L.River = L.Polygon.extend({
         return L.polyline(latlngs, options);
     },
 
+    // divide options width on river length;
+    // useful when you bulk load data (e.g. from geojson)
+    adjustWidth: function() {
+        // debugger;
+        var points = this._points,
+            length = points[points.length-1].milestone,
+            opts = {
+                startWidth: this.options.startWidth * length,
+                endWidth: this.options.endWidth * length
+            };
+
+        L.setOptions(this, opts);
+    },
+
     _setPoints: function(latlngs) {
         var points = [],
             polygonLL = [];
@@ -31,9 +45,9 @@ L.River = L.Polygon.extend({
         for (var i = 0; i < latlngs.length; i++) {
             points.push({
                 id: i,
-                lat: latlngs[i].lat,
-                lng: latlngs[i].lng,
-                _latlng: L.latLng(latlngs[i].lat, latlngs[i].lng),
+                lat: latlngs[i].lng,
+                lng: latlngs[i].lat,
+                _latlng: L.latLng(latlngs[i].lng, latlngs[i].lat),
                 _point: null,
                 projected: null,
                 x: null,
@@ -56,9 +70,10 @@ L.River = L.Polygon.extend({
         var points = this._points;
 
         for (var i = 0; i < points.length; i++) {
-            points[i].projected = map.options.crs.project(points[i]._latlng);
-            points[i].x = points[i].projected.x;
-            points[i].y = points[i].projected.y;
+            var projectedPoint = map.options.crs.project(points[i]._latlng);
+
+            points[i].x = projectedPoint.x;
+            points[i].y = projectedPoint.y;
         }
     },
 
@@ -93,9 +108,8 @@ L.River = L.Polygon.extend({
     _createPolygon: function() {
         var points = this._points,
             prev, cur, next,
-            length1, length2, length3,
-            vector1, vector2, vector3,
-            vectorsSumPoint,
+            length1, length2,
+            vector1, vector2,
             ortVector1, ortVector2, ortVector3,
             ortLength,
             rVector, virtualVector,
@@ -105,6 +119,11 @@ L.River = L.Polygon.extend({
             coss,
             endPoints,
             r;
+
+        // one segment river is senceless
+        if (points.length === 2) {
+            return;
+        }
 
         for (var i = 1; i <= points.length - 1; i++) {
             prev = points[i-1];
@@ -131,23 +150,21 @@ L.River = L.Polygon.extend({
             // else we use a purpendicular
             vector1 = convertToVector(cur, prev);
             vector2 = convertToVector(cur, next);
-            vector3 = addVectors(vector1, vector2);
-            vectorsSumPoint = findVectorCoords(cur, vector3);
 
-            length3 = findVectorLength(cur, vectorsSumPoint);
             length1 = findLength(cur, prev);
             length2 = findLength(cur, next);
 
-            if (length3) {
+            ortVector1 = divideVector(vector1, length1);
+            ortVector2 = divideVector(vector2, length2);
+
+            // ort-vector3
+            ortVector3 = addVectors(ortVector1, ortVector2);
+
+            ortPoint = findVectorCoords(cur, ortVector3);
+            ortLength = findVectorLength(cur, ortPoint);
+
+            if (ortLength) {
                 // ort-vectors
-                ortVector1 = divideVector(vector1, length1);
-                ortVector2 = divideVector(vector2, length2);
-
-                // ort-vector3
-                ortVector3 = addVectors(ortVector1, ortVector2);
-
-                ortPoint = findVectorCoords(cur, ortVector3);
-                ortLength = findVectorLength(cur, ortPoint);
 
                 // ort-angles
                 coss = findVectorCos(ortVector3, ortLength);
@@ -158,9 +175,13 @@ L.River = L.Polygon.extend({
             } else {
                 // custom value to find purpendicular vectorsSumPoint
                 // we find y from in vector scalar product
-                var CUSTOM_X = 100;
-                
-                vector2 = {x: CUSTOM_X, y: - (vector1.x * CUSTOM_X) / vector1.y};
+                var CUSTOM_COORD = 100;
+
+                if (vector1.y) {
+                    vector2 = {x: CUSTOM_COORD, y: - (vector1.x * CUSTOM_COORD) / vector1.y};
+                } else {
+                    vector2 = {x: vector1.x, y: CUSTOM_COORD}
+                }
                 next = findVectorCoords(cur, vector2);
                 length2 = findLength(cur, next);
                 bVector1 = multipleVector(vector2, r / length2);

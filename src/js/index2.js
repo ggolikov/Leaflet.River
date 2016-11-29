@@ -152,7 +152,7 @@ L.river(river15, {
 .addTo(map);
 
 // main
-L.river(river2, {
+var mainRiver = L.river(river2, {
     color: '#8086fc', weight: 1, fillColor: '#97d2e3',
     fillOpacity: 1,
     startWidth: 1,
