@@ -3,11 +3,11 @@ L.River = L.Polygon.extend({
         L.Polygon.prototype.initialize.call(this, latlngs, options);
         this._setPoints(this._latlngs[0]);
         this._interpolateLength();
+        this._countOffset();
     },
 
     onAdd: function (map) {
         this._getProjectedPoints(map);
-        this._countOffset();
         this._createPolygon();
         L.Polygon.prototype.onAdd.call(this, map);
     },
