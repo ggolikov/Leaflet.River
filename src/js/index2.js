@@ -1,8 +1,8 @@
 var osm = L.tileLayer(
     // standart osm
-    // 'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
+    'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
     // relief map
-    'http://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+    // 'http://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
     {
     maxZoom: 18,
     attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
@@ -33,12 +33,17 @@ function each(feature, layer) {
     var river = L.river(feature.geometry.coordinates, {
         // color: '#8086fc', weight: 1, fillColor: '#97d2e3',
         weight: 0, fillColor: '#97d2e3',
-        weight: 0, fillColor: 'blue',
+        // weight: 0, fillColor: 'blue',
+        // weight: 0, fillColor: 'white',
         fillOpacity: 0.5,
+        // fillOpacity: 1,
         startWidth: 1,
-        endWidth: feature.properties.length / 400
+        // endWidth: feature.properties.length / 400
     });
+    var length = river.getLength();
+
+    river.setEndWidth(length / 200);
     river.addTo(map);
 }
 
-map.setView(L.latLng(49.34117458931808, 102.34906196594238), 10);
+map.setView(L.latLng(48.94117458931808, 100.14906196594238), 8);

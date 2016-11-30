@@ -24,18 +24,31 @@ L.River = L.Polygon.extend({
         return L.polyline(latlngs, options);
     },
 
-    // divide options width on river length;
     // useful when you bulk load data (e.g. from geojson)
-    adjustWidth: function() {
-        // debugger;
+    // without length property
+    getLength: function() {
         var points = this._points,
-            length = points[points.length-1].milestone,
-            opts = {
-                startWidth: this.options.startWidth * length,
-                endWidth: this.options.endWidth * length
-            };
+            length = points[points.length-1].milestone;
 
-        L.setOptions(this, opts);
+        return length;
+    },
+
+    setStartWidth: function(startWidth) {
+        this.options.startWidth = startWidth;
+        this._countOffset();
+    },
+
+    setEndWidth: function(endWidth) {
+        this.options.endWidth = endWidth;
+        this._countOffset();
+    },
+
+    getStartWidth: function() {
+        return this.options.startWidth;
+    },
+
+    getEndWidth: function() {
+        return this.options.endWidth;
     },
 
     _setPoints: function(latlngs) {
