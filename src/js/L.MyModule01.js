@@ -208,6 +208,19 @@ L.River = L.Polygon.extend({
             cur.llb = map.options.crs.unproject(cur.bisectorPoint);
             cur.llb2 = map.options.crs.unproject(cur.bisectorPoint2);
 
+            var markersOptions = {
+                weight: 1,
+                radius: 1,
+                color: 'black',
+                fill: true,
+                fillColor: 'yellow',
+                fillOpacity: 0.8
+            };
+
+            L.circleMarker(cur.llb, markersOptions).addTo(map);
+            L.circleMarker(cur.llb2, markersOptions).addTo(map);
+            L.polyline([cur.llb, cur.llb2], {color: 'red', weight: 0.8}).addTo(map);
+
             var j = points.length  + points.length - i;
 
             // collection of points

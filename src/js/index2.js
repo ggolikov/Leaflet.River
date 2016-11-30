@@ -12,6 +12,7 @@ var osm = L.tileLayer(
 
 L.control.scale().addTo(map);
 
+
 // all rivers
 var monRiversJson = L.geoJson(allrivers, {
     onEachFeature: function (feature, layer) {
@@ -33,7 +34,7 @@ function each(feature, layer) {
         // color: '#8086fc', weight: 1, fillColor: '#97d2e3',
         weight: 0, fillColor: '#97d2e3',
         weight: 0, fillColor: 'blue',
-        fillOpacity: 1,
+        fillOpacity: 0.5,
         startWidth: 1,
         endWidth: feature.properties.length / 400
     });
