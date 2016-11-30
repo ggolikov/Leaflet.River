@@ -12,152 +12,32 @@ var osm = L.tileLayer(
 
 L.control.scale().addTo(map);
 
-var rivers = [
-    river1,
-    river2,
-    river3,
-    river4,
-    river5,
-    river6,
-    river7,
-    river8,
-    river9,
-    river10,
-    river11,
-    river12,
-    river13,
-    river14,
-    river15
-];
-
-rivers.forEach(function(river){
-    river.forEach(function(arr){
-        arr.reverse();
-    })
-});
-
-// broken
-L.river(river1, {
-    color: '#97d2e3', weight: 1, fillColor: '#97d2e3',
-    fillOpacity: 1,
-    startWidth: 1,
-    endWidth: 3000
+// all rivers
+var monRiversJson = L.geoJson(allrivers, {
+    onEachFeature: function (feature, layer) {
+         if (feature.properties && feature.properties.ID) {
+             layer.bindPopup(feature.properties.ID);
+        }
+    }
 })
-.addTo(map);
+// .addTo(map);
 
-
-L.river(river3, {
-    color: '#8086fc', weight: 1, fillColor: '#97d2e3',
-    fillOpacity: 1,
-    startWidth: 1,
-    endWidth: 1000
+// my rivers
+var finalRiversJson = L.geoJson(somerivers, {
+    onEachFeature: each
 })
-.addTo(map);
+// .addTo(map);
 
-L.river(river4, {
-    color: '#8086fc', weight: 1, fillColor: '#97d2e3',
-    fillOpacity: 1,
-    startWidth: 1,
-    endWidth: 1000
-})
-.addTo(map);
+function each(feature, layer) {
+    var river = L.river(feature.geometry.coordinates, {
+        // color: '#8086fc', weight: 1, fillColor: '#97d2e3',
+        weight: 0, fillColor: '#97d2e3',
+        weight: 0, fillColor: 'blue',
+        fillOpacity: 1,
+        startWidth: 1,
+        endWidth: feature.properties.length / 400
+    });
+    river.addTo(map);
+}
 
-L.river(river5, {
-    color: '#8086fc', weight: 1, fillColor: '#97d2e3',
-    fillOpacity: 1,
-    startWidth: 1,
-    endWidth: 1000
-})
-.addTo(map);
-
-// broken
-L.river(river6, {
-    color: '#8086fc', weight: 1, fillColor: '#97d2e3',
-    fillOpacity: 1,
-    startWidth: 1,
-    endWidth: 1000
-})
-.addTo(map);
-
-L.river(river7, {
-    color: '#8086fc', weight: 1, fillColor: '#97d2e3',
-    fillOpacity: 1,
-    startWidth: 1,
-    endWidth: 1000
-})
-.addTo(map);
-
-L.river(river8, {
-    color: '#8086fc', weight: 1, fillColor: '#97d2e3',
-    fillOpacity: 1,
-    startWidth: 1,
-    endWidth: 700
-})
-.addTo(map);
-
-L.river(river9, {
-    color: '#8086fc', weight: 1, fillColor: '#97d2e3',
-    fillOpacity: 1,
-    startWidth: 1,
-    endWidth: 700
-})
-.addTo(map);
-
-L.river(river10, {
-    color: '#8086fc', weight: 1, fillColor: '#97d2e3',
-    fillOpacity: 1,
-    startWidth: 1,
-    endWidth: 700
-})
-.addTo(map);
-
-L.river(river11, {
-    color: '#8086fc', weight: 1, fillColor: '#97d2e3',
-    fillOpacity: 1,
-    startWidth: 1,
-    endWidth: 700
-})
-.addTo(map);
-
-L.river(river12, {
-    color: '#8086fc', weight: 1, fillColor: '#97d2e3',
-    fillOpacity: 1,
-    startWidth: 1,
-    endWidth: 600
-})
-.addTo(map);
-
-L.river(river13, {
-    color: '#97d2e3', weight: 1, fillColor: '#97d2e3',
-    fillOpacity: 1,
-    startWidth: 1,
-    endWidth: 600
-})
-.addTo(map);
-
-L.river(river14, {
-    color: '#97d2e3', weight: 1, fillColor: '#97d2e3',
-    fillOpacity: 1,
-    startWidth: 1,
-    endWidth: 1000
-})
-.addTo(map);
-
-L.river(river15, {
-    color: '#97d2e3', weight: 1, fillColor: '#97d2e3',
-    fillOpacity: 1,
-    startWidth: 1,
-    endWidth: 1000
-})
-.addTo(map);
-
-// main
-var mainRiver = L.river(river2, {
-    color: '#8086fc', weight: 1, fillColor: '#97d2e3',
-    fillOpacity: 1,
-    startWidth: 1,
-    endWidth: 3000
-})
-.addTo(map);
-
-map.fitBounds(L.polyline(river2).getBounds());
+map.setView(L.latLng(49.34117458931808, 102.34906196594238), 10);
