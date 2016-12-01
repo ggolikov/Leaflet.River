@@ -144,6 +144,42 @@ function findLinearCoef(point1, point2) {
     };
 }
 
+function checkIntersection(line1, line2) {
+    var params1 = findLinearCoef(line1.point1, line1.point2),
+        params2 = findLinearCoef(line2.point1, line2.point2),
+        a1 = params1.a,
+        b1 = params1.b,
+        c1 = params1.c,
+        a2 = params2.a,
+        b2 = params2.b,
+        c2 = params2.c,
+        x1 = line1.point1.x,
+        y1 = line1.point1.y,
+        x2 = line1.point2.x,
+        y2 = line1.point2.y,
+        x3 = line2.point1.x,
+        y3 = line2.point1.y,
+        x4 = line2.point2.x,
+        y4 = line2.point2.y,
+        x, y;
+
+        x = (b1 * c2 - c1) / (a1 * b2 - a2 * b1);
+        y = - ((a2 * x + c2) / b2);
+
+        // console.log(
+        //     'x1: ' + x1 + '\n' +
+        //     'x: ' + x + '\n' +
+        //     'x2: ' + x2
+        // );
+        // console.log((x >= x1) && (x <= x2));
+    // return ((x1 <= x && x2 >= x) || (x2 <= x && x1 >= x)) && ((x3 <= x && x4 >= x) || (x4 <= x && x3 >= x));
+    // return ((x >= x1) && (x <= x2) && (y >= y1) && (y <= y2));
+}
+
+function linearEg(params, point) {
+    return params.a * point.x + params.b * point.y + params.c;
+}
+
 /**
  * equation system
  * - line:

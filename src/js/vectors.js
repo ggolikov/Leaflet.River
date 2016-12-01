@@ -32,7 +32,7 @@ var circlesCentersOptions = {
     fillOpacity: 0.8
 };
 
-var coordinates = medvedkovo;
+// var coordinates = medvedkovo;
 // var coordinates = los;
 var coordinates = mongolia;
 // var coordinates = world;
@@ -42,6 +42,7 @@ coordinates.forEach(function(ll){
 });
 
 var polygonLL = [];
+    var linesArr = [];
 // test polyline
 var testRiver = L.polyline(coordinates, {color: 'blue', weight: 1, smooth: 3});
 testRiver.addTo(map);
@@ -56,7 +57,7 @@ polygonLL.push(
 
 var widthRange = {
     startWidth: 0,
-    endWidth: 1000
+    endWidth: 2000
 };
 
 L.setOptions(testRiver, {
@@ -136,7 +137,7 @@ function interpolateRange(points, range) {
 // draw end circles
 function drawEndCircles(points) {
     for (var i = 1; i < points.length; i++) {
-        var circle = L.circle(points[i]._latlng, {radius: points[i]._mRadius, color: 'red'}).bindPopup('id: ' + i).addTo(map);
+        // var circle = L.circle(points[i]._latlng, {radius: points[i]._mRadius, color: 'red'}).bindPopup('id: ' + i).addTo(map);
     }
     return points;
 }
@@ -239,12 +240,43 @@ function findVectors(points) {
 
         // L.circleMarker(next.llb, circlesCentersOptions).bindPopup('id: ' + i).addTo(map);
         // L.circleMarker(next.llb2, circlesCentersOptions).bindPopup('id: ' + i).addTo(map);
+
+        var markersOptions = {
+            weight: 1,
+            radius: 3,
+            color: 'black',
+            fill: true,
+            fillColor: 'yellow',
+            fillOpacity: 0.8
+        };
+
+        L.circleMarker(cur.llb, markersOptions).bindPopup('id: ' + i).addTo(map);
+        L.circleMarker(cur.llb2, markersOptions).addTo(map);
+        L.polyline([cur.llb, cur.llb2], {color: 'red', weight: 0.8}).addTo(map);
+
+        var segment = {point1: cur.bisectorPoint, point2: cur.bisectorPoint2};
+        // debugger;
+
+        if (i === 1) {
+            linesArr.push(segment);
+        } else {
+            // for (var k = 0; k < linesArr.length; k++) {
+                // var intersects = checkIntersection(segment, linesArr[k]);
+                // console.log(intersects);
+            // }
+            // if (intersects) {
+            //     linesArr.push(segment);
+            // }
+        }
+
         var j = points.length  + points.length - i;
-        // L.polyline([next.llb, next.llb2], {color: 'red', weight: 0.8}).addTo(map);
-        polygonLL.push(
-            {id: i, latLng: cur.llb},
-            {id: j, latLng: cur.llb2}
-        );
+        if (i % 3 === 0) {
+            polygonLL.push(
+                {id: i, latLng: cur.llb},
+                {id: j, latLng: cur.llb2}
+            );
+
+        }
     }
 
     return points;
@@ -272,6 +304,6 @@ var plg = polygonLL.map(function(obj){
 L.polygon(plg, {weight: 1, fillOpacity: 0.5}).addTo(map);
 // beautyfied
 // L.polygon(plg, {color: '#8086fc', weight: 1, fillColor: '#97d2e3', fillOpacity: 1}).addTo(map);
-map.setView(L.latLng(49.34117458931808, 102.34906196594238), 13);
+map.setView(L.latLng(49.41376531613956, 101.8469524383545), 13);
 
 // map.setZoom(10);
