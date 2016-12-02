@@ -18,9 +18,10 @@ module.exports = {
         ]
     },
     output: {
+        // interpolateLineRange: 'line-interpolate-points',
         path: './dist',
-        filename: 'bundle.js',
-        library: 'leaflet'
+        filename: 'bundle.js'
+        // library: 'leaflet'
     },
     module: {
         loaders: [
@@ -30,7 +31,7 @@ module.exports = {
     },
     plugins: [
             new webpack.ProvidePlugin({
-                concaveman: 'concaveman'
+                interpolateLineRange: 'node_modules/line-interpolate-points/index.js'
             })
     ],
     watch: true,

@@ -7,7 +7,7 @@
   "author": "ggolikov",
   "license": "ISC",
   "scripts": {
-      "watch": "watchify src/js/main.js -o dist/bundle2.js"
+    "watch": "watchify src/js/main.js -o dist/bundle2.js"
   },
   "dependencies": {
     "concaveman": "^1.1.1",
@@ -15,7 +15,8 @@
     "leaflet-draw": "^0.4.3",
     "leaflet-editable": "^1.0.0",
     "leaflet-geometryutil": "^0.8.0",
-    "leaflet-snap": "0.0.4"
+    "leaflet-snap": "0.0.4",
+    "line-interpolate-points": "^1.0.5"
   },
   "devDependencies": {
     "browserify": "^13.1.1",

@@ -1,4 +1,3 @@
-var leaflet =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -53,6 +52,7 @@ var leaflet =
 /***/ function(module, exports, __webpack_require__) {
 
 	__webpack_require__(2);
+	__webpack_require__(3);
 	// require('leaflet-draw');
 	// require('leaflet-snap');
 	// require('leaflet-editable');
@@ -64,22 +64,7 @@ var leaflet =
 	// require('./js/L.MyModule01');
 	// require('./js/leaflet.curve');
 
-	// require('./js/data/data_los.js');
-	// require('./js/data/data_medvedkovo.js');
-	// require('./js/data/data_mongolia.js');
-
-	__webpack_require__(3);
 	__webpack_require__(4);
-	__webpack_require__(5);
-	__webpack_require__(6);
-	__webpack_require__(7);
-
-	// require('./js/main.js');
-
-
-	// require('./js/main.js');
-
-	__webpack_require__(8);
 
 
 /***/ },
@@ -8591,14 +8576,13 @@ var leaflet =
 			    crs = map.options.crs;
 
 			if (crs.distance === L.CRS.Earth.distance) {
-				// debugger;
-				var d = Math.PI / 180,
-				    latR = (this._mRadius / L.CRS.Earth.R) / d,
-				    top = map.project([lat + latR, lng]),
-				    bottom = map.project([lat - latR, lng]),
-				    p = top.add(bottom).divideBy(2),
-				    lat2 = map.unproject(p).lat,
-				    lngR = Math.acos((Math.cos(latR * d) - Math.sin(lat * d) * Math.sin(lat2 * d)) /
+				var d = Math.PI / 180,                                              // число радиан в градусе
+				    latR = (this._mRadius / L.CRS.Earth.R) / d,                     // поправка!
+				    top = map.project([lat + latR, lng]),                           // координата верха круга (в Меркаторе)
+				    bottom = map.project([lat - latR, lng]),                        // координата низа круга (в Меркаторе)
+				    p = top.add(bottom).divideBy(2),                                // центр круга
+				    lat2 = map.unproject(p).lat,                                    // широта центра круа
+				    lngR = Math.acos((Math.cos(latR * d) - Math.sin(lat * d) * Math.sin(lat2 * d)) / // поправка на долготу
 				            (Math.cos(lat * d) * Math.cos(lat2 * d))) / d;
 
 				if (isNaN(lngR) || lngR === 0) {
@@ -8608,7 +8592,6 @@ var leaflet =
 				this._point = p.subtract(map.getPixelOrigin());
 				this._radius = isNaN(lngR) ? 0 : Math.max(Math.round(p.x - map.project([lat2, lng - lngR]).x), 1);
 				this._radiusY = Math.max(Math.round(p.y - top.y), 1);
-
 			} else {
 				var latlng2 = crs.unproject(crs.project(this._latlng).subtract([this._mRadius, 0]));
 
@@ -13138,191 +13121,149 @@ var leaflet =
 /***/ function(module, exports) {
 
 	/**
-	 * @module linear coeff
-	 * @param point1
-	 * @param point2
-	 * @return Object {a, b, c} linear coefficients
+	 * A module that exports a single function (`interpolateLineRange()`), which
+	 * interpolates the coordinates of any number of equidistant points along the
+	 * length of a potentially multi-segment line.
+	 *
+	 * Note: this module's function documentation frequently refers to a `Point`
+	 * object, which is simply an array of two numbers (the x- and y- coordinates).
 	 */
 
-	function findLinearCoef(point1, point2) {
-	    var x1 = point1.x,
-	        x2 = point2.x,
-	        y1 = point1.y,
-	        y2 = point2.y,
-	        a = y1 - y2,
-	        b = x2 - x1,
-	        c = x1 * y2 - x2 * y1;
+	'use strict';
 
-	    return {
-	        a: a,
-	        b: b,
-	        c: c
-	    };
+	/**
+	 * @param {Point} pt1
+	 * @param {Point} pt1
+	 * @return number The Euclidean distance between `pt1` and `pt2`.
+	 */
+	function distance( pt1, pt2 ){
+	  var deltaX = pt1[0] - pt2[0];
+	  var deltaY = pt1[1] - pt2[1];
+	  return Math.sqrt( deltaX * deltaX + deltaY * deltaY );
 	}
 
-	// module.exports = findLinearCoef;
+	/**
+	 * @param {Point} point The Point object to offset.
+	 * @param {number} dx The delta-x of the line segment from which `point` will
+	 *    be offset.
+	 * @param {number} dy The delta-y of the line segment from which `point` will
+	 *    be offset.
+	 * @param {number} distRatio The quotient of the distance to offset `point`
+	 *    by and the distance of the line segment from which it is being offset.
+	 */
+	function offsetPoint( point, dx, dy, distRatio ){
+	  return [
+	    point[ 0 ] - dy * distRatio,
+	    point[ 1 ] + dx * distRatio
+	  ];
+	}
+
+	/**
+	 * @param {array of Point} ctrlPoints The vertices of the (multi-segment) line
+	 *      to be interpolate along.
+	 * @param {int} number The number of points to interpolate along the line; this
+	 *      includes the endpoints, and has an effective minimum value of 2 (if a
+	 *      smaller number is given, then the endpoints will still be returned).
+	 * @param {number} [offsetDist] An optional perpendicular distance to offset
+	 *      each point from the line-segment it would otherwise lie on.
+	 * @param {int} [minGap] An optional minimum gap to maintain between subsequent
+	 *      interpolated points; if the projected gap between subsequent points for
+	 *      a set of `number` points is lower than this value, `number` will be
+	 *      decreased to a suitable value.
+	 */
+	function interpolateLineRange( ctrlPoints, number, offsetDist, minGap ){
+	  minGap = minGap || 0;
+	  offsetDist = offsetDist || 0;
+
+	  // Calculate path distance from each control point (vertex) to the beginning
+	  // of the line, and also the ratio of `offsetDist` to the length of every
+	  // line segment, for use in computing offsets.
+	  var totalDist = 0;
+	  var ctrlPtDists = [ 0 ];
+	  var ptOffsetRatios = [];
+	  for( var pt = 1; pt < ctrlPoints.length; pt++ ){
+	    var dist = distance( ctrlPoints[ pt ], ctrlPoints[ pt - 1 ] );
+	    totalDist += dist;
+	    ptOffsetRatios.push( offsetDist / dist );
+	    ctrlPtDists.push( totalDist );
+	  }
+
+	  if( totalDist / (number - 1) < minGap ){
+	    number = totalDist / minGap + 1;
+	  }
+
+	  // Variables used to control interpolation.
+	  var step = totalDist / (number - 1);
+	  var interpPoints = [ offsetPoint(
+	    ctrlPoints[ 0 ],
+	    ctrlPoints[ 1 ][ 0 ] - ctrlPoints[ 0 ][ 0 ],
+	    ctrlPoints[ 1 ][ 1 ] - ctrlPoints[ 0 ][ 1 ],
+	    ptOffsetRatios[ 0 ]
+	  )];
+	  var prevCtrlPtInd = 0;
+	  var currDist = 0;
+	  var currPoint = ctrlPoints[ 0 ];
+	  var nextDist = step;
+
+	  for( pt = 0; pt < number - 2; pt++ ){
+	    // Find the segment in which the next interpolated point lies.
+	    while( nextDist > ctrlPtDists[ prevCtrlPtInd + 1 ] ){
+	      prevCtrlPtInd++;
+	      currDist = ctrlPtDists[ prevCtrlPtInd ];
+	      currPoint = ctrlPoints[ prevCtrlPtInd ];
+	    }
+
+	    // Interpolate the coordinates of the next point along the current segment.
+	    var remainingDist = nextDist - currDist;
+	    var ctrlPtsDeltaX = ctrlPoints[ prevCtrlPtInd + 1 ][ 0 ] -
+	      ctrlPoints[ prevCtrlPtInd ][ 0 ];
+	    var ctrlPtsDeltaY = ctrlPoints[ prevCtrlPtInd + 1 ][ 1 ] -
+	      ctrlPoints[ prevCtrlPtInd ][ 1 ];
+	    var ctrlPtsDist = ctrlPtDists[ prevCtrlPtInd + 1 ] -
+	      ctrlPtDists[ prevCtrlPtInd ];
+	    var distRatio = remainingDist / ctrlPtsDist;
+
+	    currPoint = [
+	      currPoint[ 0 ] + ctrlPtsDeltaX * distRatio,
+	      currPoint[ 1 ] + ctrlPtsDeltaY * distRatio
+	    ];
+
+	    // Offset currPoint according to `offsetDist`.
+	    var offsetRatio = offsetDist / ctrlPtsDist;
+	    interpPoints.push( offsetPoint(
+	      currPoint, ctrlPtsDeltaX, ctrlPtsDeltaY, ptOffsetRatios[ prevCtrlPtInd ])
+	    );
+
+	    currDist = nextDist;
+	    nextDist += step;
+	  }
+
+	  interpPoints.push( offsetPoint(
+	    ctrlPoints[ ctrlPoints.length - 1 ],
+	    ctrlPoints[ ctrlPoints.length - 1 ][ 0 ] -
+	      ctrlPoints[ ctrlPoints.length - 2 ][ 0 ],
+	    ctrlPoints[ ctrlPoints.length - 1 ][ 1 ] -
+	      ctrlPoints[ ctrlPoints.length - 2 ][ 1 ],
+	    ptOffsetRatios[ ptOffsetRatios.length - 1 ]
+	  ));
+	  return interpPoints;
+	}
+
+	window.interpolateLineRange = interpolateLineRange;
+	module.exports = interpolateLineRange;
 
 
 /***/ },
 /* 4 */
-/***/ function(module, exports) {
-
-	/**
-	 * equation system
-	 * - line:
-	 *   a * x + b * y + c = 0;
-	 * - circle:
-	 *   Math.pow((x - x2), 2)  + Math.pow((y - y2), 2) = Math.pow(r, 2);
-	 * @param linearParams
-	 * @param center circle center point
-	 * @param radius circle radius
-	 * @return Object {a, b, c} quadratic equation coefficients
-	 *
-	 */
-
-	function squareCircleSystem(linearParams, center, radius) {
-	    var a = linearParams.a,
-	        b = linearParams.b,
-	        c = linearParams.c,
-	        cx = center.x,
-	        cy = center.y,
-	        r = radius,
-	        A, B, C;
-
-	    A = Math.pow(a, 2) + Math.pow(b, 2);
-	    B = -2 * (Math.pow(b, 2) * cx - a * c - a * b * cy);
-	    C = b * (b * Math.pow(cx, 2) + 2 * cy * c + b * Math.pow(cy, 2) - b * Math.pow(r, 2)) + Math.pow(c, 2);
-
-	    return {
-	        a: A,
-	        b: B,
-	        c: C
-	    };
-	}
-
-	// module.exports = squareCircleSystem;
-
-
-/***/ },
-/* 5 */
-/***/ function(module, exports) {
-
-	/**
-	 * equation system
-	 * - circle:
-	 *   Math.pow((x - x2), 2)  + Math.pow((y - y2), 2) = Math.pow(r, 2);
-	 * - circle:
-	 *   Math.pow((x - x2), 2)  + Math.pow((y - y2), 2) = Math.pow(r, 2);
-	 * @param vertex line vertex point
-	 * @param center circle center point
-	 * @param radius circle radius
-	 * @return Object {a, b, c} quadratic equation coefficients
-	 *
-	 */
-
-	function triangleSystem(vertex, center, radius) {
-	    var x1 = vertex.x,
-	        y1 = vertex.y,
-	        x2 = center.x,
-	        y2 = center.y,
-	        r = radius,
-	        h = Math.sqrt(Math.pow(r, 2) - Math.pow(r / 2, 2)),
-
-	        a = x2 - x1,
-	        b = y2 - y1,
-	        mn = Math.pow(a, 2) + Math.pow(b, 2),
-	        A, B, C;
-
-	    A = mn;
-	    B = -2 * x1 * mn;
-	    C = (Math.pow(x1, 2) * mn - Math.pow(b, 2) * Math.pow(h, 2));
-
-	    return {
-	        a: A,
-	        b: B,
-	        c: C
-	    };
-	}
-
-	// module.exports = triangleSystem;
-
-
-/***/ },
-/* 6 */
-/***/ function(module, exports) {
-
-	/**
-	 * point-line orientation calculator
-	 * @param point1 [Object] line point 1
-	 * @param point2 [Object] line point 2
-	 * @param point3 [Object] Side point
-	 * @return [Boolean] true if right, false if left
-	 */
-
-	 function findOrientation(point1, point2, point3) {
-	    var x1 = point1.x,
-	        y1 = point1.y,
-	        x2 = point2.x,
-	        y2 = point2.y,
-	        x3 = point3.x,
-	        y3 = point3.y,
-	        d;
-
-	        d = (x2 - x1) * (y3 - y1) - (y2 - y1) * (x3 - x1);
-
-	    if (d > 0) {
-	        return true;
-	    } else if (d < 0) {
-	        return false;
-	    } else if (d == 0) {
-	    // TODO: handle 90 degrees angle
-	    };
-	 }
-
-	 // module.exports = findOrientation;
-
-
-/***/ },
-/* 7 */
-/***/ function(module, exports) {
-
-	/**
-	 * square equation calculation
-	 * @param params Array quadratic params [a, b, c]
-	 */
-
-	function findSquareRoots(params) {
-	    var a = params.a,
-	        b = params.b,
-	        c = params.c,
-	        d = Math.pow(b, 2) - 4 * a * c,
-	        x1, x2;
-	    if (d > 0) {
-	        x1 = (-b + Math.sqrt(d)) / (2 * a);
-	        x2 = (-b - Math.sqrt(d)) / (2 * a);
-	        return [x1, x2];
-	    } else if (d === 0) {
-	        x1 = -b / (2 * a);
-	        return [x1, x1];
-	    } else {
-	        return null;
-	    }
-	}
-
-	// module.exports = findSquareRoots;
-
-
-/***/ },
-/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(9);
+	var content = __webpack_require__(5);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(11)(content, {});
+	var update = __webpack_require__(7)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -13339,10 +13280,10 @@ var leaflet =
 	}
 
 /***/ },
-/* 9 */
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(10)();
+	exports = module.exports = __webpack_require__(6)();
 	// imports
 
 
@@ -13353,7 +13294,7 @@ var leaflet =
 
 
 /***/ },
-/* 10 */
+/* 6 */
 /***/ function(module, exports) {
 
 	/*
@@ -13409,7 +13350,7 @@ var leaflet =
 
 
 /***/ },
-/* 11 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*

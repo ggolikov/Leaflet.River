@@ -42,7 +42,9 @@ coordinates.forEach(function(ll){
 });
 
 var polygonLL = [];
-    var linesArr = [];
+var linesArr = [];
+var lineArr1 = [];
+var lineArr2 = [];
 // test polyline
 var testRiver = L.polyline(coordinates, {color: 'blue', weight: 1, smooth: 3});
 testRiver.addTo(map);
@@ -55,9 +57,14 @@ polygonLL.push(
     {id: 0, latLng: startPoint}
 )
 
+lineArr1.push(
+    {id: 0, latLng: startPoint}
+);
+
+
 var widthRange = {
     startWidth: 0,
-    endWidth: 2000
+    endWidth: 8000
 };
 
 L.setOptions(testRiver, {
@@ -252,7 +259,7 @@ function findVectors(points) {
 
         L.circleMarker(cur.llb, markersOptions).bindPopup('id: ' + i).addTo(map);
         L.circleMarker(cur.llb2, markersOptions).addTo(map);
-        L.polyline([cur.llb, cur.llb2], {color: 'red', weight: 0.8}).addTo(map);
+        // L.polyline([cur.llb, cur.llb2], {color: 'red', weight: 0.8}).addTo(map);
 
         var segment = {point1: cur.bisectorPoint, point2: cur.bisectorPoint2};
         // debugger;
@@ -270,13 +277,19 @@ function findVectors(points) {
         }
 
         var j = points.length  + points.length - i;
-        if (i % 3 === 0) {
+        // if (i % 3 === 0) {
             polygonLL.push(
                 {id: i, latLng: cur.llb},
                 {id: j, latLng: cur.llb2}
             );
+        // }
+        lineArr1.push(
+            {id: i, latLng: cur.llb}
+        );
 
-        }
+        lineArr2.push(
+            {id: j, latLng: cur.llb2}
+        );
     }
 
     return points;
@@ -299,9 +312,22 @@ polygonLL.sort(function(a, b){
 var plg = polygonLL.map(function(obj){
     return obj.latLng;
 });
+
+var line1 = lineArr1.map(function(obj){
+    return obj.latLng;
+});
+var line2 = lineArr2.map(function(obj){
+    return obj.latLng;
+});
+
+
 // simple
 // console.log(plg);
-L.polygon(plg, {weight: 1, fillOpacity: 0.5}).addTo(map);
+// L.polygon(plg, {weight: 1, fillOpacity: 0.5}).addTo(map);
+
+// L.polyline(line1, {weight: 1, fillOpacity: 0.5}).addTo(map);
+// L.polyline(line2, {weight: 1, fillOpacity: 0.5}).addTo(map);
+
 // beautyfied
 // L.polygon(plg, {color: '#8086fc', weight: 1, fillColor: '#97d2e3', fillOpacity: 1}).addTo(map);
 map.setView(L.latLng(49.41376531613956, 101.8469524383545), 13);
