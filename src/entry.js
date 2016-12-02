@@ -4,7 +4,7 @@ require('line-interpolate-points');
 // require('leaflet-snap');
 // require('leaflet-editable');
 // require('leaflet-geometryutil');
-// require('concaveman');
+require('concaveman');
 // require('./js/L.CircleEditor');
 // require('./js/L.MeasuringTool');
 // require('./js/L.PolySideLabel');

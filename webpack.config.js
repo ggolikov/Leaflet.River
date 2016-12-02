@@ -23,6 +23,9 @@ module.exports = {
         filename: 'bundle.js'
         // library: 'leaflet'
     },
+    externals: {
+        // interpolateLineRange: 'line-interpolate-points'
+    },
     module: {
         loaders: [
             { test: /\.css$/, loader: 'style!css' },

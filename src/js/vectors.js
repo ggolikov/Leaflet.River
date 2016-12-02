@@ -45,6 +45,8 @@ var polygonLL = [];
 var linesArr = [];
 var lineArr1 = [];
 var lineArr2 = [];
+var intArr1 = [];
+var intArr2 = [];
 // test polyline
 var testRiver = L.polyline(coordinates, {color: 'blue', weight: 1, smooth: 3});
 testRiver.addTo(map);
@@ -265,7 +267,7 @@ function findVectors(points) {
         // debugger;
 
         if (i === 1) {
-            linesArr.push(segment);
+            // linesArr.push(segment);
         } else {
             // for (var k = 0; k < linesArr.length; k++) {
                 // var intersects = checkIntersection(segment, linesArr[k]);
@@ -290,6 +292,13 @@ function findVectors(points) {
         lineArr2.push(
             {id: j, latLng: cur.llb2}
         );
+        intArr1.push(
+            [bPoint1.x, bPoint1.y]
+        );
+
+        intArr2.push(
+            [bPoint2.x, bPoint2.y]
+        );
     }
 
     return points;
@@ -313,20 +322,38 @@ var plg = polygonLL.map(function(obj){
     return obj.latLng;
 });
 
-var line1 = lineArr1.map(function(obj){
+var lineTop = lineArr1.map(function(obj){
     return obj.latLng;
 });
-var line2 = lineArr2.map(function(obj){
+var lineBottom = lineArr2.map(function(obj){
     return obj.latLng;
 });
+var interpolated1 = interpolateLineRange(intArr1, 100);
+var interpolated2 = interpolateLineRange(intArr2, 100);
+
+var conc1 = concaveman(interpolated1);
+var conc2 = concaveman(interpolated2);
+
+var arr1 = conc1.map(function(point){
+    return map.options.crs.unproject(L.point(point[0], point[1]));
+});
+
+var arr2 = conc2.map(function(point){
+    return map.options.crs.unproject(L.point(point[0], point[1]));
+});
+
+var line1 = L.polyline(arr1).addTo(map);
+// var line2 = L.polyline(arr2).addTo(map);
+
+
 
 
 // simple
 // console.log(plg);
 // L.polygon(plg, {weight: 1, fillOpacity: 0.5}).addTo(map);
 
-// L.polyline(line1, {weight: 1, fillOpacity: 0.5}).addTo(map);
-// L.polyline(line2, {weight: 1, fillOpacity: 0.5}).addTo(map);
+L.polyline(lineTop, {weight: 1, fillOpacity: 0.5}).addTo(map);
+L.polyline(lineBottom, {weight: 1, fillOpacity: 0.5}).addTo(map);
 
 // beautyfied
 // L.polygon(plg, {color: '#8086fc', weight: 1, fillColor: '#97d2e3', fillOpacity: 1}).addTo(map);
