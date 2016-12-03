@@ -261,7 +261,7 @@ function findVectors(points) {
 
         L.circleMarker(cur.llb, markersOptions).bindPopup('id: ' + i).addTo(map);
         L.circleMarker(cur.llb2, markersOptions).addTo(map);
-        L.polyline([cur.llb, cur.llb2], {color: 'red', weight: 0.8}).addTo(map);
+        L.polyline([cur.llb, cur.llb2], {color: 'red', weight: 0.5}).addTo(map);
 
         var segment = {point1: cur.bisectorPoint, point2: cur.bisectorPoint2};
         // debugger;
