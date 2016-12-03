@@ -8576,13 +8576,14 @@
 			    crs = map.options.crs;
 
 			if (crs.distance === L.CRS.Earth.distance) {
-				var d = Math.PI / 180,                                              // число радиан в градусе
-				    latR = (this._mRadius / L.CRS.Earth.R) / d,                     // поправка!
-				    top = map.project([lat + latR, lng]),                           // координата верха круга (в Меркаторе)
-				    bottom = map.project([lat - latR, lng]),                        // координата низа круга (в Меркаторе)
-				    p = top.add(bottom).divideBy(2),                                // центр круга
-				    lat2 = map.unproject(p).lat,                                    // широта центра круа
-				    lngR = Math.acos((Math.cos(latR * d) - Math.sin(lat * d) * Math.sin(lat2 * d)) / // поправка на долготу
+				// debugger;
+				var d = Math.PI / 180,
+				    latR = (this._mRadius / L.CRS.Earth.R) / d,
+				    top = map.project([lat + latR, lng]),
+				    bottom = map.project([lat - latR, lng]),
+				    p = top.add(bottom).divideBy(2),
+				    lat2 = map.unproject(p).lat,
+				    lngR = Math.acos((Math.cos(latR * d) - Math.sin(lat * d) * Math.sin(lat2 * d)) /
 				            (Math.cos(lat * d) * Math.cos(lat2 * d))) / d;
 
 				if (isNaN(lngR) || lngR === 0) {
@@ -8592,6 +8593,7 @@
 				this._point = p.subtract(map.getPixelOrigin());
 				this._radius = isNaN(lngR) ? 0 : Math.max(Math.round(p.x - map.project([lat2, lng - lngR]).x), 1);
 				this._radiusY = Math.max(Math.round(p.y - top.y), 1);
+
 			} else {
 				var latlng2 = crs.unproject(crs.project(this._latlng).subtract([this._mRadius, 0]));
 
@@ -13248,7 +13250,6 @@
 	  ));
 	  return interpPoints;
 	}
-
 	window.interpolateLineRange = interpolateLineRange;
 	module.exports = interpolateLineRange;
 
@@ -13597,6 +13598,7 @@
 
 	    return dx * dx + dy * dy;
 	}
+
 	window.concaveman = concaveman;
 
 

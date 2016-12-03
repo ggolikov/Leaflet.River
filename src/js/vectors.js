@@ -261,7 +261,7 @@ function findVectors(points) {
 
         L.circleMarker(cur.llb, markersOptions).bindPopup('id: ' + i).addTo(map);
         L.circleMarker(cur.llb2, markersOptions).addTo(map);
-        // L.polyline([cur.llb, cur.llb2], {color: 'red', weight: 0.8}).addTo(map);
+        L.polyline([cur.llb, cur.llb2], {color: 'red', weight: 0.8}).addTo(map);
 
         var segment = {point1: cur.bisectorPoint, point2: cur.bisectorPoint2};
         // debugger;
@@ -357,6 +357,6 @@ L.polyline(lineBottom, {weight: 1, fillOpacity: 0.5}).addTo(map);
 
 // beautyfied
 // L.polygon(plg, {color: '#8086fc', weight: 1, fillColor: '#97d2e3', fillOpacity: 1}).addTo(map);
-map.setView(L.latLng(49.41376531613956, 101.8469524383545), 13);
+map.setView(L.latLng(49.41376531613956, 101.8469524383545), 11);
 
 // map.setZoom(10);
