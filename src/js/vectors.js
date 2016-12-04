@@ -260,9 +260,9 @@ function findVectors(points) {
             fillOpacity: 0.8
         };
 
-        // L.circleMarker(cur.llb, markersOptions).bindPopup('id: ' + i).addTo(map);
-        // L.circleMarker(cur.llb2, markersOptions).addTo(map);
-        // L.polyline([cur.llb, cur.llb2], {color: 'red', weight: 0.5}).addTo(map);
+        L.circleMarker(cur.llb, markersOptions).bindPopup('id: ' + i).addTo(map);
+        L.circleMarker(cur.llb2, markersOptions).addTo(map);
+        L.polyline([cur.llb, cur.llb2], {color: 'red', weight: 0.5}).addTo(map);
 
         var segment = {point1: cur.bisectorPoint, point2: cur.bisectorPoint2};
         // debugger;
@@ -279,11 +279,11 @@ function findVectors(points) {
         // );
 
         if (i === 1) {
-            var polygon = L.polygon([startPoint, cur.llb, cur.llb2], {fillOpacity: 1});
+            var polygon = L.polygon([startPoint, cur.llb, cur.llb2]/*, {fillOpacity: 1}*/);
             polys.push(polygon);
             polygon.addTo(map);
         } else {
-            var polygon = L.polygon([prev.llb2, prev.llb, cur.llb, cur.llb2], {fillOpacity: 1});
+            var polygon = L.polygon([prev.llb2, prev.llb, cur.llb, cur.llb2]/*, {fillOpacity: 1}*/);
             // polys[0] = turf.union(polys[0], polygon);
             polygon.addTo(map);
         }
