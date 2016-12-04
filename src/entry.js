@@ -1,5 +1,7 @@
 require('leaflet');
 require('line-interpolate-points');
+require('turf-union');
+require('turf-merge');
 // require('leaflet-draw');
 // require('leaflet-snap');
 // require('leaflet-editable');

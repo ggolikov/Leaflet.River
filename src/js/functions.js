@@ -163,7 +163,7 @@ function checkIntersection(line1, line2) {
         y4 = line2.point2.y,
         x, y;
 
-        x = (b1 * c2 - c1) / (a1 * b2 - a2 * b1);
+        x = (b1 * c2 / b2 - c1) / (a1 - b1 * a2 / b2);
         y = - ((a2 * x + c2) / b2);
 
         // console.log(
@@ -172,8 +172,13 @@ function checkIntersection(line1, line2) {
         //     'x2: ' + x2
         // );
         // console.log((x >= x1) && (x <= x2));
-    // return ((x1 <= x && x2 >= x) || (x2 <= x && x1 >= x)) && ((x3 <= x && x4 >= x) || (x4 <= x && x3 >= x));
+        // console.log(
+        //     'x: ' + x + '\n' +
+        //     'y: ' + y
+        // );
+    return ((x1 <= x && x2 >= x) || (x2 <= x && x1 >= x)) && ((x3 <= x && x4 >= x) || (x4 <= x && x3 >= x));
     // return ((x >= x1) && (x <= x2) && (y >= y1) && (y <= y2));
+    // return {x: x, y:y};
 }
 
 function linearEg(params, point) {

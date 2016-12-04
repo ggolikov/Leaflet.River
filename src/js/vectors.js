@@ -47,6 +47,7 @@ var lineArr1 = [];
 var lineArr2 = [];
 var intArr1 = [];
 var intArr2 = [];
+var polys = [];
 // test polyline
 var testRiver = L.polyline(coordinates, {color: 'blue', weight: 1, smooth: 3});
 testRiver.addTo(map);
@@ -259,46 +260,55 @@ function findVectors(points) {
             fillOpacity: 0.8
         };
 
-        L.circleMarker(cur.llb, markersOptions).bindPopup('id: ' + i).addTo(map);
-        L.circleMarker(cur.llb2, markersOptions).addTo(map);
-        L.polyline([cur.llb, cur.llb2], {color: 'red', weight: 0.5}).addTo(map);
+        // L.circleMarker(cur.llb, markersOptions).bindPopup('id: ' + i).addTo(map);
+        // L.circleMarker(cur.llb2, markersOptions).addTo(map);
+        // L.polyline([cur.llb, cur.llb2], {color: 'red', weight: 0.5}).addTo(map);
 
         var segment = {point1: cur.bisectorPoint, point2: cur.bisectorPoint2};
         // debugger;
+        var j = points.length  + points.length - i;
+
+        // first point (i === 1)
+        linesArr.push(segment);
+        // lineArr1.push(
+        //     {id: i, latLng: cur.llb}
+        // );
+        //
+        // lineArr2.push(
+        //     {id: j, latLng: cur.llb2}
+        // );
 
         if (i === 1) {
-            // linesArr.push(segment);
+            var polygon = L.polygon([startPoint, cur.llb, cur.llb2], {fillOpacity: 1});
+            polys.push(polygon);
+            polygon.addTo(map);
         } else {
-            // for (var k = 0; k < linesArr.length; k++) {
-                // var intersects = checkIntersection(segment, linesArr[k]);
-                // console.log(intersects);
-            // }
-            // if (intersects) {
-            //     linesArr.push(segment);
-            // }
+            var polygon = L.polygon([prev.llb2, prev.llb, cur.llb, cur.llb2], {fillOpacity: 1});
+            // polys[0] = turf.union(polys[0], polygon);
+            polygon.addTo(map);
         }
 
-        var j = points.length  + points.length - i;
+
         // if (i % 3 === 0) {
-            polygonLL.push(
-                {id: i, latLng: cur.llb},
-                {id: j, latLng: cur.llb2}
-            );
+            // polygonLL.push(
+            //     {id: i, latLng: cur.llb},
+            //     {id: j, latLng: cur.llb2}
+            // );
         // }
-        lineArr1.push(
-            {id: i, latLng: cur.llb}
-        );
-
-        lineArr2.push(
-            {id: j, latLng: cur.llb2}
-        );
-        intArr1.push(
-            [bPoint1.x, bPoint1.y]
-        );
-
-        intArr2.push(
-            [bPoint2.x, bPoint2.y]
-        );
+        // lineArr1.push(
+        //     {id: i, latLng: cur.llb}
+        // );
+        //
+        // lineArr2.push(
+        //     {id: j, latLng: cur.llb2}
+        // );
+        // intArr1.push(
+        //     [bPoint1.x, bPoint1.y]
+        // );
+        //
+        // intArr2.push(
+        //     [bPoint2.x, bPoint2.y]
+        // );
     }
 
     return points;
@@ -328,21 +338,21 @@ var lineTop = lineArr1.map(function(obj){
 var lineBottom = lineArr2.map(function(obj){
     return obj.latLng;
 });
-var interpolated1 = interpolateLineRange(intArr1, 100);
-var interpolated2 = interpolateLineRange(intArr2, 100);
+// var interpolated1 = interpolateLineRange(intArr1, 100);
+// var interpolated2 = interpolateLineRange(intArr2, 100);
 
-var conc1 = concaveman(interpolated1);
-var conc2 = concaveman(interpolated2);
+// var conc1 = concaveman(interpolated1);
+// var conc2 = concaveman(interpolated2);
+//
+// var arr1 = conc1.map(function(point){
+//     return map.options.crs.unproject(L.point(point[0], point[1]));
+// });
+//
+// var arr2 = conc2.map(function(point){
+//     return map.options.crs.unproject(L.point(point[0], point[1]));
+// });
 
-var arr1 = conc1.map(function(point){
-    return map.options.crs.unproject(L.point(point[0], point[1]));
-});
-
-var arr2 = conc2.map(function(point){
-    return map.options.crs.unproject(L.point(point[0], point[1]));
-});
-
-var line1 = L.polyline(arr1).addTo(map);
+// var line1 = L.polyline(arr1).addTo(map);
 // var line2 = L.polyline(arr2).addTo(map);
 
 
