@@ -260,56 +260,32 @@ function findVectors(points) {
             fillOpacity: 0.8
         };
 
-        L.circleMarker(cur.llb, markersOptions).bindPopup('id: ' + i).addTo(map);
-        L.circleMarker(cur.llb2, markersOptions).addTo(map);
-        L.polyline([cur.llb, cur.llb2], {color: 'red', weight: 0.5}).addTo(map);
+        // L.circleMarker(cur.llb, markersOptions).bindPopup('id: ' + i).addTo(map);
+        // L.circleMarker(cur.llb2, markersOptions).addTo(map);
+        // L.polyline([cur.llb, cur.llb2], {color: 'red', weight: 0.5}).addTo(map);
 
-        var segment = {point1: cur.bisectorPoint, point2: cur.bisectorPoint2};
-        // debugger;
         var j = points.length  + points.length - i;
 
-        // first point (i === 1)
-        linesArr.push(segment);
-        // lineArr1.push(
-        //     {id: i, latLng: cur.llb}
-        // );
-        //
-        // lineArr2.push(
-        //     {id: j, latLng: cur.llb2}
-        // );
-
         if (i === 1) {
-            var polygon = L.polygon([startPoint, cur.llb, cur.llb2]/*, {fillOpacity: 1}*/);
+            var polygon = L.polygon([startPoint, cur.llb, cur.llb2], {fillOpacity: 0.1}).toGeoJSON();
             polys.push(polygon);
-            polygon.addTo(map);
         } else {
-            var polygon = L.polygon([prev.llb2, prev.llb, cur.llb, cur.llb2]/*, {fillOpacity: 1}*/);
-            // polys[0] = turf.union(polys[0], polygon);
-            polygon.addTo(map);
+            var prevSegment = {point1: prev.bisectorPoint, point2: prev.bisectorPoint2},
+                curSegment = {point1: cur.bisectorPoint, point2: cur.bisectorPoint2},
+                intersects = checkIntersection(prevSegment, curSegment);
+
+                if (intersects) {
+                    var polygon = L.polygon([prev.llb, cur.llb, prev.llb2, cur.llb2], {fillOpacity: 0.1}).toGeoJSON();
+                } else {
+                    var polygon = L.polygon([prev.llb2, prev.llb, cur.llb, cur.llb2], {fillOpacity: 1}).toGeoJSON();
+                }
+            polys[0] = turf.union(polys[0], polygon);
+            // L.geoJson(polys[0]).addTo(map);
+            // polygon.addTo(map);
         }
-
-
-        // if (i % 3 === 0) {
-            // polygonLL.push(
-            //     {id: i, latLng: cur.llb},
-            //     {id: j, latLng: cur.llb2}
-            // );
-        // }
-        // lineArr1.push(
-        //     {id: i, latLng: cur.llb}
-        // );
-        //
-        // lineArr2.push(
-        //     {id: j, latLng: cur.llb2}
-        // );
-        // intArr1.push(
-        //     [bPoint1.x, bPoint1.y]
-        // );
-        //
-        // intArr2.push(
-        //     [bPoint2.x, bPoint2.y]
-        // );
     }
+    var pol = L.geoJson(polys[0]).addTo(map);
+    console.log(pol);
 
     return points;
 }

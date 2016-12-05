@@ -53,6 +53,9 @@ L.River = L.Polygon.extend({
 
     _setPoints: function(latlngs) {
         var points = [],
+            startPoint = latlngs[0].clone(),
+            pol,
+            polys = [];
             polygonLL = [];
 
         for (var i = 0; i < latlngs.length; i++) {
@@ -76,6 +79,9 @@ L.River = L.Polygon.extend({
         }
 
         this._points = points;
+        this._startPoint = startPoint;
+        this._pol = pol;
+        this._polys = polys;
         this._latlngs = polygonLL;
     },
 
@@ -137,6 +143,7 @@ L.River = L.Polygon.extend({
         if (points.length === 2) {
             return;
         }
+
 
         for (var i = 1; i <= points.length - 1; i++) {
             prev = points[i-1];
@@ -230,26 +237,56 @@ L.River = L.Polygon.extend({
                 fillOpacity: 0.8
             };
 
-            L.circleMarker(cur.llb, markersOptions).addTo(map);
-            L.circleMarker(cur.llb2, markersOptions).addTo(map);
-            L.polyline([cur.llb, cur.llb2], {color: 'red', weight: 0.8}).addTo(map);
+            // L.circleMarker(cur.llb, markersOptions).addTo(map);
+            // L.circleMarker(cur.llb2, markersOptions).addTo(map);
+            // L.polyline([cur.llb, cur.llb2], {color: 'red', weight: 0.8}).addTo(map);
 
             var j = points.length  + points.length - i;
 
-            // collection of points
-            this._latlngs.push(
-                {id: i+1, latLng: cur.llb},
-                {id: j, latLng: cur.llb2}
-            );
+            if (i === 1) {
+                var polygon = L.polygon([this._startPoint, cur.llb, cur.llb2], {fillOpacity: 0.1}).toGeoJSON();
+                this._polys.push(polygon);
+            } else {
+                var prevSegment = {point1: prev.bisectorPoint, point2: prev.bisectorPoint2},
+                    curSegment = {point1: cur.bisectorPoint, point2: cur.bisectorPoint2},
+                    intersects = checkIntersection(prevSegment, curSegment);
+
+                    if (intersects) {
+                        var polygon = L.polygon([prev.llb, cur.llb, prev.llb2, cur.llb2], {fillOpacity: 0.1}).toGeoJSON();
+                    } else {
+                        var polygon = L.polygon([prev.llb2, prev.llb, cur.llb, cur.llb2], {fillOpacity: 1}).toGeoJSON();
+                    }
+                if (i > 576) {
+                    debugger;
+
+                    console.log(JSON.stringify(polygon));
+                }
+                this._polys[0] = turf.union(this._polys[0], polygon);
+            }
         }
 
-        this._latlngs.sort(function(a, b){
-            return a.id - b.id;
+            // collection of points
+            // this._latlngs.push(
+            //     {id: i+1, latLng: cur.llb},
+            //     {id: j, latLng: cur.llb2}
+            // );
+        // }
+        //
+        // this._latlngs.sort(function(a, b){
+        //     return a.id - b.id;
+        // });
+        //
+        // this._latlngs = this._latlngs.map(function(obj){
+        //     return obj.latLng;
+        // });
+        var _this = this;
+        var lls = [];
+        this._pol = L.geoJson(this._polys[0], {
+            onEachFeature: function(feature, layer) {
+                lls = layer._latlngs;
+            }
         });
-
-        this._latlngs = this._latlngs.map(function(obj){
-            return obj.latLng;
-        });
+        this._latlngs = lls[0];
     }
 });
 
