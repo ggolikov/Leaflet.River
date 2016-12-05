@@ -12,20 +12,33 @@ var osm = L.tileLayer(
 
 L.control.scale().addTo(map);
 
-// var vl = L.polyline(medvedkovo).addTo(map);
-medvedkovo.forEach(function(ll){
-    return ll.reverse();
-});
 
-var medvedkovo = L.river(medvedkovo, {
-    // weight: 7,
-    fillOpacity: 1,
-    startWidth: 1,
-    endWidth: 10
-}).addTo(map);
+// all rivers
+var monRiversJson = L.geoJson(allrivers, {
+    onEachFeature: function (feature, layer) {
+         if (feature.properties && feature.properties.ID) {
+             layer.bindPopup(feature.properties.ID);
+        }
+    }
+})
+// .addTo(map);
 
-var medvedkovo_line = medvedkovo.convertToPolyline({color: 'red'}).addTo(map);
-// console.log(medvedkovo_line);
-console.log(medvedkovo);
+// test rivers
+var finalRiversJson = L.geoJson(somerivers, {
+    onEachFeature: each
+})
+// .addTo(map);
 
-map.fitBounds(medvedkovo.getBounds());
+function each(feature, layer) {
+    var river = L.river(feature.geometry.coordinates, {
+        // color: '#8086fc', weight: 1, fillColor: '#97d2e3',
+        weight: 0, fillColor: 'blue',
+        fillOpacity: 1,
+        startWidth: 1,
+    });
+    var length = river.getLength();
+    river.setEndWidth(length / 200);
+    river.addTo(map);
+}
+
+map.setView(L.latLng(48.935130721045326, 100.22), 9);

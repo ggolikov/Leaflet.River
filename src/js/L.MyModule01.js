@@ -53,7 +53,7 @@ L.River = L.Polygon.extend({
 
     _setPoints: function(latlngs) {
         var points = [],
-            startPoint = latlngs[0].clone(),
+            startPoint = L.latLng(latlngs[0].lng, latlngs[0].lat),
             pol,
             polys = [];
             polygonLL = [];
@@ -243,6 +243,8 @@ L.River = L.Polygon.extend({
 
             var j = points.length  + points.length - i;
 
+            // building polygon
+            // from the stsrt point to the end
             if (i === 1) {
                 var polygon = L.polygon([this._startPoint, cur.llb, cur.llb2], {fillOpacity: 0.1}).toGeoJSON();
                 this._polys.push(polygon);
@@ -252,34 +254,14 @@ L.River = L.Polygon.extend({
                     intersects = checkIntersection(prevSegment, curSegment);
 
                     if (intersects) {
-                        var polygon = L.polygon([prev.llb, cur.llb, prev.llb2, cur.llb2], {fillOpacity: 0.1}).toGeoJSON();
+                        var polygon = L.polygon([prev.llb, cur.llb, prev.llb2, cur.llb2], {fillOpacity: 1}).toGeoJSON();
                     } else {
                         var polygon = L.polygon([prev.llb2, prev.llb, cur.llb, cur.llb2], {fillOpacity: 1}).toGeoJSON();
                     }
-                if (i > 576) {
-                    debugger;
-
-                    console.log(JSON.stringify(polygon));
-                }
                 this._polys[0] = turf.union(this._polys[0], polygon);
             }
         }
 
-            // collection of points
-            // this._latlngs.push(
-            //     {id: i+1, latLng: cur.llb},
-            //     {id: j, latLng: cur.llb2}
-            // );
-        // }
-        //
-        // this._latlngs.sort(function(a, b){
-        //     return a.id - b.id;
-        // });
-        //
-        // this._latlngs = this._latlngs.map(function(obj){
-        //     return obj.latLng;
-        // });
-        var _this = this;
         var lls = [];
         this._pol = L.geoJson(this._polys[0], {
             onEachFeature: function(feature, layer) {
