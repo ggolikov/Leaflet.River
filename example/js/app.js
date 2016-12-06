@@ -21,13 +21,13 @@ var style = {
 }
 
 // all rivers
-var monRiversJson = L.geoJson(allrivers, {
-    onEachFeature: function (feature, layer) {
-         if (feature.properties && feature.properties.ID) {
-             layer.bindPopup(feature.properties.ID);
-        }
-    }
-})
+// var monRiversJson = L.geoJson(allrivers, {
+//     onEachFeature: function (feature, layer) {
+//          if (feature.properties && feature.properties.ID) {
+//              layer.bindPopup(feature.properties.ID);
+//         }
+//     }
+// })
 //.addTo(map);
 
 // test rivers
