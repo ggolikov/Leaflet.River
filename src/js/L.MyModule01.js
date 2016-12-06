@@ -135,7 +135,7 @@ L.River = L.Polygon.extend({
             bVector1, bVector2,
             bPoint1, bPoint2,
             pos, lr,
-            coss,
+            cosines,
             endPoints,
             r;
 
@@ -156,11 +156,11 @@ L.River = L.Polygon.extend({
             // in case of last point,
             // we have to build purpendicular to that point
             } else {
-                rVector = convertToVector(prev, cur),
+                rVector = L.Util.convertToVector(prev, cur),
 
                 // this point lies on the extention of last segment
-                virtualVector = multipleVector(rVector, 2),
-                next = findVectorCoords(prev, virtualVector);
+                virtualVector = L.Util.multipleVector(rVector, 2),
+                next = L.Util.findVectorCoords(prev, virtualVector);
             }
 
             // we add two vectors from the current point
@@ -168,27 +168,27 @@ L.River = L.Polygon.extend({
             // if the length of vector sum is > 0,
             // then we use bisector angle
             // else we use a purpendicular
-            vector1 = convertToVector(cur, prev);
-            vector2 = convertToVector(cur, next);
+            vector1 = L.Util.convertToVector(cur, prev);
+            vector2 = L.Util.convertToVector(cur, next);
 
-            length1 = findLength(cur, prev);
-            length2 = findLength(cur, next);
+            length1 = L.Util.findLength(cur, prev);
+            length2 = L.Util.findLength(cur, next);
 
-            ortVector1 = divideVector(vector1, length1);
-            ortVector2 = divideVector(vector2, length2);
+            ortVector1 = L.Util.divideVector(vector1, length1);
+            ortVector2 = L.Util.divideVector(vector2, length2);
 
             // ort-vector3
-            ortVector3 = addVectors(ortVector1, ortVector2);
+            ortVector3 = L.Util.addVectors(ortVector1, ortVector2);
 
-            ortPoint = findVectorCoords(cur, ortVector3);
-            ortLength = findVectorLength(cur, ortPoint);
+            ortPoint = L.Util.findVectorCoords(cur, ortVector3);
+            ortLength = L.Util.findLength(cur, ortPoint);
 
             if (ortLength) {
                 // ort-vectors
 
                 // ort-angles
-                coss = findVectorCos(ortVector3, ortLength);
-                bVector1 = findVectorfromOrts(coss, r);
+                cosines = L.Util.findVectorCosines(ortVector3, ortLength);
+                bVector1 = L.Util.findVectorfromOrts(cosines, r);
 
             // handle 180 degrees angle
             // this builds a purpendicular to the segment
@@ -202,18 +202,18 @@ L.River = L.Polygon.extend({
                 } else {
                     vector2 = {x: vector1.x, y: CUSTOM_COORD}
                 }
-                next = findVectorCoords(cur, vector2);
-                length2 = findLength(cur, next);
-                bVector1 = multipleVector(vector2, r / length2);
+                next = L.Util.findVectorCoords(cur, vector2);
+                length2 = L.Util.findLength(cur, next);
+                bVector1 = L.Util.multipleVector(vector2, r / length2);
             }
 
-            bVector2 = multipleVector(bVector1, -1)
-            bPoint1 = findVectorCoords(cur, bVector1);
-            bPoint2 = findVectorCoords(cur, bVector2);
+            bVector2 = L.Util.multipleVector(bVector1, -1)
+            bPoint1 = L.Util.findVectorCoords(cur, bVector1);
+            bPoint2 = L.Util.findVectorCoords(cur, bVector2);
 
             // we check position of a point
             // left  or right from the segment
-            lr = findOrientation(prev, cur, bPoint1);
+            lr = L.Util.findOrientation(prev, cur, bPoint1);
 
             // because we have to collect points from the left side of the river first
             if (lr) {
@@ -251,7 +251,7 @@ L.River = L.Polygon.extend({
             } else {
                 var prevSegment = {point1: prev.bisectorPoint, point2: prev.bisectorPoint2},
                     curSegment = {point1: cur.bisectorPoint, point2: cur.bisectorPoint2},
-                    intersects = checkIntersection(prevSegment, curSegment);
+                    intersects = L.Util.checkIntersection(prevSegment, curSegment);
 
                     if (intersects) {
                         var polygon = L.polygon([prev.llb, cur.llb, prev.llb2, cur.llb2], {fillOpacity: 1}).toGeoJSON();
