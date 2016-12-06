@@ -7,27 +7,16 @@
   "author": "ggolikov",
   "license": "ISC",
   "scripts": {
-    "watch": "watchify src/js/main.js -o dist/bundle2.js"
+    "watch": "watchify -v -d example/js/app.js -o example/js/bundle.js"
   },
   "dependencies": {
-    "concaveman": "^1.1.1",
     "jsdoc": "^3.4.3",
     "leaflet": "^1.0.1",
-    "leaflet-draw": "^0.4.3",
-    "leaflet-editable": "^1.0.0",
-    "leaflet-geometryutil": "^0.8.0",
-    "leaflet-snap": "0.0.4",
-    "line-interpolate-points": "^1.0.5"
+    "turf-union": "^3.0.12"
   },
   "devDependencies": {
     "browserify": "^13.1.1",
-    "css-loader": "^0.25.0",
-    "file-loader": "^0.9.0",
     "serve": "^1.4.0",
-    "style-loader": "^0.13.1",
-    "url-loader": "^0.5.7",
-    "watchify": "^3.7.0",
-    "webpack": "^1.13.3",
-    "webpack-dev-server": "^1.16.2"
+    "watchify": "^3.7.0"
   }
 }

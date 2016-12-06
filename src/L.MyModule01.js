@@ -1,14 +1,23 @@
+/*
+* @class River
+* @aka L.River
+* @inherits Polygon
+*
+* A class for drawing polygon overlays on a map. Extends `Polygon`.
+ */
+var union = require('turf-union');
+
 L.River = L.Polygon.extend({
     initialize: function (latlngs, options) {
         L.Polygon.prototype.initialize.call(this, latlngs, options);
         this._setPoints(this._latlngs[0]);
-        this._interpolateLength();
-        this._countOffset();
     },
 
     onAdd: function (map) {
         this._getProjectedPoints(map);
-        this._createPolygon();
+        this._interpolateLength(map);
+        this._countOffset();
+        this._createPolygon(map);
         L.Polygon.prototype.onAdd.call(this, map);
     },
 
@@ -97,7 +106,7 @@ L.River = L.Polygon.extend({
     },
 
     // counting milestones in meters on every vertex on polyline
-    _interpolateLength: function() {
+    _interpolateLength: function(map) {
         var points = this._points,
             totalLength = points[0].milestone = 0;
 
@@ -124,7 +133,7 @@ L.River = L.Polygon.extend({
     },
 
     // creating polygon from initial latlngs;
-    _createPolygon: function() {
+    _createPolygon: function(map) {
         var points = this._points,
             prev, cur, next,
             length1, length2,
@@ -258,7 +267,7 @@ L.River = L.Polygon.extend({
                     } else {
                         var polygon = L.polygon([prev.llb2, prev.llb, cur.llb, cur.llb2], {fillOpacity: 1}).toGeoJSON();
                     }
-                this._polys[0] = turf.union(this._polys[0], polygon);
+                this._polys[0] = union(this._polys[0], polygon);
             }
         }
 
