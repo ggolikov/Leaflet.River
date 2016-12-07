@@ -1,11 +1,11 @@
 {
   "name": "leaflet-drawing-test",
   "version": "1.0.0",
-  "description": "leaflet-drawing-test",
-  "repository": "",
+  "description": "Leaflet.River",
+  "repository": "https://github.com/ggolikov/Leaflet.River",
   "main": "index.js",
-  "author": "ggolikov",
-  "license": "ISC",
+  "author": "Grigory Golikov gr.golikov@gmail.com",
+  "license": "MIT",
   "scripts": {
     "watch": "watchify -v -d example/js/app.js -o example/js/bundle.js"
   },
