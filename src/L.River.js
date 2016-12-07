@@ -6,6 +6,7 @@
 * A class for drawing polygon overlays on a map. Extends `Polygon`.
  */
 var union = require('turf-union');
+// var union = require('martinez-polygon-clipping');
 
 L.River = L.Polygon.extend({
     initialize: function (latlngs, options) {
@@ -45,11 +46,15 @@ L.River = L.Polygon.extend({
     setStartWidth: function(startWidth) {
         this.options.startWidth = startWidth;
         this._countOffset();
+
+		return this;
     },
 
     setEndWidth: function(endWidth) {
         this.options.endWidth = endWidth;
         this._countOffset();
+
+		return this;
     },
 
     getStartWidth: function() {
@@ -121,8 +126,9 @@ L.River = L.Polygon.extend({
     // count percentage
     _countOffset: function() {
         var points = this._points,
-            start = this.options.startWidth,
-            end = this.options.endWidth,
+            options = this.options,
+            start = options.startWidth || 1,
+            end = options.endWidth || 1,
             interval = end - start,
             totalLength = points[points.length-1].milestone;
 
@@ -267,7 +273,10 @@ L.River = L.Polygon.extend({
                     } else {
                         var polygon = L.polygon([prev.llb2, prev.llb, cur.llb, cur.llb2], {fillOpacity: 1}).toGeoJSON();
                     }
+                // turf
                 this._polys[0] = union(this._polys[0], polygon);
+                // martinez
+                // this._polys[0].geometry.coordinates = union(this._polys[0].geometry.coordinates, polygon.geometry.coordinates, 1);
             }
         }
 

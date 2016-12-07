@@ -12,6 +12,7 @@
   "dependencies": {
     "jsdoc": "^3.4.3",
     "leaflet": "^1.0.1",
+    "martinez-polygon-clipping": "^0.1.5",
     "turf-union": "^3.0.12"
   },
   "devDependencies": {
