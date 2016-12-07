@@ -4,9 +4,9 @@ A class for drawing lines with different width (like rivers) on a map. Extends P
 
 Useful when you want to show how rivers 'flow' on the map.
 
-Simple polylines without using L.River | Using L.River
+Simple polylines without using Leaflet.River | Using Leaflet.River
 ------|------
-![simple polylines](https://github.com/ggolikov/Leaflet.River/tree/master/example/images/1.png) |![using L.River](https://github.com/ggolikov/Leaflet.River/tree/master/example/images/2.png)
+![simple polylines](https://cloud.githubusercontent.com/assets/17549928/20976102/8390b408-bcb2-11e6-8dd2-7354f4aa86cf.png) |![using Leaflet.River](https://cloud.githubusercontent.com/assets/17549928/20976101/838f5680-bcb2-11e6-8d49-3da1a3ecd25f.png)
 
 ## [Demo](https://ggolikov.github.io/Leaflet.River/example/)
 
