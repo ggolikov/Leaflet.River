@@ -15,11 +15,11 @@ L.River = L.Polygon.extend({
     },
 
     onAdd: function (map) {
+        L.Polygon.prototype.onAdd.call(this, map);
         this._getProjectedPoints(map);
         this._interpolateLength(map);
         this._countOffset();
         this._createPolygon(map);
-        L.Polygon.prototype.onAdd.call(this, map);
     },
 
     // conversion method
@@ -28,7 +28,7 @@ L.River = L.Polygon.extend({
             latlngs = [];
 
         for (var i = 0; i < points.length; i++) {
-            latlngs.push(points[i]._latlng);
+            latlngs.push(points[i].latlng);
         }
 
         return L.polyline(latlngs, options);
@@ -67,18 +67,14 @@ L.River = L.Polygon.extend({
 
     _setPoints: function(latlngs) {
         var points = [],
-            startPoint = L.latLng(latlngs[0].lng, latlngs[0].lat),
+            startPoint = L.latLng(latlngs[0].lat, latlngs[0].lng),
             pol,
             polys = [];
-            polygonLL = [];
 
         for (var i = 0; i < latlngs.length; i++) {
             points.push({
                 id: i,
-                lat: latlngs[i].lng,
-                lng: latlngs[i].lat,
-                _latlng: L.latLng(latlngs[i].lng, latlngs[i].lat),
-                _point: null,
+                latlng: latlngs[i],
                 projected: null,
                 x: null,
                 y: null,
@@ -96,14 +92,14 @@ L.River = L.Polygon.extend({
         this._startPoint = startPoint;
         this._pol = pol;
         this._polys = polys;
-        this._latlngs = polygonLL;
+        this._latlngs = [];
     },
 
     _getProjectedPoints: function(map) {
         var points = this._points;
 
         for (var i = 0; i < points.length; i++) {
-            var projectedPoint = map.options.crs.project(points[i]._latlng);
+            var projectedPoint = map.options.crs.project(points[i].latlng);
 
             points[i].x = projectedPoint.x;
             points[i].y = projectedPoint.y;
@@ -116,7 +112,7 @@ L.River = L.Polygon.extend({
             totalLength = points[0].milestone = 0;
 
         for (var i = 0; i < points.length - 1; i++) {
-            var length = map.distance(points[i]._latlng, points[i+1]._latlng);
+            var length = map.distance(points[i].latlng, points[i+1].latlng);
 
             totalLength += length;
             points[i+1].milestone = totalLength;
@@ -145,14 +141,15 @@ L.River = L.Polygon.extend({
             length1, length2,
             vector1, vector2,
             ortVector1, ortVector2, ortVector3,
+            ortPoint,
             ortLength,
             rVector, virtualVector,
             bVector1, bVector2,
             bPoint1, bPoint2,
-            pos, lr,
+            lr,
             cosines,
-            endPoints,
-            r;
+            r,
+            polygon;
 
         // one segment river is senceless
         if (points.length === 2) {
@@ -163,7 +160,7 @@ L.River = L.Polygon.extend({
         for (var i = 1; i <= points.length - 1; i++) {
             prev = points[i-1];
             cur = points[i];
-            r = cur.offset / Math.cos((Math.PI*cur.lat)/180);
+            r = cur.offset / Math.cos((Math.PI*cur.latlng.lat)/180);
 
             if (i < points.length - 1) {
                 next = points[i+1];
@@ -243,25 +240,10 @@ L.River = L.Polygon.extend({
             cur.llb = map.options.crs.unproject(cur.bisectorPoint);
             cur.llb2 = map.options.crs.unproject(cur.bisectorPoint2);
 
-            var markersOptions = {
-                weight: 1,
-                radius: 1,
-                color: 'black',
-                fill: true,
-                fillColor: 'yellow',
-                fillOpacity: 0.8
-            };
-
-            // L.circleMarker(cur.llb, markersOptions).addTo(map);
-            // L.circleMarker(cur.llb2, markersOptions).addTo(map);
-            // L.polyline([cur.llb, cur.llb2], {color: 'red', weight: 0.8}).addTo(map);
-
-            var j = points.length  + points.length - i;
-
             // building polygon
             // from the stsrt point to the end
             if (i === 1) {
-                var polygon = L.polygon([this._startPoint, cur.llb, cur.llb2], {fillOpacity: 0.1}).toGeoJSON();
+                polygon = L.polygon([this._startPoint, cur.llb, cur.llb2], {fillOpacity: 0.1}).toGeoJSON();
                 this._polys.push(polygon);
             } else {
                 var prevSegment = {point1: prev.bisectorPoint, point2: prev.bisectorPoint2},
@@ -269,9 +251,9 @@ L.River = L.Polygon.extend({
                     intersects = L.Util.checkIntersection(prevSegment, curSegment);
 
                     if (intersects) {
-                        var polygon = L.polygon([prev.llb, cur.llb, prev.llb2, cur.llb2], {fillOpacity: 1}).toGeoJSON();
+                        polygon = L.polygon([prev.llb, cur.llb, prev.llb2, cur.llb2], {fillOpacity: 1}).toGeoJSON();
                     } else {
-                        var polygon = L.polygon([prev.llb2, prev.llb, cur.llb, cur.llb2], {fillOpacity: 1}).toGeoJSON();
+                        polygon = L.polygon([prev.llb2, prev.llb, cur.llb, cur.llb2], {fillOpacity: 1}).toGeoJSON();
                     }
                 // turf
                 this._polys[0] = union(this._polys[0], polygon);

@@ -29,10 +29,11 @@ For better perfomance you can specify `endWidth` parameter depending on river le
 ```javascript
 var rivers = L.geoJson(geoJsonData, {
     onEachFeature: function(feature, layer) {
-        var river = L.river(feature.geometry.coordinates, {
-            startWidth: 1,
-            endWidth: feature.properties.length
-        }).addTo(map);
+        var latLngs = L.GeoJSON.coordsToLatLngs(feature.geometry.coordinates),
+            river = L.river(latLngs, {
+                startWidth: 1,
+                endWidth: feature.properties.length
+            }).addTo(map);
     }
 });
 ```
@@ -40,8 +41,9 @@ If you don't have `length` property in your data, you can get river's length wit
 ```javascript
 var rivers = L.geoJson(geoJsonData, {
     onEachFeature: function(feature, layer) {
-        var river = L.river(feature.geometry.coordinates, {
-              startWidth: 1
+        var latLngs = L.GeoJSON.coordsToLatLngs(feature.geometry.coordinates),
+            river = L.river(latLngs, {
+                startWidth: 1
             }),
             length = river.getLength();
 

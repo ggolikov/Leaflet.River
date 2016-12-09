@@ -142,7 +142,7 @@ L.Util.extend(L.Util, {
             return false;
         } else if (d == 0) {
             // TODO: handle 90 degrees angle
-        };
+        }
     },
 
     /**
@@ -161,17 +161,12 @@ L.Util.extend(L.Util, {
         b2 = params2.b,
         c2 = params2.c,
         x1 = segment1.point1.x,
-        y1 = segment1.point1.y,
         x2 = segment1.point2.x,
-        y2 = segment1.point2.y,
         x3 = segment2.point1.x,
-        y3 = segment2.point1.y,
         x4 = segment2.point2.x,
-        y4 = segment2.point2.y,
-        x, y;
+        x;
 
         x = (b1 * c2 / b2 - c1) / (a1 - b1 * a2 / b2);
-        y = - ((a2 * x + c2) / b2);
 
         return ((x1 <= x && x2 >= x) || (x2 <= x && x1 >= x)) && ((x3 <= x && x4 >= x) || (x4 <= x && x3 >= x));
     }
