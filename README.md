@@ -66,4 +66,4 @@ setEndWidth(`Number`)|`this`|Set end river width (meters).
 getStartWidth()|`Number`|Get start river width (meters).
 getEndWidth()|`Number`|Get end river width (meters).
 getLength()|`Number`|Get length of the river. (meters). Useful when there is no length property in initial data.
-convertToPolyline(<options> options?)|`Object`|Convert river polygon to initial polyline.
+convertToPolyline(`options` _options?_)|`Object`|Convert river polygon to initial polyline.
