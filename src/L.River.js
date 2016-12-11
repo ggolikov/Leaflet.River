@@ -5,8 +5,8 @@
 *
 * A class for drawing polygon overlays on a map. Extends `Polygon`.
  */
-var union = require('turf-union');
-// var union = require('martinez-polygon-clipping');
+// var union = require('turf-union');
+var union = require('martinez-polygon-clipping');
 
 L.River = L.Polygon.extend({
     initialize: function (latlngs, options) {
@@ -19,7 +19,9 @@ L.River = L.Polygon.extend({
         this._getProjectedPoints(map);
         this._interpolateLength(map);
         this._countOffset();
+        // console.time('createPolygon');
         this._createPolygon(map);
+        // console.timeEnd('createPolygon');
     },
 
     // conversion method
@@ -256,9 +258,9 @@ L.River = L.Polygon.extend({
                         polygon = L.polygon([prev.llb2, prev.llb, cur.llb, cur.llb2], {fillOpacity: 1}).toGeoJSON();
                     }
                 // turf
-                this._polys[0] = union(this._polys[0], polygon);
+                // this._polys[0] = union(this._polys[0], polygon);
                 // martinez
-                // this._polys[0].geometry.coordinates = union(this._polys[0].geometry.coordinates, polygon.geometry.coordinates, 1);
+                this._polys[0].geometry.coordinates = union(this._polys[0].geometry.coordinates, polygon.geometry.coordinates, 1);
             }
         }
 
@@ -269,6 +271,7 @@ L.River = L.Polygon.extend({
             }
         });
         this._latlngs = lls[0];
+        console.log(this._points.length);
     }
 });
 
