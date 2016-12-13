@@ -19,7 +19,9 @@ L.River = L.Polygon.extend({
         this._getProjectedPoints(map);
         this._interpolateLength(map);
         this._countOffset();
+        // console.time('createPolygon');
         this._createPolygon(map);
+        // console.timeEnd('createPolygon');
     },
 
     // conversion method
@@ -269,6 +271,7 @@ L.River = L.Polygon.extend({
             }
         });
         this._latlngs = lls[0];
+        console.log(this._points.length);
     }
 });
 
