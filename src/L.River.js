@@ -245,7 +245,11 @@ L.River = L.Polygon.extend({
             // building polygon
             // from the stsrt point to the end
             if (i === 1) {
-                polygon = L.polygon([this._startPoint, cur.llb, cur.llb2], {fillOpacity: 0.1}).toGeoJSON();
+                polygon = [
+                    {X: this._startPoint.lng, Y: this._startPoint.lat},
+                    {X: cur.llb.lng, Y: cur.llb.lat},
+                    {X: cur.llb2.lng, Y: cur.llb2.lat}
+                ];
                 this._polys.push(polygon);
             } else {
                 var prevSegment = {point1: prev.bisectorPoint, point2: prev.bisectorPoint2},
@@ -253,17 +257,47 @@ L.River = L.Polygon.extend({
                     intersects = L.Util.checkIntersection(prevSegment, curSegment);
 
                     if (intersects) {
-                        polygon = L.polygon([prev.llb, cur.llb, prev.llb2, cur.llb2], {fillOpacity: 1}).toGeoJSON();
+                        polygon = [
+                            {X: prev.llb.lng, Y: prev.llb.lat},
+                            {X: cur.llb.lng, Y: cur.llb.lat},
+                            {X: prev.llb2.lng, Y: prev.llb2.lat},
+                            {X: cur.llb2.lng, Y: cur.llb2.lat}
+                        ];
                     } else {
-                        polygon = L.polygon([prev.llb2, prev.llb, cur.llb, cur.llb2], {fillOpacity: 1}).toGeoJSON();
+                        polygon = [
+                            {X: prev.llb2.lng, Y: prev.llb2.lat},
+                            {X: prev.llb.lng, Y: prev.llb.lat},
+                            {X: cur.llb.lng, Y: cur.llb.lat},
+                            {X: cur.llb2.lng, Y: cur.llb2.lat}
+                        ];
                     }
                 // turf
-                this._polys[0] = union(this._polys[0], polygon);
+                // this._polys[0] = union(this._polys[0], polygon);
                 // martinez
                 // this._polys[0].geometry.coordinates = union(this._polys[0].geometry.coordinates, polygon.geometry.coordinates, 1);
+                // clipper
+                // console.log(this._polys[0], polygon);
+                var solution = new ClipperLib.Path();
+                var c = new ClipperLib.Clipper();
+                c.AddPath(this._polys[0], ClipperLib.PolyType.ptSubject, true);
+                c.AddPath(polygon, ClipperLib.PolyType.ptClip, true);
+                var res = c.Execute(ClipperLib.ClipType.ctUnion, solution);
+                if (res) console.log(res);
+                // console.log(solution);
+
+                // WORKING EXAMPLE
+                // var subj = [{X:10,Y:10},{X:110,Y:10},{X:110,Y:110},{X:10,Y:110}];
+                // var clip = [{X:50,Y:50},{X:150,Y:50},{X:150,Y:150},{X:50,Y:150}];
+                // var solution = new ClipperLib.Paths();
+                // var c = new ClipperLib.Clipper();
+                // c.AddPath(subj, ClipperLib.PolyType.ptSubject, true);
+                // c.AddPath(clip, ClipperLib.PolyType.ptClip, true);
+                // c.Execute(ClipperLib.ClipType.ctIntersection, solution);
+
             }
         }
-
+        // console.log(polygon);
+        // console.log(this._polys);
         var lls = [];
         this._pol = L.geoJson(this._polys[0], {
             onEachFeature: function(feature, layer) {
