@@ -243,6 +243,8 @@ L.River = L.Polygon.extend({
             cur.llb = map.options.crs.unproject(cur.bisectorPoint);
             cur.llb2 = map.options.crs.unproject(cur.bisectorPoint2);
 
+            // L.polyline([cur.llb, cur.llb2], {color: 'red'}).addTo(map);
+
             // building polygon
             // from the stsrt point to the end
             if (i === 1) {
@@ -255,17 +257,34 @@ L.River = L.Polygon.extend({
                     intersects = L.Util.checkIntersection(prevSegment, curSegment);
 
                     if (intersects) {
-                        polygon = L.polygon([prev.llb, cur.llb, prev.llb2, cur.llb2], {fillColor: 'yellow', fillOpacity: 0.1}).addTo(map);
+                        polygon = L.polygon([prev.llb, cur.llb, prev.llb2, cur.llb2], {fillColor: 'yellow', fillOpacity: 0.1})//.addTo(map);
                         polygonGeoJson = polygon.toGeoJSON();
                     } else {
-                        polygon = L.polygon([prev.llb2, prev.llb, cur.llb, cur.llb2], {fillColor: 'yellow', fillOpacity: 0.1}).addTo(map);
+                        polygon = L.polygon([prev.llb2, prev.llb, cur.llb, cur.llb2], {fillColor: 'yellow', fillOpacity: 0.1})//.addTo(map);
                         polygonGeoJson = polygon.toGeoJSON();
                     }
 
-                    if (i === 369) {
+
+                    if (i === 367) {
                         polygon.setStyle({
-                            fillColor: 'red'
-                        })
+                            fillColor: 'yellow'
+                        }).addTo(map);
+                        // L.polyline([cur.llb, cur.llb2], {color: 'red'}).addTo(map);
+
+                    }
+
+                    if (i === 368) {
+                        polygon.setStyle({
+                            fillColor: 'green'
+                        }).addTo(map);
+                        // L.polyline([cur.llb, cur.llb2], {color: 'red'}).addTo(map);
+
+                    }
+
+                    if (i === 369) {
+                        // polygon.setStyle({
+                        //     fillColor: 'red'
+                        // }).addTo(map);
                         var warnStyle1 = {
                             fillColor: 'red',
                             radius: 10
@@ -278,7 +297,7 @@ L.River = L.Polygon.extend({
 
                         var prevStyle = {
                             fillColor: 'blue',
-                            radius: 4
+                            radius: 1
                         };
 
                         var curStyle = {
@@ -306,17 +325,19 @@ L.River = L.Polygon.extend({
                         // L.circleMarker(warn7, warnStyle2).bindPopup('7').addTo(map);
                         // L.circleMarker(warn8, warnStyle2).bindPopup('8').addTo(map);
 
-                        map.setView(polygon.getCenter(), 15);
+                        // map.setView(polygon.getCenter(), 15);
 
-                        L.circleMarker(prev.llb, prevStyle).bindPopup('prev.llb').addTo(map);
-                        L.circleMarker(prev.llb2, prevStyle).bindPopup('prev.llb2').addTo(map);
-                        L.circleMarker(cur.llb, curStyle).bindPopup('cur.llb').addTo(map);
-                        L.circleMarker(cur.llb2, curStyle).bindPopup('cur.llb2').addTo(map);
+                        // L.circleMarker(prev.llb, prevStyle).bindPopup('prev.llb').addTo(map);
+                        // L.circleMarker(prev.llb2, prevStyle).bindPopup('prev.llb2').addTo(map);
+                        // L.circleMarker(cur.llb, curStyle).bindPopup('cur.llb').addTo(map);
+                        // L.circleMarker(cur.llb2, curStyle).bindPopup('cur.llb2').addTo(map);
+
+                        L.polyline([cur.llb, cur.llb2], {color: 'red'}).addTo(map);
+                        L.polyline([prev.llb, prev.llb2], {color: 'red'}).addTo(map);
 
 
-
-                        console.log([prev.llb2.lng, prev.llb2.lat]);
-                        console.log([cur.llb2.lng, cur.llb2.lat]);
+                        // console.log([prev.llb2.lng, prev.llb2.lat]);
+                        // console.log([cur.llb2.lng, cur.llb2.lat]);
 
                     }
                 // turf
@@ -325,6 +346,13 @@ L.River = L.Polygon.extend({
                 this._polys[0].geometry.coordinates = union(this._polys[0].geometry.coordinates, polygonGeoJson.geometry.coordinates, 1);
             }
         }
+
+        this._polys[0].geometry.coordinates.forEach(function(arr) {
+            console.log(arr);
+            arr.forEach(function(value, index, array){
+                L.circleMarker(L.latLng([value[1], value[0]]), prevStyle).bindPopup('#' + index).addTo(map);
+            })
+        })
 
         var lls = [];
         this._pol = L.geoJson(this._polys[0], {

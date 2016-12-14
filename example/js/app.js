@@ -1,13 +1,30 @@
 var L = global.L || require('leaflet');
 require('../../index.js');
 var testRivers = require('./data/testrivers.js');
+
+// L.Map = L.Map.extend({
+//     openPopup: function(popup) {
+//     //        this.closePopup();  // just comment this
+//         this._popup = popup;
+//         return this.addLayer(popup).fire('popupopen', {
+//             popup: this._popup
+//         });
+//     }
+// }); /***  end of hack ***/
+
 var osm = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Terrain_Base/MapServer/tile/{z}/{y}/{x}', {
         maxZoom: 18,
         attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
     }),
 
     // map
-    map = new L.Map('map', {layers: [osm], center: new L.LatLng(48.935130721045326, 100.22), zoom: 8, maxZoom: 22}),
+    map = new L.Map('map', {
+        layers: [osm],
+        center: new L.LatLng(48.935130721045326, 100.22),
+        zoom: 8,
+        maxZoom: 22,
+        closePopupOnClick: false
+    }),
 
     // test rivers
     rivers = L.geoJson(testRivers, {
