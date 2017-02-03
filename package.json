@@ -3,11 +3,20 @@
   "version": "1.0.0",
   "description": "Leaflet.River",
   "repository": "https://github.com/ggolikov/Leaflet.River",
+  "keywords": [
+    "leaflet",
+    "river",
+    "drawing"
+  ],
   "main": "index.js",
   "author": "Grigory Golikov gr.golikov@gmail.com",
   "license": "MIT",
   "scripts": {
-    "watch": "watchify -v -d example/js/app.js -o example/js/bundle.js"
+    "watch": "watchify -v -d example/js/app.js -o example/js/bundle.js",
+    "build-js": "cat ./src/Utils.js ./src/L.River.js > ./dist/Leaflet.river-src.js",
+    "compress": "uglifyjs ./dist/Leaflet.river-src.js -o ./dist/Leaflet.river.js -m --comments",
+    "server": "live-server --port=3001 --host=localhost --open=example --watch=example",
+    "start": "npm-run-all --parallel watch server"
   },
   "dependencies": {
     "jsdoc": "^3.4.3",
@@ -17,7 +26,9 @@
   },
   "devDependencies": {
     "browserify": "^13.1.1",
-    "serve": "^1.4.0",
+    "live-server": "^1.2.0",
+    "npm-run-all": "^4.0.1",
+    "uglifyjs": "^2.4.10",
     "watchify": "^3.7.0"
   }
 }
