@@ -25,7 +25,7 @@ L.River = L.Polygon.extend({
     },
 
     // conversion method
-    convertToPolyline: function(options) {
+    convertToPolyline: function (options) {
         var points = this._points,
             latlngs = [];
 
@@ -38,36 +38,36 @@ L.River = L.Polygon.extend({
 
     // useful when you bulk load data (e.g. from geojson)
     // without length property
-    getLength: function() {
+    getLength: function () {
         var points = this._points,
             length = points[points.length-1].milestone;
 
         return length;
     },
 
-    setStartWidth: function(startWidth) {
+    setStartWidth: function (startWidth) {
         this.options.startWidth = startWidth;
         this._countOffset();
 
 		return this;
     },
 
-    setEndWidth: function(endWidth) {
+    setEndWidth: function (endWidth) {
         this.options.endWidth = endWidth;
         this._countOffset();
 
 		return this;
     },
 
-    getStartWidth: function() {
+    getStartWidth: function () {
         return this.options.startWidth;
     },
 
-    getEndWidth: function() {
+    getEndWidth: function () {
         return this.options.endWidth;
     },
 
-    _setPoints: function(latlngs) {
+    _setPoints: function (latlngs) {
         var points = [],
             startPoint = L.latLng(latlngs[0].lat, latlngs[0].lng),
             pol,
@@ -97,7 +97,7 @@ L.River = L.Polygon.extend({
         this._latlngs = [];
     },
 
-    _getProjectedPoints: function(map) {
+    _getProjectedPoints: function (map) {
         var points = this._points;
 
         for (var i = 0; i < points.length; i++) {
@@ -109,7 +109,7 @@ L.River = L.Polygon.extend({
     },
 
     // counting milestones in meters on every vertex on polyline
-    _interpolateLength: function(map) {
+    _interpolateLength: function (map) {
         var points = this._points,
             totalLength = points[0].milestone = 0;
 
@@ -122,7 +122,7 @@ L.River = L.Polygon.extend({
     },
 
     // count percentage
-    _countOffset: function() {
+    _countOffset: function () {
         var points = this._points,
             options = this.options,
             start = options.startWidth || 1,
@@ -137,7 +137,7 @@ L.River = L.Polygon.extend({
     },
 
     // creating polygon from initial latlngs;
-    _createPolygon: function(map) {
+    _createPolygon: function (map) {
         var points = this._points,
             prev, cur, next,
             length1, length2,
@@ -159,11 +159,10 @@ L.River = L.Polygon.extend({
             return;
         }
 
-
         for (var i = 1; i <= 369; i++) {
             prev = points[i-1];
             cur = points[i];
-            r = cur.offset / Math.cos((Math.PI*cur.latlng.lat)/180);
+            r = cur.offset / Math.cos((Math.PI * cur.latlng.lat)/180);
 
             if (i < points.length - 1) {
                 next = points[i+1];

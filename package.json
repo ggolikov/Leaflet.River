@@ -13,6 +13,7 @@
   "license": "MIT",
   "scripts": {
     "watch": "watchify -v -d example/js/app.js -o example/js/bundle.js",
+    "lint": "eslint ./src/",
     "build-js": "cat ./src/Utils.js ./src/L.River.js > ./dist/Leaflet.river-src.js",
     "compress": "uglifyjs ./dist/Leaflet.river-src.js -o ./dist/Leaflet.river.js -m --comments",
     "server": "live-server --port=3001 --host=localhost --open=example --watch=example",
@@ -26,6 +27,7 @@
   },
   "devDependencies": {
     "browserify": "^13.1.1",
+    "eslint": "^3.14.1",
     "live-server": "^1.2.0",
     "npm-run-all": "^4.0.1",
     "uglifyjs": "^2.4.10",
