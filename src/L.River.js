@@ -154,13 +154,17 @@ L.River = L.Polygon.extend({
             polygon,
             polygonGeoJson;
 
+        var llbs = [],
+            llb2s = [];
+
         // one segment river is senceless
         if (points.length === 2) {
             return;
         }
 
 
-        for (var i = 1; i <= 369; i++) {
+        // for (var i = 1; i <= 369; i++) {
+        for (var i = 1; i < points.length; i++) {
             prev = points[i-1];
             cur = points[i];
             r = cur.offset / Math.cos((Math.PI*cur.latlng.lat)/180);
@@ -243,7 +247,11 @@ L.River = L.Polygon.extend({
             cur.llb = map.options.crs.unproject(cur.bisectorPoint);
             cur.llb2 = map.options.crs.unproject(cur.bisectorPoint2);
 
-            // L.polyline([cur.llb, cur.llb2], {color: 'red'}).addTo(map);
+            llbs.push(cur.llb);
+            llb2s.push(cur.llb2);
+
+            L.polyline([cur.llb, cur.llb2], {color: 'red'}).addTo(map);
+            L.circleMarker(map.options.crs.unproject(cur)).addTo(map);
 
             // building polygon
             // from the stsrt point to the end
@@ -346,6 +354,9 @@ L.River = L.Polygon.extend({
                 this._polys[0].geometry.coordinates = union(this._polys[0].geometry.coordinates, polygonGeoJson.geometry.coordinates, 1);
             }
         }
+
+        var line1 = L.polyline(llbs).addTo(map);
+        var line2 = L.polyline(llb2s).addTo(map);
 
         this._polys[0].geometry.coordinates.forEach(function(arr) {
             console.log(arr);
