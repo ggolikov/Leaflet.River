@@ -7,6 +7,8 @@
  */
 // var union = require('turf-union');
 var union = require('martinez-polygon-clipping');
+var inside = require('point-in-polygon');
+var leafletPip = require('@mapbox/leaflet-pip');
 
 L.River = L.Polygon.extend({
     initialize: function (latlngs, options) {
@@ -154,12 +156,40 @@ L.River = L.Polygon.extend({
             polygon,
             polygonGeoJson;
 
+        var llbs = [],
+            llb2s = [];
+
+        var endPolygon = [];
+        var endMultiPolygon = [];
+
+        var multiPolygon = [];
+
+        var warnStyle1 = {
+            fillColor: 'red',
+            radius: 4
+        };
+
+        var warnStyle2 = {
+            fillColor: 'orange',
+            radius: 4
+        };
+
+        var prevStyle = {
+            fillColor: 'blue',
+            radius: 4
+        };
+
+        var curStyle = {
+            fillColor: 'green',
+            radius: 4
+        };
+
         // one segment river is senceless
         if (points.length === 2) {
             return;
         }
 
-        for (var i = 1; i <= 369; i++) {
+        for (var i = 1; i < points.length; i++) {
             prev = points[i-1];
             cur = points[i];
             r = cur.offset / Math.cos((Math.PI * cur.latlng.lat)/180);
@@ -242,130 +272,82 @@ L.River = L.Polygon.extend({
             cur.llb = map.options.crs.unproject(cur.bisectorPoint);
             cur.llb2 = map.options.crs.unproject(cur.bisectorPoint2);
 
-            // L.polyline([cur.llb, cur.llb2], {color: 'red'}).addTo(map);
+            // llbs.push(cur.llb);
+            // llb2s.push(cur.llb2);
+
+            L.polyline([cur.llb, cur.llb2], {color: 'red'}).addTo(map);
+            L.circleMarker(map.options.crs.unproject(cur), curStyle).addTo(map);
+            L.circleMarker(cur.llb2, warnStyle1).addTo(map);
 
             // building polygon
             // from the stsrt point to the end
             if (i === 1) {
-                polygon = L.polygon([this._startPoint, cur.llb, cur.llb2], {fillColor: 'yellow', fillOpacity: 0.1}).addTo(map);
+                // endPolygon.push(this._startPoint, cur.llb, cur.llb2);
+                endPolygon = [this._startPoint, cur.llb, cur.llb2];
+                endMultiPolygon.push([endPolygon]);
+                multiPolygon = L.polygon(endMultiPolygon, {fillColor: 'yellow', fillOpacity: 0.1});
+                polygon = L.polygon(endPolygon, {fillColor: 'yellow', fillOpacity: 0.1})//.addTo(map);
+                multiPolygonGeoJson = multiPolygon.toGeoJSON();
                 polygonGeoJson = polygon.toGeoJSON();
-                this._polys.push(polygonGeoJson);
+                var gjLayer = L.geoJson(multiPolygonGeoJson);
+                llb2s.push(cur.llb2);
+                llbs.push(cur.llb);
             } else {
                 var prevSegment = {point1: prev.bisectorPoint, point2: prev.bisectorPoint2},
                     curSegment = {point1: cur.bisectorPoint, point2: cur.bisectorPoint2},
                     intersects = L.Util.checkIntersection(prevSegment, curSegment);
 
                     if (intersects) {
-                        polygon = L.polygon([prev.llb, cur.llb, prev.llb2, cur.llb2], {fillColor: 'yellow', fillOpacity: 0.1})//.addTo(map);
-                        polygonGeoJson = polygon.toGeoJSON();
+                        endPolygon = [prev.llb, cur.llb, prev.llb2, cur.llb2];
+                        // polygon = L.polygon([prev.llb, cur.llb, prev.llb2, cur.llb2], {fillColor: 'yellow', fillOpacity: 0.1})//.addTo(map);
                     } else {
-                        polygon = L.polygon([prev.llb2, prev.llb, cur.llb, cur.llb2], {fillColor: 'yellow', fillOpacity: 0.1})//.addTo(map);
-                        polygonGeoJson = polygon.toGeoJSON();
+                        endPolygon = [prev.llb2, prev.llb, cur.llb, cur.llb2];
+                        // polygon = L.polygon([prev.llb2, prev.llb, cur.llb, cur.llb2], {fillColor: 'yellow', fillOpacity: 0.1})//.addTo(map);
                     }
+                    polygonGeoJson = polygon.toGeoJSON();
+                    endMultiPolygon.push([endPolygon]);
+                    multiPolygon = L.polygon(endMultiPolygon, {fillColor: 'yellow', fillOpacity: 0.1});
+                    multiPolygonGeoJson = multiPolygon.toGeoJSON();
+                    gjLayer = L.geoJson(multiPolygonGeoJson);
 
-                    if (i === 367) {
-                        polygon.setStyle({
-                            color: 'yellow',
-                            fillColor: 'yellow'
-                        }).addTo(map);
-                        // L.polyline([cur.llb, cur.llb2], {color: 'red'}).addTo(map);
+                var insideRes = leafletPip.pointInLayer(cur.llb2, gjLayer, true);
+                debugger;
+                // console.log(insideRes);
 
-                    }
+                if (!insideRes[0]) {
 
-                    if (i === 368) {
-                        polygon.setStyle({
-                            color: 'green',
-                            fillColor: 'green'
-                        }).addTo(map);
-                        // L.polyline([cur.llb, cur.llb2], {color: 'red'}).addTo(map);
+                    llb2s.push(cur.llb2);
+                    // endPolygon.push(cur.llb2);
+                    // polygon = L.polygon(endPolygon, {fillColor: 'yellow', fillOpacity: 0.1})//.addTo(map);
+                    // polygonGeoJson = polygon.toGeoJSON();
+                    // gjLayer = L.geoJson(polygonGeoJson);
+                } else {
+                    // console.log('no point added!');
+                }
 
-                    }
+                var insideRes = leafletPip.pointInLayer(cur.llb, gjLayer, true);
+                if (!insideRes[0]) {
+                    llbs.push(cur.llb);
+                    // endPolygon.push(cur.llb);
+                    // polygon = L.polygon(endPolygon, {fillColor: 'yellow', fillOpacity: 0.1})//.addTo(map);
+                    // polygonGeoJson = polygon.toGeoJSON();
+                    // gjLayer = L.geoJson(polygonGeoJson);
+                } else {
+                    // console.log('no point added!');
+                }
 
-                    if (i === 369) {
-
-                        polygon = L.polygon([prev.llb, prev.llb2, cur.llb,  cur.llb2], {fillColor: 'yellow', fillOpacity: 0.1})//.addTo(map);
-                        polygonGeoJson = polygon.toGeoJSON();
-                        polygon.setStyle({
-                            color: 'red',
-                            fillColor: 'red'
-                        }).addTo(map);
-                        var warnStyle1 = {
-                            fillColor: 'red',
-                            radius: 10
-                        };
-
-                        var warnStyle2 = {
-                            fillColor: 'orange',
-                            radius: 4
-                        };
-
-                        var prevStyle = {
-                            fillColor: 'blue',
-                            radius: 10
-                        };
-
-                        var curStyle = {
-                            fillColor: 'green',
-                            radius: 10
-                        };
-
-                        // var warn1 = L.latLng([48.877105846724376, 99.93987257947543]);
-                        // var warn2 = L.latLng([48.87600398315773, 99.94012480197676]);
-                        // var warn3 = L.latLng([48.88999387797361, 99.93692243975103]);
-                        // var warn4 = L.latLng([48.87600398315773, 99.94012480197676]);
-
-                        // L.circleMarker(warn1, warnStyle1).bindPopup('1').addTo(map);
-                        // L.circleMarker(warn2, warnStyle1).bindPopup('2').addTo(map);
-                        // L.circleMarker(warn3, warnStyle1).bindPopup('3').addTo(map);
-                        // L.circleMarker(warn4, warnStyle1).bindPopup('4').addTo(map);
-
-                        // var warn5 = L.latLng([48.877105846724376, 99.93987257947543]);
-                        // var warn6 = L.latLng([48.87600398315773, 99.94012480197676]);
-                        // var warn7 = L.latLng([48.88999387797361, 99.93692243975103]);
-                        // var warn8 = L.latLng([48.87710584672436, 99.93987257947545]);
-
-                        // L.circleMarker(warn5, warnStyle2).bindPopup('5').addTo(map);
-                        // L.circleMarker(warn6, warnStyle2).bindPopup('6').addTo(map);
-                        // L.circleMarker(warn7, warnStyle2).bindPopup('7').addTo(map);
-                        // L.circleMarker(warn8, warnStyle2).bindPopup('8').addTo(map);
-
-                        map.setView(polygon.getCenter(), 15);
-
-                        L.circleMarker(prev.llb, prevStyle).bindPopup('prev.llb').addTo(map);
-                        L.circleMarker(prev.llb2, prevStyle).bindPopup('prev.llb2').addTo(map);
-                        L.circleMarker(cur.llb, curStyle).bindPopup('cur.llb').addTo(map);
-                        L.circleMarker(cur.llb2, curStyle).bindPopup('cur.llb2').addTo(map);
-
-                        // L.polyline([cur.llb, cur.llb2], {color: 'red'}).addTo(map);
-                        // L.polyline([prev.llb, prev.llb2], {color: 'red'}).addTo(map);
-
-
-                        console.log([prev.llb2.lng, prev.llb2.lat]);
-                        // console.log([cur.llb2.lng, cur.llb2.lat]);
-
-                    }
-                // turf
-                // this._polys[0] = union(this._polys[0], polygon);
-                // martinez
-                // var uni =
-                this._polys[0].geometry.coordinates = union(this._polys[0].geometry.coordinates, polygonGeoJson.geometry.coordinates, 1);
+            // console.log(multiPolygon);
             }
         }
+        // console.log(endPolygon);
+        // console.log(leafletPip);
+        // console.log(polygonGeoJson);
 
-        this._polys[0].geometry.coordinates.forEach(function(arr) {
-            console.log(arr);
-            arr.forEach(function(value, index, array){
-                // L.circleMarker(L.latLng([value[1], value[0]]), prevStyle).bindPopup('#' + index).addTo(map);
-            })
-        })
+        // this._latlngs = endPolygon;
 
-        var lls = [];
-        this._pol = L.geoJson(this._polys[0], {
-            onEachFeature: function(feature, layer) {
-                lls = layer._latlngs;
-            }
-        });
-        this._latlngs = lls[0];
+        var line1 = L.polyline(llbs).addTo(map);
+        var line2 = L.polyline(llb2s).addTo(map);
+        // var  = L.polyline(llb2s).addTo(map);
     }
 });
 

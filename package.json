@@ -20,9 +20,15 @@
     "start": "npm-run-all --parallel watch server"
   },
   "dependencies": {
+    "@mapbox/leaflet-pip": "^1.1.0",
     "jsdoc": "^3.4.3",
+    "kdbush": "^1.0.1",
     "leaflet": "^1.0.1",
+    "leaflet-knn": "^0.1.0",
     "martinez-polygon-clipping": "^0.1.5",
+    "point-in-polygon": "^1.0.1",
+    "rbush": "^2.0.1",
+    "rbush-knn": "^2.0.0",
     "turf-union": "^3.0.12"
   },
   "devDependencies": {
