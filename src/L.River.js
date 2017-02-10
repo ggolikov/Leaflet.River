@@ -311,12 +311,11 @@ L.River = L.Polygon.extend({
                     gjLayer = L.geoJson(multiPolygonGeoJson);
 
                 var insideRes = leafletPip.pointInLayer(cur.llb2, gjLayer, true);
-                debugger;
                 // console.log(insideRes);
 
+                llb2s.push(cur.llb2);
                 if (!insideRes[0]) {
 
-                    llb2s.push(cur.llb2);
                     // endPolygon.push(cur.llb2);
                     // polygon = L.polygon(endPolygon, {fillColor: 'yellow', fillOpacity: 0.1})//.addTo(map);
                     // polygonGeoJson = polygon.toGeoJSON();
@@ -326,8 +325,8 @@ L.River = L.Polygon.extend({
                 }
 
                 var insideRes = leafletPip.pointInLayer(cur.llb, gjLayer, true);
+                llbs.push(cur.llb);
                 if (!insideRes[0]) {
-                    llbs.push(cur.llb);
                     // endPolygon.push(cur.llb);
                     // polygon = L.polygon(endPolygon, {fillColor: 'yellow', fillOpacity: 0.1})//.addTo(map);
                     // polygonGeoJson = polygon.toGeoJSON();
