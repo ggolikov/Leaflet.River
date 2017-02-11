@@ -26,6 +26,7 @@
     "martinez-polygon-clipping": "^0.1.5",
     "rbush": "^2.0.1",
     "rbush-knn": "^2.0.0",
+    "sweepline": "^0.1.0",
     "turf-union": "^3.0.12"
   },
   "devDependencies": {
