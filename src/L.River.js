@@ -159,32 +159,11 @@ L.River = L.Polygon.extend({
         var llbs = [],
             llb2s = [];
 
-        var endPolygon = [];
-        var endMultiPolygon = [];
+        var sweepPoints = [],
+            sweepPoints2 = [];
 
-        var multiPolygon = [];
-        var pol = [
-            {
-                x: 0,
-                y: 1
-            },
-            {
-                x: 1,
-                y: 5
-            },
-            {
-                x: 2,
-                y: 5
-            },
-            {
-                x: 3,
-                y: 4
-            }
-        ];
+
         var sl = require('sweepline');
-            sweepLine = new sl.SweepLine(pol);
-
-        console.log(sweepLine);
 
 
         var warnStyle1 = {
@@ -211,6 +190,12 @@ L.River = L.Polygon.extend({
         if (points.length === 2) {
             return;
         }
+
+        var start = points[0];
+        start.sweepPoint = new sl.Point(start.x, start.y);
+        console.log(start);
+
+        sweepPoints.push(start.sweepPoint);
 
         for (var i = 1; i < points.length; i++) {
             prev = points[i-1];
@@ -292,11 +277,16 @@ L.River = L.Polygon.extend({
             cur.bisectorPoint = L.point(bPoint1.x, bPoint1.y);
             cur.bisectorPoint2 = L.point(bPoint2.x, bPoint2.y);
 
+            cur.sweepPoint = new sl.Point(bPoint1.x, bPoint1.y);
+            cur.sweepPoint2 = new sl.Point(bPoint2.x, bPoint2.y);
+
             cur.llb = map.options.crs.unproject(cur.bisectorPoint);
             cur.llb2 = map.options.crs.unproject(cur.bisectorPoint2);
-
+            sweepPoints.push(cur.sweepPoint);
+            sweepPoints2.unshift(cur.sweepPoint2);
             // llbs.push(cur.llb);
             // llb2s.push(cur.llb2);
+            // console.log(cur);
 
             L.polyline([cur.llb, cur.llb2], {color: 'red'}).addTo(map);
             L.circleMarker(map.options.crs.unproject(cur), curStyle).addTo(map);
@@ -304,17 +294,14 @@ L.River = L.Polygon.extend({
 
             // building polygon
             // from the stsrt point to the end
+
+            // var geojson = [[100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]];
+            // var ppoints  = geojson.map(function(pnt){ return new sl.Point(pnt[0],pnt[1]); });
+            // var polygon = new sl.Polygon(ppoints);
+            // var sweepLine = new sl.SweepLine(polygon);
+            // console.log(polygon, sweepLine);
             if (i === 1) {
                 // endPolygon.push(this._startPoint, cur.llb, cur.llb2);
-                endPolygon = [this._startPoint, cur.llb, cur.llb2];
-                endMultiPolygon.push([endPolygon]);
-                multiPolygon = L.polygon(endMultiPolygon, {fillColor: 'yellow', fillOpacity: 0.1});
-                polygon = L.polygon(endPolygon, {fillColor: 'yellow', fillOpacity: 0.1})//.addTo(map);
-                multiPolygonGeoJson = multiPolygon.toGeoJSON();
-                polygonGeoJson = polygon.toGeoJSON();
-                var gjLayer = L.geoJson(multiPolygonGeoJson);
-                llb2s.push(cur.llb2);
-                llbs.push(cur.llb);
             } else {
                 var prevSegment = {point1: prev.bisectorPoint, point2: prev.bisectorPoint2},
                     curSegment = {point1: cur.bisectorPoint, point2: cur.bisectorPoint2},
@@ -324,47 +311,25 @@ L.River = L.Polygon.extend({
                         endPolygon = [prev.llb, cur.llb, prev.llb2, cur.llb2];
                         // polygon = L.polygon([prev.llb, cur.llb, prev.llb2, cur.llb2], {fillColor: 'yellow', fillOpacity: 0.1})//.addTo(map);
                     } else {
-                        endPolygon = [prev.llb2, prev.llb, cur.llb, cur.llb2];
-                        // polygon = L.polygon([prev.llb2, prev.llb, cur.llb, cur.llb2], {fillColor: 'yellow', fillOpacity: 0.1})//.addTo(map);
                     }
-                    polygonGeoJson = polygon.toGeoJSON();
-                    endMultiPolygon.push([endPolygon]);
-                    multiPolygon = L.polygon(endMultiPolygon, {fillColor: 'yellow', fillOpacity: 0.1});
-                    multiPolygonGeoJson = multiPolygon.toGeoJSON();
-                    gjLayer = L.geoJson(multiPolygonGeoJson);
-
-                // var insideRes = leafletPip.pointInLayer(cur.llb2, gjLayer, true);
-                // debugger;
-                // console.log(insideRes);
 
                 llb2s.push(cur.llb2);
-                if (!insideRes[0]) {
-
-                    // endPolygon.push(cur.llb2);
-                    // polygon = L.polygon(endPolygon, {fillColor: 'yellow', fillOpacity: 0.1})//.addTo(map);
-                    // polygonGeoJson = polygon.toGeoJSON();
-                    // gjLayer = L.geoJson(polygonGeoJson);
-                } else {
-                    // console.log('no point added!');
-                }
-
-                // var insideRes = leafletPip.pointInLayer(cur.llb, gjLayer, true);
-                // if (!insideRes[0]) {
-                //     llbs.push(cur.llb);
-                    // endPolygon.push(cur.llb);
-                    // polygon = L.polygon(endPolygon, {fillColor: 'yellow', fillOpacity: 0.1})//.addTo(map);
-                    // polygonGeoJson = polygon.toGeoJSON();
-                    // gjLayer = L.geoJson(polygonGeoJson);
-                // } else {
-                    // console.log('no point added!');
-                // }
-
-            // console.log(multiPolygon);
             }
         }
-        // console.log(endPolygon);
-        // console.log(leafletPip);
-        // console.log(polygonGeoJson);
+        var sp = sweepPoints.concat(sweepPoints2, [start.sweepPoint]);
+        var polygon = new sl.Polygon(sp);
+        var sweepLine = new sl.SweepLine(polygon);
+        var event_queue = new sl.EventQueue(polygon);
+        console.log(sweepLine);
+        console.log(event_queue);
+        while (ev = event_queue.events.shift()){
+            sweepLine.add(ev);
+            console.log(ev.edge + ':' + ev.type);
+        }
+        console.log(sweepLine);
+        console.log(event_queue);
+        console.log(polygon.simple_polygon());
+
 
         // this._latlngs = endPolygon;
 

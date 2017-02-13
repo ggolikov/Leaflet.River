@@ -39,6 +39,6 @@ function onEachFeature(feature, layer) {
             fillColor: 'blue',
             fillOpacity: 0.5,
             startWidth: 1,
-            endWidth: feature.properties.length / 400
+            endWidth: feature.properties.length / 500
         }).addTo(map);
 }
