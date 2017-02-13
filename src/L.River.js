@@ -173,7 +173,7 @@ L.River = L.Polygon.extend({
 
         var warnStyle2 = {
             fillColor: 'orange',
-            radius: 4
+            radius: 14
         };
 
         var prevStyle = {
@@ -320,15 +320,25 @@ L.River = L.Polygon.extend({
         var polygon = new sl.Polygon(sp);
         var sweepLine = new sl.SweepLine(polygon);
         var event_queue = new sl.EventQueue(polygon);
-        console.log(sweepLine);
-        console.log(event_queue);
-        while (ev = event_queue.events.shift()){
-            sweepLine.add(ev);
-            console.log(ev.edge + ':' + ev.type);
-        }
-        console.log(sweepLine);
-        console.log(event_queue);
-        console.log(polygon.simple_polygon());
+        var intersections = polygon.getIntersections();
+
+        intersections = intersections.map(function(obj){
+            return map.options.crs.unproject(obj.vertex);
+        });
+
+        intersections.forEach(function(ll){
+            L.circleMarker(ll, warnStyle2).addTo(map);
+        });
+        console.log(intersections);
+        // console.log(sweepLine);
+        // console.log(event_queue);
+        // while (ev = event_queue.events.shift()){
+        //     sweepLine.add(ev);
+        //     console.log(ev.edge + ':' + ev.type);
+        // }
+        // console.log(sweepLine);
+        // console.log(event_queue);
+        // console.log(polygon.simple_polygon());
 
 
         // this._latlngs = endPolygon;
