@@ -8,7 +8,7 @@
 // var union = require('turf-union');
 var union = require('martinez-polygon-clipping');
 var inside = require('point-in-polygon');
-var leafletPip = require('@mapbox/leaflet-pip');
+// var leafletPip = require('@mapbox/leaflet-pip');
 
 L.River = L.Polygon.extend({
     initialize: function (latlngs, options) {
@@ -163,6 +163,29 @@ L.River = L.Polygon.extend({
         var endMultiPolygon = [];
 
         var multiPolygon = [];
+        var pol = [
+            {
+                x: 0,
+                y: 1
+            },
+            {
+                x: 1,
+                y: 5
+            },
+            {
+                x: 2,
+                y: 5
+            },
+            {
+                x: 3,
+                y: 4
+            }
+        ];
+        var sl = require('sweepline');
+            sweepLine = new sl.SweepLine(pol);
+
+        console.log(sweepLine);
+
 
         var warnStyle1 = {
             fillColor: 'red',
@@ -310,7 +333,8 @@ L.River = L.Polygon.extend({
                     multiPolygonGeoJson = multiPolygon.toGeoJSON();
                     gjLayer = L.geoJson(multiPolygonGeoJson);
 
-                var insideRes = leafletPip.pointInLayer(cur.llb2, gjLayer, true);
+                // var insideRes = leafletPip.pointInLayer(cur.llb2, gjLayer, true);
+                // debugger;
                 // console.log(insideRes);
 
                 llb2s.push(cur.llb2);
@@ -324,16 +348,16 @@ L.River = L.Polygon.extend({
                     // console.log('no point added!');
                 }
 
-                var insideRes = leafletPip.pointInLayer(cur.llb, gjLayer, true);
-                llbs.push(cur.llb);
-                if (!insideRes[0]) {
+                // var insideRes = leafletPip.pointInLayer(cur.llb, gjLayer, true);
+                // if (!insideRes[0]) {
+                //     llbs.push(cur.llb);
                     // endPolygon.push(cur.llb);
                     // polygon = L.polygon(endPolygon, {fillColor: 'yellow', fillOpacity: 0.1})//.addTo(map);
                     // polygonGeoJson = polygon.toGeoJSON();
                     // gjLayer = L.geoJson(polygonGeoJson);
-                } else {
+                // } else {
                     // console.log('no point added!');
-                }
+                // }
 
             // console.log(multiPolygon);
             }
