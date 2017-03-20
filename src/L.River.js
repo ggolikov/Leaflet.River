@@ -322,8 +322,8 @@ L.River = L.Polygon.extend({
         var event_queue = new sl.EventQueue(polygon);
         var intersections = polygon.getIntersections();
 
-        intersections = intersections.map(function(obj){
-            return map.options.crs.unproject(obj.vertex);
+        intersections = intersections.map(function(point){
+            return map.options.crs.unproject(point);
         });
 
         intersections.forEach(function(ll){
@@ -336,8 +336,8 @@ L.River = L.Polygon.extend({
         //     sweepLine.add(ev);
         //     console.log(ev.edge + ':' + ev.type);
         // }
-        // console.log(sweepLine);
-        // console.log(event_queue);
+        console.log(sweepLine);
+        console.log(event_queue);
         // console.log(polygon.simple_polygon());
 
 
