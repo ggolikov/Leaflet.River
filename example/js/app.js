@@ -1,6 +1,6 @@
 var L = global.L || require('leaflet');
 require('../../index.js');
-var testRivers = require('./data/testrivers.js');
+var testRivers = require('./data/testrivers_all.js');
 
 // L.Map = L.Map.extend({
 //     openPopup: function(popup) {
@@ -11,6 +11,7 @@ var testRivers = require('./data/testrivers.js');
 //         });
 //     }
 // }); /***  end of hack ***/
+
 
 var osm = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Terrain_Base/MapServer/tile/{z}/{y}/{x}', {
         maxZoom: 18,
@@ -37,7 +38,7 @@ function onEachFeature(feature, layer) {
             weight: 1,
             color: 'blue',
             fillColor: 'blue',
-            fillOpacity: 0.5,
+            fillOpacity: 1,
             startWidth: 1,
             endWidth: feature.properties.length / 400
         }).addTo(map);

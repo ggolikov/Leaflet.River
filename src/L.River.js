@@ -6,7 +6,7 @@
 * A class for drawing polygon overlays on a map. Extends `Polygon`.
  */
 // var union = require('turf-union');
-var union = require('martinez-polygon-clipping');
+var martinez = require('martinez-polygon-clipping');
 
 L.River = L.Polygon.extend({
     initialize: function (latlngs, options) {
@@ -250,8 +250,8 @@ L.River = L.Polygon.extend({
             llbs.push(cur.llb);
             llb2s.push(cur.llb2);
 
-            L.polyline([cur.llb, cur.llb2], {color: 'red'}).addTo(map);
-            L.circleMarker(map.options.crs.unproject(cur)).addTo(map);
+            // L.polyline([cur.llb, cur.llb2], {color: 'red'}).addTo(map);
+            // L.circleMarker(map.options.crs.unproject(cur)).addTo(map);
 
             // building polygon
             // from the stsrt point to the end
@@ -351,19 +351,14 @@ L.River = L.Polygon.extend({
                 // turf
                 // this._polys[0] = union(this._polys[0], polygon);
                 // martinez
-                this._polys[0].geometry.coordinates = union(this._polys[0].geometry.coordinates, polygonGeoJson.geometry.coordinates, 1);
+                this._polys[0].geometry.coordinates = martinez.union(this._polys[0].geometry.coordinates, polygonGeoJson.geometry.coordinates, 1);
             }
         }
 
-        var line1 = L.polyline(llbs).addTo(map);
-        var line2 = L.polyline(llb2s).addTo(map);
-
-        this._polys[0].geometry.coordinates.forEach(function(arr) {
-            console.log(arr);
-            arr.forEach(function(value, index, array){
-                L.circleMarker(L.latLng([value[1], value[0]]), prevStyle).bindPopup('#' + index).addTo(map);
-            })
+        var coordsA = this._polys[0].geometry.coordinates.map(function(arr) {
+            return arr[0];
         })
+        this._polys[0].geometry.coordinates = coordsA;
 
         var lls = [];
         this._pol = L.geoJson(this._polys[0], {
@@ -371,7 +366,7 @@ L.River = L.Polygon.extend({
                 lls = layer._latlngs;
             }
         });
-        this._latlngs = lls[0];
+        this._latlngs = lls;
     }
 });
 
