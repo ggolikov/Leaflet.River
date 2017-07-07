@@ -1,0 +1,1 @@
+console.error("SyntaxError: Unexpected token (34:0) while parsing C:\\Users\\golikov\\Github\\ggolikov\\Leaflet.River\\example\\js\\app.js while parsing file: C:\\Users\\golikov\\Github\\ggolikov\\Leaflet.River\\example\\js\\app.js");
