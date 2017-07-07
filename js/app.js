@@ -35,6 +35,5 @@ function onEachFeature(feature, layer) {
             fillOpacity: 0.5
         }).addTo(map);
 
-river.setStartWidth(2);
-        // console.log(river._length);
+        river.setStartWidth(2);
 }
