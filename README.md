@@ -9,6 +9,24 @@ Simple polylines without using Leaflet.River | Using Leaflet.River
 ![simple polylines](https://cloud.githubusercontent.com/assets/17549928/20976102/8390b408-bcb2-11e6-8dd2-7354f4aa86cf.png) |![using Leaflet.River](https://cloud.githubusercontent.com/assets/17549928/20976101/838f5680-bcb2-11e6-8d49-3da1a3ecd25f.png)
 
 ## [Demo](https://ggolikov.github.io/Leaflet.River)
+## Installation
+requires leaflet@1.0.2
+
+
+```
+npm install leaflet-river
+```
+```javascript
+require('leaflet');
+require('leaflet-river');
+```
+or
+
+```html
+<script src="path/to/leaflet@1.0.2/dist/leaflet.js"></script>
+<script src="path/to/Leaflet.river.js"></script>
+```
+
 ## Usage
 To create a L.River, pass an array of latlngs to the factory function as the first argument. The second optional argument is options object.
 ```javascript
