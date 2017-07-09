@@ -15,7 +15,7 @@
   "scripts": {
     "watch": "watchify -v -d demo/js/app.js -o demo/js/bundle.js",
     "lint": "eslint ./src/",
-    "build-js": "cat ./src/Utils.js ./src/L.River.js > ./dist/Leaflet.river-src.js",
+    "build-js": "cat ./src/L.River.js > ./dist/Leaflet.river-src.js",
     "compress": "uglifyjs ./dist/Leaflet.river-src.js -o ./dist/Leaflet.river.js -m --comments",
     "server": "live-server --port=3001 --host=localhost --open=demo --watch=demo",
     "start": "npm-run-all --parallel watch server",
