@@ -1,7 +1,7 @@
 {
   "name": "leaflet-river",
   "version": "1.0.0",
-  "description": "Leaflet.River",
+  "description": "draw rivers on a leaflet map",
   "repository": "https://github.com/ggolikov/Leaflet.River",
   "keywords": [
     "leaflet",
