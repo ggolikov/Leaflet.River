@@ -85,10 +85,6 @@ L.River = L.FeatureGroup.extend({
         })
     },
 
-                // this._polys[0].geometry.coordinates = union(this._polys[0].geometry.coordinates, polygon.geometry.coordinates, 1);
-            }
-        }
-=======
     getMinWidth: function (width) {
         return this.options.minWidth;
     },
@@ -96,7 +92,6 @@ L.River = L.FeatureGroup.extend({
     getMaxWidth: function () {
         return this.options.maxWidth;
     },
->>>>>>> lines
 
     useLength: function (ratio) {
         L.setOptions(this, {ratio: ratio});
