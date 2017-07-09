@@ -35,8 +35,7 @@ var osm = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World
 function onEachFeature(feature, layer) {
     var latLngs = L.GeoJSON.coordsToLatLngs(feature.geometry.coordinates),
         river = L.river(latLngs, {
-            weight: 1,
-            color: 'blue',
+            weight: 0,
             fillColor: 'blue',
             fillOpacity: 1,
             startWidth: 1,
