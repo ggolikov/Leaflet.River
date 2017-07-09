@@ -1,0 +1,64 @@
+html, body {
+    width: 100%;
+    margin: 0px;
+}
+
+body {
+    background-color: #F3F3F3;
+    background-color: white;
+    font-family: Arial;
+}
+
+h2 {
+    text-align: center;
+}
+
+#map {
+    height: 100%;
+}
+
+.wrap {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+}
+.left-panel {
+    width: 350px;
+    height: 100%;
+    float: left;
+        text-align: center;
+}
+
+
+.content {
+    width: 100%;
+    /*text-align: center;*/
+}
+
+.width-setting {
+    vertical-align: middle;
+}
+
+.width-type {
+    width: 100px;
+    float: left;
+    margin-left: 10px;
+}
+
+.min-width-setting {
+    margin-top: 8px;
+}
+
+.max-width-setting {
+    margin-bottom: 8px;
+}
+
+.width-value {
+    width: 100px;
+    float: right;
+}
+
+.reset {
+        width: 100px;
+    margin: auto;
+}
