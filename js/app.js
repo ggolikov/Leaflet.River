@@ -10,7 +10,7 @@ var osm = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World
         layers: [
             osm
         ],
-        center: new L.LatLng(48.935130721045326, 100.22),
+        center: new L.LatLng(48.88657146475083, 99.88243413924278),
         zoom: 8,
         maxZoom: 22,
         closePopupOnClick: false
@@ -24,8 +24,6 @@ var osm = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World
     minValue = document.querySelector('.min-value'),
     maxValue = document.querySelector('.max-value'),
     resetButton = document.querySelector('.reset');
-
-map.fitBounds(rivers.getBounds());
 
 for (var i = 0; i < riverGroup.length; i++) {
     var r = riverGroup[i];
@@ -67,7 +65,7 @@ function onEachFeature(feature, layer) {
              * 10px width at the end
              * use our own ratio depending on your own data
              */
-            ratio: 56939.3
+            ratio: 145.7
         }).addTo(map);
 
     riverGroup.push(river);
