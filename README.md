@@ -55,7 +55,7 @@ L.river(`LatLng[]` _latlngs_, `options` _options?_)| Create river polygon from l
 
 ### Options
 Option|Type|Default|Description
--------|-----------
+----|----|----|----
 minWidth|`Number`|1|Min width of the river (px)
 maxWidth|`Number`|10|Max width of the river (px)
 ratio|`Number`|null|Ratio between river length and max width. Used to draw river depending on its length
