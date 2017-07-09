@@ -41,7 +41,7 @@ L.River = L.FeatureGroup.extend({
             totalLength = 0;
 
         for (var i = 0; i < latLngs.length - 1; i++) {
-            totalLength += map.distance(latLngs[i], latLngs[i+1]);
+            totalLength += map.latLngToLayerPoint(latLngs[i]).distanceTo(map.latLngToLayerPoint(latLngs[i+1]));
         }
 
         return this._length = totalLength;
@@ -62,7 +62,7 @@ L.River = L.FeatureGroup.extend({
         for (var key in layers) {
             layer = layers[key];
             latLngs = layer.getLatLngs();
-            length += map.distance(latLngs[0], latLngs[1]);
+            length += map.latLngToLayerPoint(latLngs[0]).distanceTo(map.latLngToLayerPoint(latLngs[1]));
 
             var percent = length / totalLength;
             var w = opt.minWidth + (opt.maxWidth * percent);
@@ -85,8 +85,21 @@ L.River = L.FeatureGroup.extend({
         })
     },
 
+    getMinWidth: function (width) {
+        return this.options.minWidth;
+    },
+
+    getMaxWidth: function () {
+        return this.options.maxWidth;
+    },
+
     useLength: function (ratio) {
         L.setOptions(this, {ratio: ratio});
+        return this;
+    },
+
+    convertToPolyline: function (options) {
+        return L.polyline(this._latLngs, options);
     }
 });
 
