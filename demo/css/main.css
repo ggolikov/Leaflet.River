@@ -23,42 +23,49 @@ h2 {
     margin: 0;
 }
 .left-panel {
-    width: 350px;
+    width: 360px;
     height: 100%;
     float: left;
-        text-align: center;
+    text-align: center;
 }
-
 
 .content {
     width: 100%;
-    /*text-align: center;*/
 }
 
 .width-setting {
     vertical-align: middle;
 }
 
-.width-type {
-    width: 100px;
-    float: left;
-    margin-left: 10px;
-}
-
-.min-width-setting {
-    margin-top: 8px;
-}
-
-.max-width-setting {
-    margin-bottom: 8px;
-}
-
-.width-value {
-    width: 100px;
-    float: right;
-}
-
 .reset {
-        width: 100px;
+    width: 120px;
     margin: auto;
+}
+
+.div-table {
+    margin: 8 0;
+    display: table;
+    width: auto;
+}
+
+.div-table-row {
+    display: table-row;
+    width: auto;
+    clear: both;
+}
+
+.div-table-col {
+    float: left; /* fix for  buggy browsers */
+    display: table-column;
+    width: 120px;
+    max-width: 120px;
+}
+
+.div-table-col input {
+    width: 120px;
+    margin: 0;
+}
+
+.div-table-col .width-type {
+    text-align: left;
 }
