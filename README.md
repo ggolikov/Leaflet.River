@@ -82,7 +82,7 @@ Options, inherited from `Path` options| | |Styling options
 ### Methods
 Method|Returns|Description
 ------|-------|-----------
-setMintWidth(`Number`)|`this`|Set min river width (px).
+setMinWidth(`Number`)|`this`|Set min river width (px).
 setMaxWidth(`Number`)|`this`|Set max river width (px).
 getMinWidth()|`Number`|Get min river width (px).
 getMaxWidth()|`Number`|Get max river width (px).
