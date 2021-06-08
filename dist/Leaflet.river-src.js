@@ -1,9 +1,9 @@
 /*
 * @class River
 * @aka L.River
-* @inherits LayerGroup
+* @inherits FeatureGroup
 *
-* A class for drawing 'flowing' ploylines. Extends `LayerGroup`.
+* A class for drawing 'flowing' ploylines. Extends `FeatureGroup`.
  */
 
 L.River = L.FeatureGroup.extend({
@@ -85,7 +85,7 @@ L.River = L.FeatureGroup.extend({
         })
     },
 
-    getMinWidth: function (width) {
+    getMinWidth: function () {
         return this.options.minWidth;
     },
 

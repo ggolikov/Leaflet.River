@@ -85,7 +85,7 @@ L.River = L.FeatureGroup.extend({
         })
     },
 
-    getMinWidth: function (width) {
+    getMinWidth: function () {
         return this.options.minWidth;
     },
 
