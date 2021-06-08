@@ -10,6 +10,7 @@
     "drawing"
   ],
   "main": "index.js",
+  "types": "index.d.ts",
   "author": "Grigory Golikov gr.golikov@gmail.com",
   "license": "MIT",
   "scripts": {
